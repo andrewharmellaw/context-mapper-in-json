@@ -186,23 +186,7 @@ context-mapper-json-converter/
 
 ## Roadmap
 
-### Phase 2: Strategic Patterns (Planned)
-- Customer/Supplier and Upstream/Downstream relationships
-- Subdomain definitions and mappings
-- Enhanced relationship attributes and roles
-- Advanced validation rules
-
-### Phase 3: Tactical Patterns (Planned)
-- Aggregates, Entities, Value Objects
-- Domain Events, Commands, Services
-- Complex nested structures
-- Performance optimization
-
-### Phase 4: Advanced Features (Planned)
-- Round-trip validation (CML → JSON → CML)
-- Integration with Context Mapper toolchain
-- Advanced error recovery
-- Performance optimization for large models
+Add an Issue, or submit a PR if there is a feature you want to see added.
 
 ## Contributing
 
