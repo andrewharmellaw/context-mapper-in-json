@@ -13,67 +13,59 @@ BOUNDED_CONTEXT_SCHEMA = {
             "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
             "minLength": 1,
             "maxLength": 100,
-            "description": "Name of the Bounded Context. Must start with a letter and contain only letters, numbers, and underscores."
+            "description": "Name of the Bounded Context. Must start with a letter and contain only letters, numbers, and underscores.",
         },
         "type": {
             "type": "string",
             "enum": ["FEATURE", "APPLICATION", "SYSTEM", "TEAM"],
-            "description": "Type of the Bounded Context. FEATURE=business capability, APPLICATION=software system, SYSTEM=technical system, TEAM=organizational unit."
+            "description": "Type of the Bounded Context. FEATURE=business capability, APPLICATION=software system, SYSTEM=technical system, TEAM=organizational unit.",
         },
         "implements": {
             "type": "array",
-            "items": {
-                "type": "string",
-                "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
-            },
+            "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$"},
             "uniqueItems": True,
-            "description": "List of Subdomain names that this Bounded Context implements"
+            "description": "List of Subdomain names that this Bounded Context implements",
         },
         "realizes": {
             "type": "string",
             "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-            "description": "Name of another Bounded Context that this TEAM type context realizes (only valid for TEAM type)"
+            "description": "Name of another Bounded Context that this TEAM type context realizes (only valid for TEAM type)",
         },
         "domainVisionStatement": {
             "type": "string",
             "maxLength": 500,
-            "description": "A brief statement describing the domain vision and purpose of this Bounded Context"
+            "description": "A brief statement describing the domain vision and purpose of this Bounded Context",
         },
         "implementationTechnology": {
             "type": "string",
             "maxLength": 200,
-            "description": "Technology stack used to implement this Bounded Context (e.g., Java Spring Boot, Python Django)"
+            "description": "Technology stack used to implement this Bounded Context (e.g., Java Spring Boot, Python Django)",
         },
         "responsibilities": {
             "type": "array",
-            "items": {
-                "type": "string",
-                "maxLength": 200
-            },
-            "description": "List of key responsibilities of this Bounded Context"
+            "items": {"type": "string", "maxLength": 200},
+            "description": "List of key responsibilities of this Bounded Context",
         },
         "knowledgeLevel": {
             "type": "string",
             "enum": ["CONCRETE", "META"],
-            "description": "Knowledge level of the Bounded Context. CONCRETE=specific domain knowledge, META=abstract/framework knowledge."
+            "description": "Knowledge level of the Bounded Context. CONCRETE=specific domain knowledge, META=abstract/framework knowledge.",
         },
         "businessModel": {
             "type": "string",
             "enum": ["REVENUE", "ENGAGEMENT", "COMPLIANCE", "COST_REDUCTION"],
-            "description": "Primary business model driver for this Bounded Context"
+            "description": "Primary business model driver for this Bounded Context",
         },
         "evolution": {
             "type": "string",
             "enum": ["GENESIS", "CUSTOM_BUILT", "PRODUCT", "COMMODITY"],
-            "description": "Evolution stage of the Bounded Context according to Wardley Maps"
+            "description": "Evolution stage of the Bounded Context according to Wardley Maps",
         },
         "aggregates": {
             "type": "array",
-            "items": {
-                "$ref": "#/$defs/aggregate"
-            },
-            "description": "List of Aggregates within this Bounded Context"
-        }
+            "items": {"$ref": "#/$defs/aggregate"},
+            "description": "List of Aggregates within this Bounded Context",
+        },
     },
     "required": ["name", "type"],
     "additionalProperties": False,
@@ -84,56 +76,56 @@ BOUNDED_CONTEXT_SCHEMA = {
                 "name": {
                     "type": "string",
                     "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                    "description": "Name of the Aggregate"
+                    "description": "Name of the Aggregate",
                 },
                 "entities": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/entity"},
-                    "description": "Entities within this Aggregate"
+                    "description": "Entities within this Aggregate",
                 },
                 "valueObjects": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/valueObject"},
-                    "description": "Value Objects within this Aggregate"
+                    "description": "Value Objects within this Aggregate",
                 },
                 "domainEvents": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/domainEvent"},
-                    "description": "Domain Events published by this Aggregate"
+                    "description": "Domain Events published by this Aggregate",
                 },
                 "commands": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/command"},
-                    "description": "Commands handled by this Aggregate"
+                    "description": "Commands handled by this Aggregate",
                 },
                 "services": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/service"},
-                    "description": "Domain Services within this Aggregate"
+                    "description": "Domain Services within this Aggregate",
                 },
                 "repositories": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/repository"},
-                    "description": "Repositories for this Aggregate"
+                    "description": "Repositories for this Aggregate",
                 },
                 "owner": {
                     "type": "string",
                     "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                    "description": "Team or Bounded Context that owns this Aggregate"
+                    "description": "Team or Bounded Context that owns this Aggregate",
                 },
                 "knowledgeLevel": {
                     "type": "string",
                     "enum": ["CONCRETE", "META"],
-                    "description": "Knowledge level of the Aggregate"
+                    "description": "Knowledge level of the Aggregate",
                 },
                 "likelihoodForChange": {
                     "type": "string",
                     "enum": ["OFTEN", "NORMAL", "RARELY"],
-                    "description": "Expected frequency of changes to this Aggregate"
-                }
+                    "description": "Expected frequency of changes to this Aggregate",
+                },
             },
             "required": ["name"],
-            "additionalProperties": False
+            "additionalProperties": False,
         },
         "entity": {
             "type": "object",
@@ -141,25 +133,25 @@ BOUNDED_CONTEXT_SCHEMA = {
                 "name": {
                     "type": "string",
                     "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                    "description": "Name of the Entity"
+                    "description": "Name of the Entity",
                 },
                 "aggregateRoot": {
                     "type": "boolean",
-                    "description": "Whether this Entity is the Aggregate Root"
+                    "description": "Whether this Entity is the Aggregate Root",
                 },
                 "attributes": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/attribute"},
-                    "description": "Attributes of the Entity"
+                    "description": "Attributes of the Entity",
                 },
                 "operations": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/operation"},
-                    "description": "Operations/methods of the Entity"
-                }
+                    "description": "Operations/methods of the Entity",
+                },
             },
             "required": ["name"],
-            "additionalProperties": False
+            "additionalProperties": False,
         },
         "valueObject": {
             "type": "object",
@@ -167,21 +159,21 @@ BOUNDED_CONTEXT_SCHEMA = {
                 "name": {
                     "type": "string",
                     "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                    "description": "Name of the Value Object"
+                    "description": "Name of the Value Object",
                 },
                 "attributes": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/attribute"},
-                    "description": "Attributes of the Value Object"
+                    "description": "Attributes of the Value Object",
                 },
                 "operations": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/operation"},
-                    "description": "Operations/methods of the Value Object"
-                }
+                    "description": "Operations/methods of the Value Object",
+                },
             },
             "required": ["name"],
-            "additionalProperties": False
+            "additionalProperties": False,
         },
         "domainEvent": {
             "type": "object",
@@ -189,16 +181,16 @@ BOUNDED_CONTEXT_SCHEMA = {
                 "name": {
                     "type": "string",
                     "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                    "description": "Name of the Domain Event"
+                    "description": "Name of the Domain Event",
                 },
                 "attributes": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/attribute"},
-                    "description": "Attributes of the Domain Event"
-                }
+                    "description": "Attributes of the Domain Event",
+                },
             },
             "required": ["name"],
-            "additionalProperties": False
+            "additionalProperties": False,
         },
         "command": {
             "type": "object",
@@ -206,16 +198,16 @@ BOUNDED_CONTEXT_SCHEMA = {
                 "name": {
                     "type": "string",
                     "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                    "description": "Name of the Command"
+                    "description": "Name of the Command",
                 },
                 "attributes": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/attribute"},
-                    "description": "Attributes/parameters of the Command"
-                }
+                    "description": "Attributes/parameters of the Command",
+                },
             },
             "required": ["name"],
-            "additionalProperties": False
+            "additionalProperties": False,
         },
         "service": {
             "type": "object",
@@ -223,16 +215,16 @@ BOUNDED_CONTEXT_SCHEMA = {
                 "name": {
                     "type": "string",
                     "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                    "description": "Name of the Domain Service"
+                    "description": "Name of the Domain Service",
                 },
                 "operations": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/operation"},
-                    "description": "Operations provided by the Service"
-                }
+                    "description": "Operations provided by the Service",
+                },
             },
             "required": ["name"],
-            "additionalProperties": False
+            "additionalProperties": False,
         },
         "repository": {
             "type": "object",
@@ -240,16 +232,16 @@ BOUNDED_CONTEXT_SCHEMA = {
                 "name": {
                     "type": "string",
                     "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                    "description": "Name of the Repository"
+                    "description": "Name of the Repository",
                 },
                 "operations": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/operation"},
-                    "description": "Operations provided by the Repository"
-                }
+                    "description": "Operations provided by the Repository",
+                },
             },
             "required": ["name"],
-            "additionalProperties": False
+            "additionalProperties": False,
         },
         "attribute": {
             "type": "object",
@@ -257,23 +249,20 @@ BOUNDED_CONTEXT_SCHEMA = {
                 "name": {
                     "type": "string",
                     "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                    "description": "Name of the attribute"
+                    "description": "Name of the attribute",
                 },
-                "type": {
-                    "type": "string",
-                    "description": "Data type of the attribute"
-                },
+                "type": {"type": "string", "description": "Data type of the attribute"},
                 "key": {
                     "type": "boolean",
-                    "description": "Whether this attribute is a key/identifier"
+                    "description": "Whether this attribute is a key/identifier",
                 },
                 "nullable": {
                     "type": "boolean",
-                    "description": "Whether this attribute can be null"
-                }
+                    "description": "Whether this attribute can be null",
+                },
             },
             "required": ["name", "type"],
-            "additionalProperties": False
+            "additionalProperties": False,
         },
         "operation": {
             "type": "object",
@@ -281,25 +270,25 @@ BOUNDED_CONTEXT_SCHEMA = {
                 "name": {
                     "type": "string",
                     "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                    "description": "Name of the operation"
+                    "description": "Name of the operation",
                 },
                 "parameters": {
                     "type": "array",
                     "items": {"$ref": "#/$defs/parameter"},
-                    "description": "Parameters of the operation"
+                    "description": "Parameters of the operation",
                 },
                 "returnType": {
                     "type": "string",
-                    "description": "Return type of the operation"
+                    "description": "Return type of the operation",
                 },
                 "visibility": {
                     "type": "string",
                     "enum": ["PUBLIC", "PRIVATE", "PROTECTED"],
-                    "description": "Visibility of the operation"
-                }
+                    "description": "Visibility of the operation",
+                },
             },
             "required": ["name"],
-            "additionalProperties": False
+            "additionalProperties": False,
         },
         "parameter": {
             "type": "object",
@@ -307,38 +296,21 @@ BOUNDED_CONTEXT_SCHEMA = {
                 "name": {
                     "type": "string",
                     "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-                    "description": "Name of the parameter"
+                    "description": "Name of the parameter",
                 },
-                "type": {
-                    "type": "string",
-                    "description": "Data type of the parameter"
-                }
+                "type": {"type": "string", "description": "Data type of the parameter"},
             },
             "required": ["name", "type"],
-            "additionalProperties": False
-        }
+            "additionalProperties": False,
+        },
     },
     "allOf": [
         {
-            "if": {
-                "properties": {
-                    "type": {"const": "TEAM"}
-                }
-            },
-            "then": {
-                "properties": {
-                    "realizes": {
-                        "type": "string"
-                    }
-                }
-            },
-            "else": {
-                "not": {
-                    "required": ["realizes"]
-                }
-            }
+            "if": {"properties": {"type": {"const": "TEAM"}}},
+            "then": {"properties": {"realizes": {"type": "string"}}},
+            "else": {"not": {"required": ["realizes"]}},
         }
-    ]
+    ],
 }
 
 # Validation rules for semantic constraints

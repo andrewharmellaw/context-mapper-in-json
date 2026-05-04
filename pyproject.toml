@@ -4,19 +4,27 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "context-mapper-json-converter"
-version = "0.1.0"
-description = "Convert JSON definitions to Context Mapper DSL (CML) code"
+version = "1.0.0"
+description = "Convert JSON definitions to Context Mapper DSL (CML) code with comprehensive validation"
 readme = "README.md"
+license = {text = "MIT"}
+authors = [
+    {name = "Context Mapper JSON Converter Contributors", email = "maintainers@context-mapper-converter.com"}
+]
+keywords = ["context-mapper", "domain-driven-design", "ddd", "json", "cml", "converter", "validation", "bounded-context", "context-map"]
 requires-python = ">=3.8"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development :: Code Generators",
+    "Topic :: Software Development :: Libraries :: Python Modules",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: OS Independent",
 ]
 dependencies = [
     "jsonschema>=4.17.0",
@@ -34,13 +42,26 @@ dev = [
     "flake8>=5.0.0",
     "mypy>=1.0.0",
 ]
+test = [
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "hypothesis>=6.70.0",
+]
+docs = [
+    "sphinx>=6.0.0",
+    "sphinx-rtd-theme>=1.2.0",
+    "myst-parser>=1.0.0",
+]
 
 [project.scripts]
-cml-convert = "src.cli:main"
+cml-convert = "context_mapper_json_converter.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
-where = ["."]
-include = ["src*"]
+where = ["src"]
+include = ["context_mapper_json_converter*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -81,3 +102,8 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
+
+[project.urls]
+"Bug Reports" = "https://github.com/ContextMapper/context-mapper-json-converter/issues"
+"Source" = "https://github.com/ContextMapper/context-mapper-json-converter"
+"Documentation" = "https://github.com/ContextMapper/context-mapper-json-converter/blob/main/docs/README.md"

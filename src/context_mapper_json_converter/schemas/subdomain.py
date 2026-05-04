@@ -13,39 +13,33 @@ SUBDOMAIN_SCHEMA = {
             "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
             "minLength": 1,
             "maxLength": 100,
-            "description": "Name of the Subdomain. Must start with a letter and contain only letters, numbers, and underscores."
+            "description": "Name of the Subdomain. Must start with a letter and contain only letters, numbers, and underscores.",
         },
         "type": {
             "type": "string",
             "enum": ["CORE_DOMAIN", "SUPPORTING_DOMAIN", "GENERIC_SUBDOMAIN"],
-            "description": "Type of subdomain according to DDD strategic design"
+            "description": "Type of subdomain according to DDD strategic design",
         },
         "domainVisionStatement": {
             "type": "string",
             "maxLength": 500,
-            "description": "A brief statement describing the subdomain's purpose and scope"
+            "description": "A brief statement describing the subdomain's purpose and scope",
         },
         "entities": {
             "type": "array",
-            "items": {
-                "type": "string",
-                "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
-            },
+            "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$"},
             "uniqueItems": True,
-            "description": "List of main entities in this subdomain"
+            "description": "List of main entities in this subdomain",
         },
         "services": {
             "type": "array",
-            "items": {
-                "type": "string",
-                "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
-            },
+            "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$"},
             "uniqueItems": True,
-            "description": "List of domain services in this subdomain"
-        }
+            "description": "List of domain services in this subdomain",
+        },
     },
     "required": ["name", "type"],
-    "additionalProperties": False
+    "additionalProperties": False,
 }
 
 # Validation rules for semantic constraints
