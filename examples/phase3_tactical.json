@@ -1,0 +1,114 @@
+{
+  "contextMap": {
+    "name": "OrderManagementSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["OrderManagement"]
+  },
+  "boundedContexts": [
+    {
+      "name": "OrderManagement",
+      "type": "FEATURE",
+      "domainVisionStatement": "Manages customer orders and order processing",
+      "aggregates": [
+        {
+          "name": "Order",
+          "knowledgeLevel": "CONCRETE",
+          "likelihoodForChange": "NORMAL",
+          "entities": [
+            {
+              "name": "Order",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "orderId",
+                  "type": "OrderId",
+                  "key": true
+                },
+                {
+                  "name": "customerId",
+                  "type": "CustomerId"
+                },
+                {
+                  "name": "status",
+                  "type": "OrderStatus"
+                }
+              ],
+              "operations": [
+                {
+                  "name": "placeOrder",
+                  "parameters": [
+                    {"name": "customerId", "type": "CustomerId"},
+                    {"name": "items", "type": "List<OrderItem>"}
+                  ],
+                  "returnType": "void",
+                  "visibility": "PUBLIC"
+                }
+              ]
+            }
+          ],
+          "valueObjects": [
+            {
+              "name": "OrderId",
+              "attributes": [
+                {
+                  "name": "value",
+                  "type": "String"
+                }
+              ]
+            }
+          ],
+          "domainEvents": [
+            {
+              "name": "OrderPlaced",
+              "attributes": [
+                {
+                  "name": "orderId",
+                  "type": "OrderId"
+                },
+                {
+                  "name": "timestamp",
+                  "type": "DateTime"
+                }
+              ]
+            }
+          ],
+          "commands": [
+            {
+              "name": "PlaceOrderCommand",
+              "attributes": [
+                {
+                  "name": "customerId",
+                  "type": "CustomerId"
+                }
+              ]
+            }
+          ],
+          "services": [
+            {
+              "name": "OrderPricingService",
+              "operations": [
+                {
+                  "name": "calculateTotal",
+                  "parameters": [{"name": "items", "type": "List<OrderItem>"}],
+                  "returnType": "Money"
+                }
+              ]
+            }
+          ],
+          "repositories": [
+            {
+              "name": "OrderRepository",
+              "operations": [
+                {
+                  "name": "save",
+                  "parameters": [{"name": "order", "type": "Order"}],
+                  "returnType": "void"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

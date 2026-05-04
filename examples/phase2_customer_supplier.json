@@ -1,0 +1,46 @@
+{
+  "contextMap": {
+    "name": "ECommerceSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["OrderManagement", "PaymentService", "InventoryService"],
+    "relationships": [
+      {
+        "type": "CustomerSupplier",
+        "upstream": "PaymentService",
+        "downstream": "OrderManagement",
+        "upstreamRoles": ["OHS", "PL"],
+        "downstreamRoles": ["ACL"],
+        "implementationTechnology": "REST API",
+        "exposedAggregates": ["Payment", "Transaction"]
+      },
+      {
+        "type": "UpstreamDownstream", 
+        "upstream": "InventoryService",
+        "downstream": "OrderManagement",
+        "upstreamRoles": ["OHS"],
+        "downstreamRoles": ["CF"],
+        "implementationTechnology": "Message Queue"
+      }
+    ]
+  },
+  "boundedContexts": [
+    {
+      "name": "OrderManagement",
+      "type": "FEATURE",
+      "domainVisionStatement": "Manages customer orders and order lifecycle",
+      "implementationTechnology": "Java Spring Boot"
+    },
+    {
+      "name": "PaymentService",
+      "type": "SYSTEM",
+      "domainVisionStatement": "Handles payment processing and transactions",
+      "implementationTechnology": "Python FastAPI"
+    },
+    {
+      "name": "InventoryService",
+      "type": "SYSTEM", 
+      "domainVisionStatement": "Manages product inventory and stock levels",
+      "implementationTechnology": "Node.js Express"
+    }
+  ]
+}

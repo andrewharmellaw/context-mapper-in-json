@@ -1,0 +1,51 @@
+{
+  "domainName": "ECommerceDomain",
+  "contextMap": {
+    "name": "ECommerceContextMap",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["OrderManagement", "ProductCatalog", "UserManagement"]
+  },
+  "subdomains": [
+    {
+      "name": "OrderProcessing",
+      "type": "CORE_DOMAIN",
+      "domainVisionStatement": "Core business capability for processing customer orders",
+      "entities": ["Order", "OrderItem", "Customer"],
+      "services": ["OrderService", "PricingService"]
+    },
+    {
+      "name": "ProductManagement",
+      "type": "SUPPORTING_DOMAIN",
+      "domainVisionStatement": "Supporting capability for managing product catalog",
+      "entities": ["Product", "Category", "Brand"],
+      "services": ["ProductService", "CategoryService"]
+    },
+    {
+      "name": "Authentication",
+      "type": "GENERIC_SUBDOMAIN",
+      "domainVisionStatement": "Generic user authentication and authorization",
+      "entities": ["User", "Role", "Permission"],
+      "services": ["AuthService", "UserService"]
+    }
+  ],
+  "boundedContexts": [
+    {
+      "name": "OrderManagement",
+      "type": "FEATURE",
+      "implements": ["OrderProcessing"],
+      "domainVisionStatement": "Implements order processing capabilities"
+    },
+    {
+      "name": "ProductCatalog",
+      "type": "APPLICATION",
+      "implements": ["ProductManagement"],
+      "domainVisionStatement": "Implements product catalog management"
+    },
+    {
+      "name": "UserManagement",
+      "type": "SYSTEM",
+      "implements": ["Authentication"],
+      "domainVisionStatement": "Implements user authentication system"
+    }
+  ]
+}

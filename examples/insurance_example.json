@@ -1,0 +1,30 @@
+{
+  "contextMap": {
+    "name": "InsuranceContextMap",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["PolicyManagement", "ClaimsProcessing"],
+    "relationships": [
+      {
+        "type": "Partnership",
+        "upstream": "PolicyManagement",
+        "downstream": "ClaimsProcessing"
+      }
+    ]
+  },
+  "boundedContexts": [
+    {
+      "name": "PolicyManagement",
+      "type": "FEATURE",
+      "domainVisionStatement": "Manages insurance policies and customer data",
+      "implementationTechnology": "Java Spring Boot",
+      "responsibilities": ["Policy creation", "Customer management", "Premium calculation"]
+    },
+    {
+      "name": "ClaimsProcessing", 
+      "type": "FEATURE",
+      "domainVisionStatement": "Processes insurance claims and settlements",
+      "implementationTechnology": "Python Django",
+      "responsibilities": ["Claim intake", "Damage assessment", "Settlement processing"]
+    }
+  ]
+}
