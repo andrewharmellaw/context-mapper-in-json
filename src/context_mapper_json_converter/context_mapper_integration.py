@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .enums import ValidationErrorType
 from .exceptions import ConversionError
 from .types import ContextMapperDocument
 from .validation import ValidationError, ValidationResult
@@ -125,7 +126,7 @@ class ContextMapperIntegration:
                 ValidationError(
                     message="No Context Mapper CLI tools available for validation",
                     property_path="",
-                    error_type="INTEGRATION_WARNING",
+                    error_type=ValidationErrorType.INTEGRATION_WARNING,
                     suggestion="Install Context Mapper CLI or Java-based tools for enhanced validation",
                 )
             )
@@ -162,7 +163,7 @@ class ContextMapperIntegration:
                         ValidationError(
                             message="Using basic Java validation - install Context Mapper CLI for full validation",
                             property_path="",
-                            error_type="INTEGRATION_WARNING",
+                            error_type=ValidationErrorType.INTEGRATION_WARNING,
                         )
                     )
 
@@ -176,7 +177,7 @@ class ContextMapperIntegration:
                 ValidationError(
                     message=f"CLI validation error: {str(e)}",
                     property_path="",
-                    error_type="INTEGRATION_ERROR",
+                    error_type=ValidationErrorType.INTEGRATION_ERROR,
                 )
             )
 
@@ -205,7 +206,7 @@ class ContextMapperIntegration:
                             ValidationError(
                                 message=line.strip(),
                                 property_path="",
-                                error_type="CONTEXTMAPPER_CLI_ERROR",
+                                error_type=ValidationErrorType.CONTEXTMAPPER_CLI_ERROR,
                             )
                         )
             else:
@@ -213,7 +214,7 @@ class ContextMapperIntegration:
                     ValidationError(
                         message="CML validated successfully with Context Mapper CLI",
                         property_path="",
-                        error_type="INTEGRATION_SUCCESS",
+                        error_type=ValidationErrorType.INTEGRATION_SUCCESS,
                     )
                 )
 
@@ -222,7 +223,7 @@ class ContextMapperIntegration:
                 ValidationError(
                     message="Context Mapper CLI validation timed out",
                     property_path="",
-                    error_type="INTEGRATION_TIMEOUT",
+                    error_type=ValidationErrorType.INTEGRATION_TIMEOUT,
                 )
             )
         except (OSError, subprocess.SubprocessError) as e:
@@ -230,7 +231,7 @@ class ContextMapperIntegration:
                 ValidationError(
                     message=f"Context Mapper CLI error: {str(e)}",
                     property_path="",
-                    error_type="INTEGRATION_ERROR",
+                    error_type=ValidationErrorType.INTEGRATION_ERROR,
                 )
             )
 
@@ -255,7 +256,7 @@ class ContextMapperIntegration:
                     ValidationError(
                         message=f"CML CLI validation failed: {cmd_result.stderr}",
                         property_path="",
-                        error_type="CML_CLI_ERROR",
+                        error_type=ValidationErrorType.CML_CLI_ERROR,
                     )
                 )
             else:
@@ -263,7 +264,7 @@ class ContextMapperIntegration:
                     ValidationError(
                         message="CML validated successfully with CML CLI",
                         property_path="",
-                        error_type="INTEGRATION_SUCCESS",
+                        error_type=ValidationErrorType.INTEGRATION_SUCCESS,
                     )
                 )
 
@@ -272,7 +273,7 @@ class ContextMapperIntegration:
                 ValidationError(
                     message="CML CLI validation timed out",
                     property_path="",
-                    error_type="INTEGRATION_TIMEOUT",
+                    error_type=ValidationErrorType.INTEGRATION_TIMEOUT,
                 )
             )
         except (OSError, subprocess.SubprocessError) as e:
@@ -280,7 +281,7 @@ class ContextMapperIntegration:
                 ValidationError(
                     message=f"CML CLI error: {str(e)}",
                     property_path="",
-                    error_type="INTEGRATION_ERROR",
+                    error_type=ValidationErrorType.INTEGRATION_ERROR,
                 )
             )
 
@@ -306,7 +307,7 @@ class ContextMapperIntegration:
                 ValidationError(
                     message="Context Mapper CLI not available for artifact generation",
                     property_path="",
-                    error_type="INTEGRATION_WARNING",
+                    error_type=ValidationErrorType.INTEGRATION_WARNING,
                     suggestion="Install Context Mapper CLI to generate artifacts",
                 )
             )
@@ -334,7 +335,7 @@ class ContextMapperIntegration:
                         ValidationError(
                             message=f"Successfully generated {generator_type} artifacts",
                             property_path="",
-                            error_type="INTEGRATION_SUCCESS",
+                            error_type=ValidationErrorType.INTEGRATION_SUCCESS,
                         )
                     )
                 else:
@@ -342,7 +343,7 @@ class ContextMapperIntegration:
                         ValidationError(
                             message=f"Artifact generation failed: {cmd_result.stderr}",
                             property_path="",
-                            error_type="GENERATOR_ERROR",
+                            error_type=ValidationErrorType.GENERATOR_ERROR,
                         )
                     )
 
@@ -356,7 +357,7 @@ class ContextMapperIntegration:
                 ValidationError(
                     message=f"Artifact generation error: {str(e)}",
                     property_path="",
-                    error_type="INTEGRATION_ERROR",
+                    error_type=ValidationErrorType.INTEGRATION_ERROR,
                 )
             )
 
@@ -463,7 +464,7 @@ class ContextMapperWorkflow:
                     ValidationError(
                         message=f"Conversion failed: {str(e)}",
                         property_path="",
-                        error_type="CONVERSION_ERROR",
+                        error_type=ValidationErrorType.CONVERSION_ERROR,
                     )
                 ],
                 warnings=[],

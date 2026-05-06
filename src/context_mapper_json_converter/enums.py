@@ -87,3 +87,44 @@ class OperationVisibility(str, Enum):
     PUBLIC = "PUBLIC"
     PRIVATE = "PRIVATE"
     PROTECTED = "PROTECTED"
+
+
+class ValidationErrorType(str, Enum):
+    """Error type strings used in ValidationError instances.
+
+    Centralising these prevents typos and makes the set of possible
+    error types discoverable in one place.
+    """
+
+    # JSON Schema validation
+    SCHEMA_ERROR = "SCHEMA_ERROR"
+    VALIDATION_ERROR = "VALIDATION_ERROR"
+
+    # Semantic / reference validation
+    SEMANTIC_ERROR = "SEMANTIC_ERROR"
+    SEMANTIC_WARNING = "SEMANTIC_WARNING"
+    REFERENCE_ERROR = "REFERENCE_ERROR"
+
+    # CML syntax / parse validation
+    CML_SYNTAX_ERROR = "CML_SYNTAX_ERROR"
+    CML_PARSE_ERROR = "CML_PARSE_ERROR"
+    CML_SEMANTIC_ERROR = "CML_SEMANTIC_ERROR"
+    CML_REFERENCE_ERROR = "CML_REFERENCE_ERROR"
+    CML_STRUCTURE_ERROR = "CML_STRUCTURE_ERROR"
+    CML_TOOL_WARNING = "CML_TOOL_WARNING"
+
+    # Round-trip validation
+    ROUND_TRIP_ERROR = "ROUND_TRIP_ERROR"
+    ROUND_TRIP_WARNING = "ROUND_TRIP_WARNING"
+
+    # Conversion
+    CONVERSION_ERROR = "CONVERSION_ERROR"
+
+    # Integration / CLI
+    INTEGRATION_WARNING = "INTEGRATION_WARNING"
+    INTEGRATION_SUCCESS = "INTEGRATION_SUCCESS"
+    INTEGRATION_TIMEOUT = "INTEGRATION_TIMEOUT"
+    INTEGRATION_ERROR = "INTEGRATION_ERROR"
+    CONTEXTMAPPER_CLI_ERROR = "CONTEXTMAPPER_CLI_ERROR"
+    CML_CLI_ERROR = "CML_CLI_ERROR"
+    GENERATOR_ERROR = "GENERATOR_ERROR"

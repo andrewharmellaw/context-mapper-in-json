@@ -10,6 +10,7 @@ from jsonschema import Draft7Validator
 from jsonschema import ValidationError as JsonSchemaValidationError
 from jsonschema import validate
 
+from .enums import ValidationErrorType
 from .schemas.bounded_context import (
     BOUNDED_CONTEXT_SCHEMA,
     BOUNDED_CONTEXT_SEMANTIC_RULES,
@@ -126,7 +127,7 @@ class ValidationEngine:
                 ValidationError(
                     message=f"Unexpected validation error: {str(e)}",
                     property_path="",
-                    error_type="VALIDATION_ERROR",
+                    error_type=ValidationErrorType.VALIDATION_ERROR,
                 )
             )
 
@@ -143,7 +144,7 @@ class ValidationEngine:
             error = ValidationError(
                 message=e.message,
                 property_path=".".join(str(p) for p in e.absolute_path),
-                error_type="SCHEMA_ERROR",
+                error_type=ValidationErrorType.SCHEMA_ERROR,
                 suggestion=self._get_schema_error_suggestion(e),
             )
             result.add_error(error)
@@ -158,7 +159,7 @@ class ValidationEngine:
                 ValidationError(
                     message="boundedContexts must be an array",
                     property_path="boundedContexts",
-                    error_type="SCHEMA_ERROR",
+                    error_type=ValidationErrorType.SCHEMA_ERROR,
                 )
             )
             return
@@ -171,7 +172,7 @@ class ValidationEngine:
                 error = ValidationError(
                     message=e.message,
                     property_path=f"boundedContexts[{i}].{'.'.join(str(p) for p in e.absolute_path)}",
-                    error_type="SCHEMA_ERROR",
+                    error_type=ValidationErrorType.SCHEMA_ERROR,
                     suggestion=self._get_schema_error_suggestion(e),
                 )
                 result.add_error(error)
@@ -186,7 +187,7 @@ class ValidationEngine:
                 ValidationError(
                     message="subdomains must be an array",
                     property_path="subdomains",
-                    error_type="SCHEMA_ERROR",
+                    error_type=ValidationErrorType.SCHEMA_ERROR,
                 )
             )
             return
@@ -199,7 +200,7 @@ class ValidationEngine:
                 error = ValidationError(
                     message=e.message,
                     property_path=f"subdomains[{i}].{'.'.join(str(p) for p in e.absolute_path)}",
-                    error_type="SCHEMA_ERROR",
+                    error_type=ValidationErrorType.SCHEMA_ERROR,
                     suggestion=self._get_schema_error_suggestion(e),
                 )
                 result.add_error(error)
@@ -217,7 +218,7 @@ class ValidationEngine:
                     ValidationError(
                         message=f"Missing required property: {prop}",
                         property_path="",
-                        error_type="SCHEMA_ERROR",
+                        error_type=ValidationErrorType.SCHEMA_ERROR,
                         suggestion=f"Add the '{prop}' property to the root object",
                     )
                 )
@@ -253,7 +254,7 @@ class ValidationEngine:
                 ValidationError(
                     message=f"Unexpected semantic validation error: {str(e)}",
                     property_path="",
-                    error_type="SEMANTIC_ERROR",
+                    error_type=ValidationErrorType.SEMANTIC_ERROR,
                 )
             )
 
@@ -277,7 +278,7 @@ class ValidationEngine:
                     ValidationError(
                         message=f"Context Map references undefined Bounded Context: {context_name}",
                         property_path="contextMap.contains",
-                        error_type="REFERENCE_ERROR",
+                        error_type=ValidationErrorType.REFERENCE_ERROR,
                         suggestion=f"Add a Bounded Context with name '{context_name}' or remove it from contains",
                     )
                 )
@@ -294,7 +295,7 @@ class ValidationEngine:
                     ValidationError(
                         message=f"Relationship upstream '{upstream}' not found in Context Map contains",
                         property_path=f"contextMap.relationships[{i}].upstream",
-                        error_type="REFERENCE_ERROR",
+                        error_type=ValidationErrorType.REFERENCE_ERROR,
                         suggestion=f"Add '{upstream}' to contextMap.contains or change the upstream reference",
                     )
                 )
@@ -304,7 +305,7 @@ class ValidationEngine:
                     ValidationError(
                         message=f"Relationship downstream '{downstream}' not found in Context Map contains",
                         property_path=f"contextMap.relationships[{i}].downstream",
-                        error_type="REFERENCE_ERROR",
+                        error_type=ValidationErrorType.REFERENCE_ERROR,
                         suggestion=f"Add '{downstream}' to contextMap.contains or change the downstream reference",
                     )
                 )
@@ -315,7 +316,7 @@ class ValidationEngine:
                     ValidationError(
                         message=f"Bounded Context cannot have a relationship with itself: {upstream}",
                         property_path=f"contextMap.relationships[{i}]",
-                        error_type="SEMANTIC_ERROR",
+                        error_type=ValidationErrorType.SEMANTIC_ERROR,
                         suggestion="Use different Bounded Contexts for upstream and downstream",
                     )
                 )
@@ -336,7 +337,7 @@ class ValidationEngine:
                     ValidationError(
                         message=f"Duplicate Bounded Context name: {name}",
                         property_path=f"boundedContexts[{i}].name",
-                        error_type="SEMANTIC_ERROR",
+                        error_type=ValidationErrorType.SEMANTIC_ERROR,
                         suggestion=f"Use a unique name for this Bounded Context",
                     )
                 )
@@ -356,7 +357,7 @@ class ValidationEngine:
                         ValidationError(
                             message=f"Only TEAM type Bounded Contexts should have 'realizes' property",
                             property_path=f"boundedContexts[{i}].realizes",
-                            error_type="SEMANTIC_WARNING",
+                            error_type=ValidationErrorType.SEMANTIC_WARNING,
                             suggestion="Remove the 'realizes' property or change the type to TEAM",
                         )
                     )
@@ -387,7 +388,7 @@ class ValidationEngine:
                 ValidationError(
                     message=f"Unexpected reference validation error: {str(e)}",
                     property_path="",
-                    error_type="REFERENCE_ERROR",
+                    error_type=ValidationErrorType.REFERENCE_ERROR,
                 )
             )
 
@@ -411,7 +412,7 @@ class ValidationEngine:
                         ValidationError(
                             message=f"TEAM Bounded Context realizes undefined context: {realizes}",
                             property_path=f"boundedContexts[{i}].realizes",
-                            error_type="REFERENCE_ERROR",
+                            error_type=ValidationErrorType.REFERENCE_ERROR,
                             suggestion=f"Add a Bounded Context with name '{realizes}' or change the realizes reference",
                         )
                     )

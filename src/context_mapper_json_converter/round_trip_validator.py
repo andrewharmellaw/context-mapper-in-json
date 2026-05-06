@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 
 from .cml_validator import CMLValidator
 from .converter import ConverterEngine
+from .enums import ValidationErrorType
 from .exceptions import CMLParseError
 from .validation import ValidationError, ValidationResult
 
@@ -39,69 +40,55 @@ class CMLParser:
     needed for round-trip validation.
     """
 
+    # Regex patterns compiled once at class level
+    _CONTEXT_MAP_PATTERN = re.compile(
+        r"ContextMap\s+(?:(\w+)\s+)?type\s*=\s*(\w+)(?:\s+state\s*=\s*(\w+))?\s*\{"
+    )
+    _CONTAINS_PATTERN = re.compile(r"contains\s+([\w\s,]+)")
+    _BOUNDED_CONTEXT_PATTERN = re.compile(
+        r"BoundedContext\s+(\w+)\s+type\s*=\s*(\w+)(?:\s+realizes\s+(\w+))?\s*\{"
+    )
+    _AGGREGATE_PATTERN = re.compile(r"Aggregate\s+(\w+)(?:\s+owned\s+by\s+(\w+))?\s*\{")
+    _ENTITY_PATTERN = re.compile(r"Entity\s+(\w+)(?:\s+aggregateRoot)?\s*\{")
+    _VALUE_OBJECT_PATTERN = re.compile(r"ValueObject\s+(\w+)\s*\{")
+    _DOMAIN_EVENT_PATTERN = re.compile(r"DomainEvent\s+(\w+)\s*\{")
+    _COMMAND_PATTERN = re.compile(r"Command\s+(\w+)\s*\{")
+    _SERVICE_PATTERN = re.compile(r"Service\s+(\w+)\s*\{")
+    _REPOSITORY_PATTERN = re.compile(r"Repository\s+(\w+)\s*\{")
+    _PROPERTY_PATTERN = re.compile(r'(\w+)\s*=\s*"([^"]*)"')
+    _ENUM_PROPERTY_PATTERN = re.compile(r"(\w+)\s*=\s*(\w+)")
+    _ATTRIBUTE_PATTERN = re.compile(r"(\w+)\s+(\w+)(?:\s+(key|nullable))*")
+    _OPERATION_PATTERN = re.compile(
+        r"(?:(public|private|protected)\s+)?(\w+)\s+(\w+)\(([^)]*)\)"
+    )
+    _PARTNERSHIP_PATTERN = re.compile(r"(\w+)\s+Partnership\s+(\w+)")
+    _SHARED_KERNEL_PATTERN = re.compile(
+        r"(\w+)\s+\[SK\]\s+<->\s+\[SK\]\s+(\w+)(?:\s*:\s*(.+))?"
+    )
+    _CUSTOMER_SUPPLIER_PATTERN = re.compile(
+        r"(\w+)\s+\[([^\]]+)\]->\[([^\]]+)\]\s+(\w+)(?:\s*:\s*([^{]+))?(?:\s*\{\s*([^}]+)\s*\})?"
+    )
+
     def __init__(self) -> None:
-        """Initialize the CML parser with regex patterns."""
-        self._setup_patterns()
-
-    def _setup_patterns(self) -> None:
-        """Set up regex patterns for parsing CML."""
-
-        # Context Map pattern
-        self.context_map_pattern = re.compile(
-            r"ContextMap\s+(?:(\w+)\s+)?type\s*=\s*(\w+)(?:\s+state\s*=\s*(\w+))?\s*\{"
-        )
-
-        # Contains pattern
-        self.contains_pattern = re.compile(r"contains\s+([\w\s,]+)")
-
-        # Bounded Context pattern
-        self.bounded_context_pattern = re.compile(
-            r"BoundedContext\s+(\w+)\s+type\s*=\s*(\w+)(?:\s+realizes\s+(\w+))?\s*\{"
-        )
-
-        # Aggregate pattern
-        self.aggregate_pattern = re.compile(
-            r"Aggregate\s+(\w+)(?:\s+owned\s+by\s+(\w+))?\s*\{"
-        )
-
-        # Entity pattern
-        self.entity_pattern = re.compile(r"Entity\s+(\w+)(?:\s+aggregateRoot)?\s*\{")
-
-        # Value Object pattern
-        self.value_object_pattern = re.compile(r"ValueObject\s+(\w+)\s*\{")
-
-        # Domain Event pattern
-        self.domain_event_pattern = re.compile(r"DomainEvent\s+(\w+)\s*\{")
-
-        # Command pattern
-        self.command_pattern = re.compile(r"Command\s+(\w+)\s*\{")
-
-        # Service pattern
-        self.service_pattern = re.compile(r"Service\s+(\w+)\s*\{")
-
-        # Repository pattern
-        self.repository_pattern = re.compile(r"Repository\s+(\w+)\s*\{")
-
-        # Property patterns
-        self.property_pattern = re.compile(r'(\w+)\s*=\s*"([^"]*)"')
-        self.enum_property_pattern = re.compile(r"(\w+)\s*=\s*(\w+)")
-
-        # Attribute pattern
-        self.attribute_pattern = re.compile(r"(\w+)\s+(\w+)(?:\s+(key|nullable))*")
-
-        # Operation pattern
-        self.operation_pattern = re.compile(
-            r"(?:(public|private|protected)\s+)?(\w+)\s+(\w+)\(([^)]*)\)"
-        )
-
-        # Relationship patterns
-        self.partnership_pattern = re.compile(r"(\w+)\s+Partnership\s+(\w+)")
-        self.shared_kernel_pattern = re.compile(
-            r"(\w+)\s+\[SK\]\s+<->\s+\[SK\]\s+(\w+)(?:\s*:\s*(.+))?"
-        )
-        self.customer_supplier_pattern = re.compile(
-            r"(\w+)\s+\[([^\]]+)\]->\[([^\]]+)\]\s+(\w+)(?:\s*:\s*([^{]+))?(?:\s*\{\s*([^}]+)\s*\})?"
-        )
+        """Initialize the CML parser."""
+        # Expose class-level patterns as instance attributes for backward compatibility
+        self.context_map_pattern = self._CONTEXT_MAP_PATTERN
+        self.contains_pattern = self._CONTAINS_PATTERN
+        self.bounded_context_pattern = self._BOUNDED_CONTEXT_PATTERN
+        self.aggregate_pattern = self._AGGREGATE_PATTERN
+        self.entity_pattern = self._ENTITY_PATTERN
+        self.value_object_pattern = self._VALUE_OBJECT_PATTERN
+        self.domain_event_pattern = self._DOMAIN_EVENT_PATTERN
+        self.command_pattern = self._COMMAND_PATTERN
+        self.service_pattern = self._SERVICE_PATTERN
+        self.repository_pattern = self._REPOSITORY_PATTERN
+        self.property_pattern = self._PROPERTY_PATTERN
+        self.enum_property_pattern = self._ENUM_PROPERTY_PATTERN
+        self.attribute_pattern = self._ATTRIBUTE_PATTERN
+        self.operation_pattern = self._OPERATION_PATTERN
+        self.partnership_pattern = self._PARTNERSHIP_PATTERN
+        self.shared_kernel_pattern = self._SHARED_KERNEL_PATTERN
+        self.customer_supplier_pattern = self._CUSTOMER_SUPPLIER_PATTERN
 
     def parse_cml(self, cml_code: str) -> Dict[str, Any]:
         """
@@ -388,7 +375,7 @@ class RoundTripValidator:
                         ValidationError(
                             message=discrepancy.description,
                             property_path=discrepancy.property_path,
-                            error_type="ROUND_TRIP_ERROR",
+                            error_type=ValidationErrorType.ROUND_TRIP_ERROR,
                             suggestion="Check the conversion logic for this property",
                         )
                     )
@@ -397,7 +384,7 @@ class RoundTripValidator:
                         ValidationError(
                             message=discrepancy.description,
                             property_path=discrepancy.property_path,
-                            error_type="ROUND_TRIP_WARNING",
+                            error_type=ValidationErrorType.ROUND_TRIP_WARNING,
                         )
                     )
 
@@ -417,7 +404,7 @@ class RoundTripValidator:
                 ValidationError(
                     message=f"Round-trip validation error: {str(e)}",
                     property_path="",
-                    error_type="ROUND_TRIP_ERROR",
+                    error_type=ValidationErrorType.ROUND_TRIP_ERROR,
                 )
             )
 
@@ -676,7 +663,7 @@ class RoundTripValidator:
                     ValidationError(
                         message="CML must contain at least a ContextMap or BoundedContext",
                         property_path="",
-                        error_type="CML_STRUCTURE_ERROR",
+                        error_type=ValidationErrorType.CML_STRUCTURE_ERROR,
                     )
                 )
 
@@ -688,7 +675,7 @@ class RoundTripValidator:
                     ValidationError(
                         message=f"Unbalanced braces: {open_braces} open, {close_braces} close",
                         property_path="",
-                        error_type="CML_SYNTAX_ERROR",
+                        error_type=ValidationErrorType.CML_SYNTAX_ERROR,
                     )
                 )
 
@@ -728,7 +715,7 @@ class RoundTripValidator:
                 ValidationError(
                     message="Context Mapper CLI integration not available - using basic validation",
                     property_path="",
-                    error_type="INTEGRATION_WARNING",
+                    error_type=ValidationErrorType.INTEGRATION_WARNING,
                     suggestion="Install Context Mapper CLI for full validation",
                 )
             )
@@ -739,7 +726,7 @@ class RoundTripValidator:
                 ValidationError(
                     message=f"Context Mapper validation error: {str(e)}",
                     property_path="",
-                    error_type="INTEGRATION_ERROR",
+                    error_type=ValidationErrorType.INTEGRATION_ERROR,
                 )
             )
 

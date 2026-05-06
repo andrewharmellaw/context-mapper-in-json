@@ -16,6 +16,7 @@ from .enums import (
     ContextMapType,
     Evolution,
     KnowledgeLevel,
+    ValidationErrorType,
 )
 from .validation import ValidationError, ValidationResult
 
@@ -42,43 +43,45 @@ class CMLValidator:
     3. Reference integrity checking
     """
 
+    # Regex patterns compiled once at class level
+    _CONTEXT_MAP_PATTERN = re.compile(
+        r"ContextMap\s+(?:(\w+)\s+)?type\s*=\s*(\w+)(?:\s+state\s*=\s*(\w+))?\s*\{"
+    )
+    _BOUNDED_CONTEXT_PATTERN = re.compile(
+        r"BoundedContext\s+(\w+)\s+type\s*=\s*(\w+)(?:\s+realizes\s+(\w+))?\s*\{"
+    )
+    _CONTAINS_PATTERN = re.compile(r"contains\s+([\w\s,]+)")
+    _PARTNERSHIP_PATTERN = re.compile(r"(\w+)\s+Partnership\s+(\w+)")
+    _SHARED_KERNEL_PATTERN = re.compile(
+        r"(\w+)\s+\[SK\]\s+<->\s+\[SK\]\s+(\w+)(?:\s*:\s*(.+))?"
+    )
+    _PROPERTY_PATTERN = re.compile(r'(\w+)\s*=\s*"([^"]*)"')
+    _ENUM_PROPERTY_PATTERN = re.compile(r"(\w+)\s*=\s*(\w+)")
+
+    # Valid enum values (derived from enums module — single source of truth)
+    _VALID_CONTEXT_MAP_TYPES = frozenset(e.value for e in ContextMapType)
+    _VALID_CONTEXT_MAP_STATES = frozenset(e.value for e in ContextMapState)
+    _VALID_BOUNDED_CONTEXT_TYPES = frozenset(e.value for e in BoundedContextType)
+    _VALID_KNOWLEDGE_LEVELS = frozenset(e.value for e in KnowledgeLevel)
+    _VALID_BUSINESS_MODELS = frozenset(e.value for e in BusinessModel)
+    _VALID_EVOLUTIONS = frozenset(e.value for e in Evolution)
+
     def __init__(self) -> None:
-        """Initialize the CML validator with parsing patterns."""
-        self._setup_patterns()
-
-    def _setup_patterns(self) -> None:
-        """Set up regex patterns for CML parsing."""
-
-        # Context Map pattern: ContextMap [name] type = TYPE [state = STATE] {
-        self.context_map_pattern = re.compile(
-            r"ContextMap\s+(?:(\w+)\s+)?type\s*=\s*(\w+)(?:\s+state\s*=\s*(\w+))?\s*\{"
-        )
-
-        # Bounded Context pattern: BoundedContext name type = TYPE [realizes context] {
-        self.bounded_context_pattern = re.compile(
-            r"BoundedContext\s+(\w+)\s+type\s*=\s*(\w+)(?:\s+realizes\s+(\w+))?\s*\{"
-        )
-
-        # Contains pattern: contains context1, context2, ...
-        self.contains_pattern = re.compile(r"contains\s+([\w\s,]+)")
-
-        # Relationship patterns
-        self.partnership_pattern = re.compile(r"(\w+)\s+Partnership\s+(\w+)")
-        self.shared_kernel_pattern = re.compile(
-            r"(\w+)\s+\[SK\]\s+<->\s+\[SK\]\s+(\w+)(?:\s*:\s*(.+))?"
-        )
-
-        # Property patterns
-        self.property_pattern = re.compile(r'(\w+)\s*=\s*"([^"]*)"')
-        self.enum_property_pattern = re.compile(r"(\w+)\s*=\s*(\w+)")
-
-        # Valid enum values (derived from enums module — single source of truth)
-        self.valid_context_map_types = {e.value for e in ContextMapType}
-        self.valid_context_map_states = {e.value for e in ContextMapState}
-        self.valid_bounded_context_types = {e.value for e in BoundedContextType}
-        self.valid_knowledge_levels = {e.value for e in KnowledgeLevel}
-        self.valid_business_models = {e.value for e in BusinessModel}
-        self.valid_evolutions = {e.value for e in Evolution}
+        """Initialize the CML validator."""
+        # Expose class-level patterns as instance attributes for backward compatibility
+        self.context_map_pattern = self._CONTEXT_MAP_PATTERN
+        self.bounded_context_pattern = self._BOUNDED_CONTEXT_PATTERN
+        self.contains_pattern = self._CONTAINS_PATTERN
+        self.partnership_pattern = self._PARTNERSHIP_PATTERN
+        self.shared_kernel_pattern = self._SHARED_KERNEL_PATTERN
+        self.property_pattern = self._PROPERTY_PATTERN
+        self.enum_property_pattern = self._ENUM_PROPERTY_PATTERN
+        self.valid_context_map_types = self._VALID_CONTEXT_MAP_TYPES
+        self.valid_context_map_states = self._VALID_CONTEXT_MAP_STATES
+        self.valid_bounded_context_types = self._VALID_BOUNDED_CONTEXT_TYPES
+        self.valid_knowledge_levels = self._VALID_KNOWLEDGE_LEVELS
+        self.valid_business_models = self._VALID_BUSINESS_MODELS
+        self.valid_evolutions = self._VALID_EVOLUTIONS
 
     def validate_syntax(self, cml_code: str) -> ValidationResult:
         """
@@ -108,7 +111,7 @@ class CMLValidator:
                 ValidationError(
                     message=f"Unexpected CML validation error: {str(e)}",
                     property_path="",
-                    error_type="CML_SYNTAX_ERROR",
+                    error_type=ValidationErrorType.CML_SYNTAX_ERROR,
                 )
             )
 
@@ -138,7 +141,7 @@ class CMLValidator:
                             ValidationError(
                                 message=f"Invalid Context Map type: {cm_type}",
                                 property_path=f"line {line_num}",
-                                error_type="CML_SYNTAX_ERROR",
+                                error_type=ValidationErrorType.CML_SYNTAX_ERROR,
                                 line_number=line_num,
                                 suggestion=f"Use one of: {', '.join(self.valid_context_map_types)}",
                             )
@@ -150,7 +153,7 @@ class CMLValidator:
                             ValidationError(
                                 message=f"Invalid Context Map state: {state}",
                                 property_path=f"line {line_num}",
-                                error_type="CML_SYNTAX_ERROR",
+                                error_type=ValidationErrorType.CML_SYNTAX_ERROR,
                                 line_number=line_num,
                                 suggestion=f"Use one of: {', '.join(self.valid_context_map_states)}",
                             )
@@ -176,7 +179,7 @@ class CMLValidator:
                             ValidationError(
                                 message=f"Invalid Bounded Context type: {bc_type}",
                                 property_path=f"line {line_num}",
-                                error_type="CML_SYNTAX_ERROR",
+                                error_type=ValidationErrorType.CML_SYNTAX_ERROR,
                                 line_number=line_num,
                                 suggestion=f"Use one of: {', '.join(self.valid_bounded_context_types)}",
                             )
@@ -250,7 +253,7 @@ class CMLValidator:
                                 ValidationError(
                                     message=f"Invalid knowledgeLevel: {prop_value}",
                                     property_path=f"line {line_num}",
-                                    error_type="CML_SYNTAX_ERROR",
+                                    error_type=ValidationErrorType.CML_SYNTAX_ERROR,
                                     line_number=line_num,
                                 )
                             )
@@ -266,7 +269,7 @@ class CMLValidator:
                     ValidationError(
                         message=f"Parse error on line {line_num}: {str(e)}",
                         property_path=f"line {line_num}",
-                        error_type="CML_PARSE_ERROR",
+                        error_type=ValidationErrorType.CML_PARSE_ERROR,
                         line_number=line_num,
                     )
                 )
@@ -277,7 +280,7 @@ class CMLValidator:
                 ValidationError(
                     message=f"Unclosed braces in {current_element.element_type} {current_element.name}",
                     property_path=f"line {current_element.line_number}",
-                    error_type="CML_SYNTAX_ERROR",
+                    error_type=ValidationErrorType.CML_SYNTAX_ERROR,
                     line_number=current_element.line_number,
                     suggestion="Add missing closing brace '}'",
                 )
@@ -298,7 +301,7 @@ class CMLValidator:
                 ValidationError(
                     message="Multiple Context Maps found - only one is allowed",
                     property_path="",
-                    error_type="CML_SEMANTIC_ERROR",
+                    error_type=ValidationErrorType.CML_SEMANTIC_ERROR,
                     suggestion="Combine into a single Context Map",
                 )
             )
@@ -316,7 +319,7 @@ class CMLValidator:
                         ValidationError(
                             message=f"Context Map references undefined Bounded Context: {context_name}",
                             property_path=f"ContextMap contains",
-                            error_type="CML_REFERENCE_ERROR",
+                            error_type=ValidationErrorType.CML_REFERENCE_ERROR,
                             line_number=context_map.line_number,
                             suggestion=f"Define BoundedContext {context_name} or remove from contains",
                         )
@@ -333,7 +336,7 @@ class CMLValidator:
                         ValidationError(
                             message=f"Relationship references undefined upstream context: {upstream}",
                             property_path="ContextMap relationships",
-                            error_type="CML_REFERENCE_ERROR",
+                            error_type=ValidationErrorType.CML_REFERENCE_ERROR,
                             suggestion=f"Add {upstream} to contains or fix relationship",
                         )
                     )
@@ -343,7 +346,7 @@ class CMLValidator:
                         ValidationError(
                             message=f"Relationship references undefined downstream context: {downstream}",
                             property_path="ContextMap relationships",
-                            error_type="CML_REFERENCE_ERROR",
+                            error_type=ValidationErrorType.CML_REFERENCE_ERROR,
                             suggestion=f"Add {downstream} to contains or fix relationship",
                         )
                     )
@@ -358,7 +361,7 @@ class CMLValidator:
                 ValidationError(
                     message=f"Duplicate Bounded Context names: {', '.join(set(duplicates))}",
                     property_path="BoundedContext names",
-                    error_type="CML_SEMANTIC_ERROR",
+                    error_type=ValidationErrorType.CML_SEMANTIC_ERROR,
                     suggestion="Use unique names for all Bounded Contexts",
                 )
             )
@@ -395,7 +398,7 @@ class CMLValidator:
             ValidationError(
                 message="Context Mapper tool integration not yet implemented",
                 property_path="",
-                error_type="CML_TOOL_WARNING",
+                error_type=ValidationErrorType.CML_TOOL_WARNING,
                 suggestion="Validate manually with Context Mapper tools for now",
             )
         )

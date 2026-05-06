@@ -23,6 +23,7 @@ from .enums import (
     OperationVisibility,
     RelationshipType,
     SubdomainType,
+    ValidationErrorType,
 )
 from .error_handler import ErrorHandler
 from .exceptions import (
@@ -72,6 +73,7 @@ __all__ = [
     "SubdomainType",
     "LikelihoodForChange",
     "OperationVisibility",
+    "ValidationErrorType",
     # Exceptions
     "ContextMapperError",
     "ConversionError",

@@ -5,7 +5,7 @@ Transforms validated JSON definitions into Context Mapper DSL (CML) code.
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 from jinja2 import BaseLoader, Environment, TemplateError, UndefinedError
 
@@ -154,6 +154,21 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
   {%- endif %}
 }""".strip())
 
+    def _indent(self, text: str, spaces: int = 2) -> str:
+        """Indent every line of *text* by *spaces* spaces."""
+        pad = " " * spaces
+        return "\n".join(f"{pad}{line}" for line in text.split("\n"))
+
+    def _convert_block(
+        self,
+        items: list,
+        converter_fn: Callable[[Any], str],
+        parts: list,
+    ) -> None:
+        """Convert each item with *converter_fn*, indent it, and append to *parts*."""
+        for item in items:
+            parts.append(f"\n{self._indent(converter_fn(item))}")
+
     def convert(self, json_data: ContextMapperDocument) -> str:
         """
         Convert complete JSON definition to CML code.
@@ -283,14 +298,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
                     bc_parts.append(f'  responsibilities = "{resp_str}"')
 
             # Add aggregates
-            aggregates = context_data.get("aggregates", [])
-            for aggregate in aggregates:
-                aggregate_cml = self.convert_aggregate(aggregate)
-                # Indent the aggregate content
-                indented_aggregate = "\n".join(
-                    f"  {line}" for line in aggregate_cml.split("\n")
-                )
-                bc_parts.append(f"\n{indented_aggregate}")
+            self._convert_block(
+                context_data.get("aggregates", []), self.convert_aggregate, bc_parts
+            )
 
             bc_parts.append("}")
 
@@ -443,55 +453,46 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
                 )
 
             # Add entities
-            entities = aggregate_data.get("entities", [])
-            for entity in entities:
-                entity_cml = self.convert_entity(entity)
-                # Indent the entity content
-                indented_entity = "\n".join(
-                    f"  {line}" for line in entity_cml.split("\n")
-                )
-                aggregate_cml_parts.append(f"\n{indented_entity}")
+            self._convert_block(
+                aggregate_data.get("entities", []),
+                self.convert_entity,
+                aggregate_cml_parts,
+            )
 
             # Add value objects
-            value_objects = aggregate_data.get("valueObjects", [])
-            for vo in value_objects:
-                vo_cml = self.convert_value_object(vo)
-                indented_vo = "\n".join(f"  {line}" for line in vo_cml.split("\n"))
-                aggregate_cml_parts.append(f"\n{indented_vo}")
+            self._convert_block(
+                aggregate_data.get("valueObjects", []),
+                self.convert_value_object,
+                aggregate_cml_parts,
+            )
 
             # Add domain events
-            domain_events = aggregate_data.get("domainEvents", [])
-            for event in domain_events:
-                event_cml = self.convert_domain_event(event)
-                indented_event = "\n".join(
-                    f"  {line}" for line in event_cml.split("\n")
-                )
-                aggregate_cml_parts.append(f"\n{indented_event}")
+            self._convert_block(
+                aggregate_data.get("domainEvents", []),
+                self.convert_domain_event,
+                aggregate_cml_parts,
+            )
 
             # Add commands
-            commands = aggregate_data.get("commands", [])
-            for command in commands:
-                command_cml = self.convert_command(command)
-                indented_command = "\n".join(
-                    f"  {line}" for line in command_cml.split("\n")
-                )
-                aggregate_cml_parts.append(f"\n{indented_command}")
+            self._convert_block(
+                aggregate_data.get("commands", []),
+                self.convert_command,
+                aggregate_cml_parts,
+            )
 
             # Add services
-            services = aggregate_data.get("services", [])
-            for service in services:
-                service_cml = self.convert_service(service)
-                indented_service = "\n".join(
-                    f"  {line}" for line in service_cml.split("\n")
-                )
-                aggregate_cml_parts.append(f"\n{indented_service}")
+            self._convert_block(
+                aggregate_data.get("services", []),
+                self.convert_service,
+                aggregate_cml_parts,
+            )
 
             # Add repositories
-            repositories = aggregate_data.get("repositories", [])
-            for repo in repositories:
-                repo_cml = self.convert_repository(repo)
-                indented_repo = "\n".join(f"  {line}" for line in repo_cml.split("\n"))
-                aggregate_cml_parts.append(f"\n{indented_repo}")
+            self._convert_block(
+                aggregate_data.get("repositories", []),
+                self.convert_repository,
+                aggregate_cml_parts,
+            )
 
             aggregate_cml_parts.append("}")
 
