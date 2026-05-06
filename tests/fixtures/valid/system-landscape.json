@@ -1,0 +1,28 @@
+{
+  "contextMap": {
+    "name": "EnterpriseSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "state": "AS_IS",
+    "contains": ["Frontend", "Backend", "Database"]
+  },
+  "boundedContexts": [
+    {
+      "name": "Frontend",
+      "type": "APPLICATION",
+      "domainVisionStatement": "User interface layer",
+      "implementationTechnology": "React"
+    },
+    {
+      "name": "Backend",
+      "type": "SYSTEM",
+      "domainVisionStatement": "Business logic layer",
+      "implementationTechnology": "Java Spring Boot"
+    },
+    {
+      "name": "Database",
+      "type": "SYSTEM",
+      "domainVisionStatement": "Data persistence layer",
+      "implementationTechnology": "PostgreSQL"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "contextMap": {
+    "name": "PartnershipSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["ServiceA", "ServiceB"],
+    "relationships": [
+      {
+        "type": "Partnership",
+        "upstream": "ServiceA",
+        "downstream": "ServiceB"
+      }
+    ]
+  },
+  "boundedContexts": [
+    {
+      "name": "ServiceA",
+      "type": "FEATURE",
+      "domainVisionStatement": "First partner service"
+    },
+    {
+      "name": "ServiceB",
+      "type": "FEATURE",
+      "domainVisionStatement": "Second partner service"
+    }
+  ]
+}

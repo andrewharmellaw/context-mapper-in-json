@@ -1,0 +1,63 @@
+{
+  "contextMap": {
+    "name": "EventDrivenSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["OrderManagement"]
+  },
+  "boundedContexts": [
+    {
+      "name": "OrderManagement",
+      "type": "FEATURE",
+      "aggregates": [
+        {
+          "name": "Order",
+          "domainEvents": [
+            {
+              "name": "OrderPlaced",
+              "attributes": [
+                {
+                  "name": "orderId",
+                  "type": "OrderId"
+                },
+                {
+                  "name": "timestamp",
+                  "type": "DateTime"
+                },
+                {
+                  "name": "customerId",
+                  "type": "CustomerId"
+                }
+              ]
+            },
+            {
+              "name": "OrderShipped",
+              "attributes": [
+                {
+                  "name": "orderId",
+                  "type": "OrderId"
+                },
+                {
+                  "name": "trackingNumber",
+                  "type": "String"
+                }
+              ]
+            },
+            {
+              "name": "OrderCancelled",
+              "attributes": [
+                {
+                  "name": "orderId",
+                  "type": "OrderId"
+                },
+                {
+                  "name": "reason",
+                  "type": "String"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

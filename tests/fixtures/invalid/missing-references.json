@@ -1,0 +1,13 @@
+{
+  "contextMap": {
+    "name": "MissingRefSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["ServiceA", "ServiceB"]
+  },
+  "boundedContexts": [
+    {
+      "name": "ServiceA",
+      "type": "FEATURE"
+    }
+  ]
+}

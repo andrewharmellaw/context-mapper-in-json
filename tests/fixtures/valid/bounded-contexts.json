@@ -1,0 +1,43 @@
+{
+  "contextMap": {
+    "name": "MultiContextSystem",
+    "type": "ORGANIZATIONAL",
+    "state": "TO_BE",
+    "contains": ["FeatureContext", "ApplicationContext", "SystemContext", "TeamContext"]
+  },
+  "boundedContexts": [
+    {
+      "name": "FeatureContext",
+      "type": "FEATURE",
+      "domainVisionStatement": "Feature-level bounded context",
+      "implementationTechnology": "Microservice",
+      "responsibilities": ["Feature A", "Feature B"],
+      "knowledgeLevel": "CONCRETE",
+      "businessModel": "REVENUE",
+      "evolution": "CUSTOM_BUILT"
+    },
+    {
+      "name": "ApplicationContext",
+      "type": "APPLICATION",
+      "domainVisionStatement": "Application-level bounded context",
+      "implementationTechnology": "Monolith",
+      "responsibilities": ["App Management"],
+      "knowledgeLevel": "META",
+      "businessModel": "ENGAGEMENT"
+    },
+    {
+      "name": "SystemContext",
+      "type": "SYSTEM",
+      "domainVisionStatement": "System-level bounded context",
+      "implementationTechnology": "Legacy System",
+      "businessModel": "COMPLIANCE",
+      "evolution": "PRODUCT"
+    },
+    {
+      "name": "TeamContext",
+      "type": "TEAM",
+      "realizes": "FeatureContext",
+      "domainVisionStatement": "Team implementing feature context"
+    }
+  ]
+}

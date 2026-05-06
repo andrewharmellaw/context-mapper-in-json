@@ -1,0 +1,27 @@
+{
+  "contextMap": {
+    "name": "SharedKernelSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["ServiceA", "ServiceB"],
+    "relationships": [
+      {
+        "type": "SharedKernel",
+        "upstream": "ServiceA",
+        "downstream": "ServiceB",
+        "implementationTechnology": "Shared Library"
+      }
+    ]
+  },
+  "boundedContexts": [
+    {
+      "name": "ServiceA",
+      "type": "FEATURE",
+      "domainVisionStatement": "First service sharing kernel"
+    },
+    {
+      "name": "ServiceB",
+      "type": "FEATURE",
+      "domainVisionStatement": "Second service sharing kernel"
+    }
+  ]
+}

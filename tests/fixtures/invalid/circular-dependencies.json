@@ -1,0 +1,20 @@
+{
+  "contextMap": {
+    "name": "CircularSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["ServiceA"],
+    "relationships": [
+      {
+        "type": "Partnership",
+        "upstream": "ServiceA",
+        "downstream": "ServiceA"
+      }
+    ]
+  },
+  "boundedContexts": [
+    {
+      "name": "ServiceA",
+      "type": "FEATURE"
+    }
+  ]
+}

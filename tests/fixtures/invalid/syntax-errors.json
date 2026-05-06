@@ -1,0 +1,13 @@
+{
+  "contextMap": {
+    "name": "SyntaxErrorSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["ServiceA"
+  },
+  "boundedContexts": [
+    {
+      "name": "ServiceA",
+      "type": "FEATURE"
+    }
+  ]
+}

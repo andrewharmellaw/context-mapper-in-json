@@ -1,0 +1,13 @@
+{
+  "contextMap": {
+    "name": "InvalidTypesSystem",
+    "type": "INVALID_TYPE",
+    "contains": "not-an-array"
+  },
+  "boundedContexts": [
+    {
+      "name": "ServiceA",
+      "type": "INVALID_CONTEXT_TYPE"
+    }
+  ]
+}

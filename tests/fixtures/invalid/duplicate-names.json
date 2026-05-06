@@ -1,0 +1,17 @@
+{
+  "contextMap": {
+    "name": "DuplicateSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["ServiceA", "ServiceB"]
+  },
+  "boundedContexts": [
+    {
+      "name": "ServiceA",
+      "type": "FEATURE"
+    },
+    {
+      "name": "ServiceA",
+      "type": "SYSTEM"
+    }
+  ]
+}

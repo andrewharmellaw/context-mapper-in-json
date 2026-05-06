@@ -1,0 +1,55 @@
+{
+  "contextMap": {
+    "name": "PaymentSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["PaymentService"]
+  },
+  "boundedContexts": [
+    {
+      "name": "PaymentService",
+      "type": "FEATURE",
+      "aggregates": [
+        {
+          "name": "Payment",
+          "valueObjects": [
+            {
+              "name": "Money",
+              "attributes": [
+                {
+                  "name": "amount",
+                  "type": "Decimal"
+                },
+                {
+                  "name": "currency",
+                  "type": "String"
+                }
+              ],
+              "operations": [
+                {
+                  "name": "add",
+                  "parameters": [
+                    {"name": "other", "type": "Money"}
+                  ],
+                  "returnType": "Money"
+                }
+              ]
+            },
+            {
+              "name": "PaymentMethod",
+              "attributes": [
+                {
+                  "name": "type",
+                  "type": "String"
+                },
+                {
+                  "name": "identifier",
+                  "type": "String"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

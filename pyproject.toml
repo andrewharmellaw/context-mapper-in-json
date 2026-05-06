@@ -68,7 +68,7 @@ testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
-addopts = "--cov=src --cov-report=html --cov-report=term-missing"
+addopts = "--cov=src --cov-report=html --cov-report=term-missing --cov-report=json --cov-fail-under=85"
 
 [tool.black]
 line-length = 88

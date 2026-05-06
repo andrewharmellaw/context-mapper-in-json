@@ -285,7 +285,7 @@ def pytest_collection_modifyitems(config, items):
     skip_performance = pytest.mark.skip(reason="need --performance option to run")
 
     for item in items:
-        if "integration" in item.keywords:
+        if item.get_closest_marker("integration"):
             item.add_marker(skip_integration)
-        if "performance" in item.keywords:
+        if item.get_closest_marker("performance"):
             item.add_marker(skip_performance)

@@ -1,0 +1,66 @@
+{
+  "contextMap": {
+    "name": "OrderSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["OrderManagement"]
+  },
+  "boundedContexts": [
+    {
+      "name": "OrderManagement",
+      "type": "FEATURE",
+      "domainVisionStatement": "Manages customer orders",
+      "aggregates": [
+        {
+          "name": "Order",
+          "knowledgeLevel": "CONCRETE",
+          "likelihoodForChange": "NORMAL",
+          "entities": [
+            {
+              "name": "Order",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "orderId",
+                  "type": "OrderId",
+                  "key": true
+                },
+                {
+                  "name": "customerId",
+                  "type": "CustomerId"
+                },
+                {
+                  "name": "status",
+                  "type": "OrderStatus"
+                }
+              ],
+              "operations": [
+                {
+                  "name": "placeOrder",
+                  "parameters": [
+                    {"name": "customerId", "type": "CustomerId"}
+                  ],
+                  "returnType": "void",
+                  "visibility": "PUBLIC"
+                }
+              ]
+            },
+            {
+              "name": "OrderItem",
+              "aggregateRoot": false,
+              "attributes": [
+                {
+                  "name": "productId",
+                  "type": "ProductId"
+                },
+                {
+                  "name": "quantity",
+                  "type": "Integer"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

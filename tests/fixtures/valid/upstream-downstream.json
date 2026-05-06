@@ -1,0 +1,29 @@
+{
+  "contextMap": {
+    "name": "UpstreamDownstreamSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["UpstreamService", "DownstreamService"],
+    "relationships": [
+      {
+        "type": "UpstreamDownstream",
+        "upstream": "UpstreamService",
+        "downstream": "DownstreamService",
+        "upstreamRoles": ["OHS"],
+        "downstreamRoles": ["CF"],
+        "implementationTechnology": "Message Queue"
+      }
+    ]
+  },
+  "boundedContexts": [
+    {
+      "name": "UpstreamService",
+      "type": "SYSTEM",
+      "domainVisionStatement": "Upstream data provider"
+    },
+    {
+      "name": "DownstreamService",
+      "type": "FEATURE",
+      "domainVisionStatement": "Downstream data consumer"
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "contextMap": {
+    "name": "CustomerSupplierSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["SupplierService", "CustomerService"],
+    "relationships": [
+      {
+        "type": "CustomerSupplier",
+        "upstream": "SupplierService",
+        "downstream": "CustomerService",
+        "upstreamRoles": ["OHS", "PL"],
+        "downstreamRoles": ["ACL"],
+        "implementationTechnology": "REST API",
+        "exposedAggregates": ["Product", "Inventory"]
+      }
+    ]
+  },
+  "boundedContexts": [
+    {
+      "name": "SupplierService",
+      "type": "SYSTEM",
+      "domainVisionStatement": "Provides product data",
+      "implementationTechnology": "Java Spring Boot"
+    },
+    {
+      "name": "CustomerService",
+      "type": "FEATURE",
+      "domainVisionStatement": "Consumes product data",
+      "implementationTechnology": "Python Django"
+    }
+  ]
+}

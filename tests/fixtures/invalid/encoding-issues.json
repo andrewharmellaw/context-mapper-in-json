@@ -1,0 +1,13 @@
+{
+  "contextMap": {
+    "name": "EncodingSystem",
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["Serv\u0000iceA"]
+  },
+  "boundedContexts": [
+    {
+      "name": "ServiceA",
+      "type": "FEATURE"
+    }
+  ]
+}

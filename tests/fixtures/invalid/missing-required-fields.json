@@ -1,0 +1,10 @@
+{
+  "contextMap": {
+    "name": "InvalidSystem"
+  },
+  "boundedContexts": [
+    {
+      "name": "ServiceA"
+    }
+  ]
+}
