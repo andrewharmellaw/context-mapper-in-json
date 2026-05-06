@@ -41,6 +41,7 @@ dev = [
     "black>=22.0.0",
     "flake8>=5.0.0",
     "mypy>=1.0.0",
+    "isort>=5.12.0",
 ]
 test = [
     "pytest>=7.0.0",
@@ -62,6 +63,9 @@ package-dir = {"" = "src"}
 [tool.setuptools.packages.find]
 where = ["src"]
 include = ["context_mapper_json_converter*"]
+
+[tool.setuptools.package-data]
+"context_mapper_json_converter.schemas" = ["*.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -88,8 +92,12 @@ extend-exclude = '''
 )/
 '''
 
+[tool.isort]
+profile = "black"
+line_length = 88
+
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -102,6 +110,7 @@ warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
+ignore_missing_imports = true
 
 [project.urls]
 "Bug Reports" = "https://github.com/ContextMapper/context-mapper-json-converter/issues"

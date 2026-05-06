@@ -3,18 +3,18 @@ JSON Validation Engine for Context Mapper JSON Converter
 """
 
 import logging
-from typing import Dict, List, Any, Optional, Union
 from dataclasses import dataclass
-from jsonschema import (
-    validate,
-    ValidationError as JsonSchemaValidationError,
-    Draft7Validator,
-)
-from .schemas.context_map import CONTEXT_MAP_SCHEMA, CONTEXT_MAP_SEMANTIC_RULES
+from typing import Any, Dict, List, Optional, Union
+
+from jsonschema import Draft7Validator
+from jsonschema import ValidationError as JsonSchemaValidationError
+from jsonschema import validate
+
 from .schemas.bounded_context import (
     BOUNDED_CONTEXT_SCHEMA,
     BOUNDED_CONTEXT_SEMANTIC_RULES,
 )
+from .schemas.context_map import CONTEXT_MAP_SCHEMA, CONTEXT_MAP_SEMANTIC_RULES
 from .schemas.subdomain import SUBDOMAIN_SCHEMA, SUBDOMAIN_SEMANTIC_RULES
 
 logger = logging.getLogger(__name__)
@@ -46,12 +46,9 @@ class ValidationResult:
     errors: List[ValidationError]
     warnings: List[ValidationError]
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         """Ensure errors and warnings are lists."""
-        if self.errors is None:
-            self.errors = []
-        if self.warnings is None:
-            self.warnings = []
+        pass
 
     @property
     def has_errors(self) -> bool:
@@ -83,7 +80,7 @@ class ValidationEngine:
     3. Reference validation - cross-reference integrity
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the validation engine with schemas."""
         self.context_map_validator = Draft7Validator(CONTEXT_MAP_SCHEMA)
         self.bounded_context_validator = Draft7Validator(BOUNDED_CONTEXT_SCHEMA)
@@ -148,7 +145,7 @@ class ValidationEngine:
             logger.warning(f"Context Map schema validation failed: {error}")
 
     def _validate_bounded_contexts_schema(
-        self, bounded_contexts_data: List[Dict[str, Any]], result: ValidationResult
+        self, bounded_contexts_data: Any, result: ValidationResult
     ) -> None:
         """Validate Bounded Contexts against schema."""
         if not isinstance(bounded_contexts_data, list):
@@ -176,7 +173,7 @@ class ValidationEngine:
                 logger.warning(f"Bounded Context {i} schema validation failed: {error}")
 
     def _validate_subdomains_schema(
-        self, subdomains_data: List[Dict[str, Any]], result: ValidationResult
+        self, subdomains_data: Any, result: ValidationResult
     ) -> None:
         """Validate Subdomains against schema."""
         if not isinstance(subdomains_data, list):

@@ -6,9 +6,10 @@ Validates generated Context Mapper DSL (CML) code for syntax and semantic correc
 
 import logging
 import re
-from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass
-from .validation import ValidationResult, ValidationError
+from typing import Any, Dict, List, Optional, Tuple
+
+from .validation import ValidationError, ValidationResult
 
 logger = logging.getLogger(__name__)
 
@@ -33,7 +34,7 @@ class CMLValidator:
     3. Reference integrity checking
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the CML validator with parsing patterns."""
         self._setup_patterns()
 
@@ -343,7 +344,7 @@ class CMLValidator:
                     )
 
         # Validate Bounded Context names are unique
-        bc_names_list = [bc.name for bc in bounded_contexts]
+        bc_names_list = [bc.name for bc in bounded_contexts if bc.name is not None]
         if len(bc_names_list) != len(set(bc_names_list)):
             duplicates = [
                 name for name in bc_names_list if bc_names_list.count(name) > 1

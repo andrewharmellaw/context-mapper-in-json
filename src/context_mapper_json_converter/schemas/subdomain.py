@@ -1,49 +1,24 @@
 """
-JSON Schema definition for Subdomain (Phase 2)
+JSON Schema definition for Subdomain.
+
+The canonical schema lives at schemas/subdomain.json in the repository root
+and is mirrored here as package data so it is available after installation.
+This module loads it at import time so the rest of the package can use it as a
+Python dict, exactly as before.
 """
 
-SUBDOMAIN_SCHEMA = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "title": "Subdomain Schema",
-    "description": "JSON schema for Context Mapper DSL Subdomain definitions",
-    "type": "object",
-    "properties": {
-        "name": {
-            "type": "string",
-            "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
-            "minLength": 1,
-            "maxLength": 100,
-            "description": "Name of the Subdomain. Must start with a letter and contain only letters, numbers, and underscores.",
-        },
-        "type": {
-            "type": "string",
-            "enum": ["CORE_DOMAIN", "SUPPORTING_DOMAIN", "GENERIC_SUBDOMAIN"],
-            "description": "Type of subdomain according to DDD strategic design",
-        },
-        "domainVisionStatement": {
-            "type": "string",
-            "maxLength": 500,
-            "description": "A brief statement describing the subdomain's purpose and scope",
-        },
-        "entities": {
-            "type": "array",
-            "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$"},
-            "uniqueItems": True,
-            "description": "List of main entities in this subdomain",
-        },
-        "services": {
-            "type": "array",
-            "items": {"type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_]*$"},
-            "uniqueItems": True,
-            "description": "List of domain services in this subdomain",
-        },
-    },
-    "required": ["name", "type"],
-    "additionalProperties": False,
-}
+import json
+from pathlib import Path
+from typing import Any, Dict
 
-# Validation rules for semantic constraints
-SUBDOMAIN_SEMANTIC_RULES = {
+# Co-located with this file inside the installed package
+_SCHEMA_PATH = Path(__file__).parent / "subdomain.json"
+
+with open(_SCHEMA_PATH, encoding="utf-8") as _f:
+    SUBDOMAIN_SCHEMA: Dict[str, Any] = json.load(_f)
+
+# Semantic validation rules (business constraints not expressible in JSON Schema)
+SUBDOMAIN_SEMANTIC_RULES: Dict[str, str] = {
     "unique_names": "All Subdomain names must be unique within a domain",
     "core_domain_limit": "Typically only one CORE_DOMAIN should exist per business domain",
     "entity_reference_valid": "All entity names should follow naming conventions",

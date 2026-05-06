@@ -5,8 +5,9 @@ Transforms validated JSON definitions into Context Mapper DSL (CML) code.
 """
 
 import logging
-from typing import Dict, List, Any, Optional
-from jinja2 import Template, Environment, BaseLoader
+from typing import Any, Dict, List, Optional
+
+from jinja2 import BaseLoader, Environment, Template
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class ConverterEngine:
     Supports Context Maps, Bounded Contexts, and basic relationships.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the converter engine with CML templates."""
         self.jinja_env = Environment(loader=BaseLoader())
         self._setup_templates()
@@ -181,7 +182,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
     def convert_context_map(
         self,
         context_map_data: Dict[str, Any],
-        bounded_contexts: List[Dict[str, Any]] = None,
+        bounded_contexts: Optional[List[Dict[str, Any]]] = None,
     ) -> str:
         """
         Convert Context Map JSON to CML syntax.

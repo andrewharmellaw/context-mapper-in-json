@@ -6,11 +6,12 @@ Validates that JSON → CML → JSON conversion preserves all information.
 
 import logging
 import re
-from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass
-from .validation import ValidationResult, ValidationError
-from .converter import ConverterEngine
+from typing import Any, Dict, List, Optional, Tuple, cast
+
 from .cml_validator import CMLValidator
+from .converter import ConverterEngine
+from .validation import ValidationError, ValidationResult
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +38,7 @@ class CMLParser:
     needed for round-trip validation.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the CML parser with regex patterns."""
         self._setup_patterns()
 
@@ -112,7 +113,7 @@ class CMLParser:
             Dictionary representing the parsed CML structure
         """
         try:
-            result = {}
+            result: Dict[str, Any] = {}
             lines = cml_code.split("\n")
 
             # Parse Context Map
@@ -161,6 +162,9 @@ class CMLParser:
                 break
 
             if in_context_map:
+                # context_map is always set when in_context_map is True
+                assert context_map is not None
+
                 # Parse contains
                 contains_match = self.contains_pattern.match(line)
                 if contains_match:
@@ -172,12 +176,15 @@ class CMLParser:
                 # Parse relationships
                 if "relationships" not in context_map:
                     context_map["relationships"] = []
+                relationships: List[Dict[str, Any]] = cast(
+                    List[Dict[str, Any]], context_map["relationships"]
+                )
 
                 # Partnership
                 partnership_match = self.partnership_pattern.match(line)
                 if partnership_match:
                     upstream, downstream = partnership_match.groups()
-                    context_map["relationships"].append(
+                    relationships.append(
                         {
                             "type": "Partnership",
                             "upstream": upstream,
@@ -189,14 +196,14 @@ class CMLParser:
                 sk_match = self.shared_kernel_pattern.match(line)
                 if sk_match:
                     upstream, downstream, tech = sk_match.groups()
-                    rel = {
+                    rel: Dict[str, Any] = {
                         "type": "SharedKernel",
                         "upstream": upstream,
                         "downstream": downstream,
                     }
                     if tech:
                         rel["implementationTechnology"] = tech.strip()
-                    context_map["relationships"].append(rel)
+                    relationships.append(rel)
 
                 # Customer/Supplier and Upstream/Downstream
                 cs_match = self.customer_supplier_pattern.match(line)
@@ -209,26 +216,26 @@ class CMLParser:
                         tech,
                         aggregates,
                     ) = cs_match.groups()
-                    rel = {
+                    cs_rel: Dict[str, Any] = {
                         "type": "CustomerSupplier",  # Default, could be UpstreamDownstream
                         "upstream": upstream,
                         "downstream": downstream,
                     }
                     if upstream_roles:
-                        rel["upstreamRoles"] = [
+                        cs_rel["upstreamRoles"] = [
                             r.strip() for r in upstream_roles.split(",")
                         ]
                     if downstream_roles:
-                        rel["downstreamRoles"] = [
+                        cs_rel["downstreamRoles"] = [
                             r.strip() for r in downstream_roles.split(",")
                         ]
                     if tech:
-                        rel["implementationTechnology"] = tech.strip()
+                        cs_rel["implementationTechnology"] = tech.strip()
                     if aggregates:
-                        rel["exposedAggregates"] = [
+                        cs_rel["exposedAggregates"] = [
                             a.strip() for a in aggregates.split(",")
                         ]
-                    context_map["relationships"].append(rel)
+                    relationships.append(cs_rel)
 
         return context_map
 
@@ -257,6 +264,9 @@ class CMLParser:
                 # Count braces
                 brace_count += line.count("{") - line.count("}")
 
+                # current_bc is always set when in_bc is True
+                assert current_bc is not None
+
                 # Parse properties
                 prop_match = self.property_pattern.match(line)
                 if prop_match:
@@ -277,10 +287,12 @@ class CMLParser:
                     # Note: Full aggregate parsing would be complex,
                     # for round-trip validation we focus on key elements
                     agg_name, owner = agg_match.groups()
-                    aggregate = {"name": agg_name}
+                    aggregate: Dict[str, Any] = {"name": agg_name}
                     if owner:
                         aggregate["owner"] = owner
-                    current_bc["aggregates"].append(aggregate)
+                    cast(List[Dict[str, Any]], current_bc["aggregates"]).append(
+                        aggregate
+                    )
 
                 # Check if BC is complete
                 if brace_count == 0:
@@ -292,10 +304,10 @@ class CMLParser:
 
     def _parse_domain(self, lines: List[str]) -> Dict[str, Any]:
         """Parse Domain and Subdomains from CML lines."""
-        result = {}
+        result: Dict[str, Any] = {}
         in_domain = False
         domain_name = None
-        subdomains = []
+        subdomains: List[Dict[str, str]] = []
 
         for line in lines:
             line = line.strip()
@@ -332,7 +344,7 @@ class RoundTripValidator:
     and that the semantic meaning is preserved.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize the round-trip validator."""
         self.converter = ConverterEngine()
         self.cml_validator = CMLValidator()

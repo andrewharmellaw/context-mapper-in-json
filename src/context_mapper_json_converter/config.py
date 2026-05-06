@@ -5,7 +5,7 @@ Configuration management for Context Mapper JSON Converter
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Any
+from typing import Any, Dict, Optional
 
 # Project paths
 PROJECT_ROOT = Path(__file__).parent.parent
@@ -50,7 +50,7 @@ DEFAULT_CONFIG: Dict[str, Any] = {
 class Config:
     """Configuration class for the Context Mapper JSON Converter."""
 
-    def __init__(self, config_dict: Dict[str, Any] = None):
+    def __init__(self, config_dict: Optional[Dict[str, Any]] = None) -> None:
         """Initialize configuration with optional custom settings."""
         self.config = DEFAULT_CONFIG.copy()
         if config_dict:

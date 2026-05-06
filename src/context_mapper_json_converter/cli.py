@@ -4,19 +4,19 @@ Command-line interface for Context Mapper JSON Converter
 """
 
 import json
-import sys
 import logging
+import sys
 from pathlib import Path
 from typing import Optional
 
 import click
 
-from .validation import ValidationEngine
-from .converter import ConverterEngine
 from .cml_validator import CMLValidator
-from .round_trip_validator import RoundTripValidator
-from .context_mapper_integration import ContextMapperIntegration, ContextMapperWorkflow
 from .config import setup_logging
+from .context_mapper_integration import ContextMapperIntegration, ContextMapperWorkflow
+from .converter import ConverterEngine
+from .round_trip_validator import RoundTripValidator
+from .validation import ValidationEngine
 
 
 @click.command()
@@ -56,7 +56,7 @@ def convert(
     generate_artifacts: tuple,
     verbose: bool,
     format_output: bool,
-):
+) -> None:
     """
     Convert JSON definitions to Context Mapper DSL (CML) code.
 
@@ -270,21 +270,21 @@ def convert(
 
 
 @click.group()
-def main():
+def main() -> None:
     """Context Mapper JSON Converter - Convert JSON definitions to CML code."""
     pass
 
 
 @main.command()
 @click.argument("input_file", type=click.Path(exists=True, path_type=Path))
-def validate(input_file: Path):
+def validate(input_file: Path) -> None:
     """Validate JSON file without conversion."""
-    convert.callback(input_file, None, True, False, False, True, (), False, True)
+    convert.callback(input_file, None, True, False, False, True, (), False, True)  # type: ignore[misc]
 
 
 @main.command()
 @click.argument("input_file", type=click.Path(exists=True, path_type=Path))
-def round_trip(input_file: Path):
+def round_trip(input_file: Path) -> None:
     """Test round-trip validation: JSON → CML → JSON comparison."""
     setup_logging("INFO")
     logger = logging.getLogger(__name__)
@@ -319,7 +319,7 @@ def round_trip(input_file: Path):
 
 
 @main.command()
-def integration_status():
+def integration_status() -> None:
     """Show Context Mapper integration status."""
     integration = ContextMapperIntegration()
     status = integration.get_integration_status()
@@ -350,7 +350,7 @@ def integration_status():
     default=["plantuml"],
     help="Artifact generators to run (plantuml, mdsl, etc.)",
 )
-def generate(input_file: Path, generator: tuple):
+def generate(input_file: Path, generator: tuple) -> None:
     """Generate artifacts from JSON using Context Mapper tools."""
     setup_logging("INFO")
 
@@ -384,7 +384,7 @@ def generate(input_file: Path, generator: tuple):
 
 
 @main.command()
-def version():
+def version() -> None:
     """Show version information."""
     from . import __version__
 

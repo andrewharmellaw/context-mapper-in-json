@@ -5,13 +5,14 @@ Provides integration with Context Mapper CLI tools and ecosystem.
 """
 
 import logging
+import os
 import subprocess
 import tempfile
-import os
-from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
 from dataclasses import dataclass
-from .validation import ValidationResult, ValidationError
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+from .validation import ValidationError, ValidationResult
 
 logger = logging.getLogger(__name__)
 
@@ -38,7 +39,7 @@ class ContextMapperIntegration:
     4. Integrate with Context Mapper VS Code extension
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize Context Mapper integration."""
         self.tools = {
             "contextmapper": ContextMapperTool(
@@ -416,13 +417,13 @@ class ContextMapperWorkflow:
     Context Mapper tool capabilities.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize Context Mapper workflow."""
         self.integration = ContextMapperIntegration()
 
     def validate_and_generate_workflow(
-        self, json_data: Dict[str, Any], generators: List[str] = None
-    ) -> Dict[str, ValidationResult]:
+        self, json_data: Dict[str, Any], generators: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
         """
         Complete workflow: JSON → CML → Validation → Artifact Generation.
 
@@ -436,7 +437,7 @@ class ContextMapperWorkflow:
         from .converter import ConverterEngine
         from .validation import ValidationEngine
 
-        results = {}
+        results: Dict[str, Any] = {}
 
         # Step 1: Validate JSON
         json_validator = ValidationEngine()

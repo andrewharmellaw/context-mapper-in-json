@@ -184,7 +184,6 @@ essential_files=(
     "pyproject.toml"
     "requirements.txt"
     "requirements-dev.txt"
-    "setup.py"
     ".gitignore"
     ".pre-commit-config.yaml"
     "tox.ini"
@@ -246,7 +245,11 @@ sensitive_patterns=(
 
 sensitive_files=()
 for pattern in "${sensitive_patterns[@]}"; do
-    files=$(find . -name "$pattern" -type f 2>/dev/null || true)
+    files=$(find . \
+        -not -path './venv/*' \
+        -not -path './.venv/*' \
+        -not -path './.git/*' \
+        -name "$pattern" -type f 2>/dev/null || true)
     if [ -n "$files" ]; then
         sensitive_files+=($files)
     fi
