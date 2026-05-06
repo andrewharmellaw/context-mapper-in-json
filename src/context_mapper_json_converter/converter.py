@@ -11,6 +11,22 @@ from jinja2 import BaseLoader, Environment, TemplateError, UndefinedError
 
 from .enums import RelationshipType
 from .exceptions import ConversionError
+from .types import (
+    AggregateDict,
+    AttributeDict,
+    BoundedContextDict,
+    CommandDict,
+    ContextMapDict,
+    ContextMapperDocument,
+    DomainEventDict,
+    EntityDict,
+    OperationDict,
+    RelationshipDict,
+    RepositoryDict,
+    ServiceDict,
+    SubdomainDict,
+    ValueObjectDict,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -138,7 +154,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
   {%- endif %}
 }""".strip())
 
-    def convert(self, json_data: Dict[str, Any]) -> str:
+    def convert(self, json_data: ContextMapperDocument) -> str:
         """
         Convert complete JSON definition to CML code.
 
@@ -149,7 +165,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             Generated CML code as string
 
         Raises:
-            ValueError: If required data is missing or invalid
+            ConversionError: If required data is missing or invalid
         """
         try:
             cml_parts = []
@@ -184,8 +200,8 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
 
     def convert_context_map(
         self,
-        context_map_data: Dict[str, Any],
-        bounded_contexts: Optional[List[Dict[str, Any]]] = None,
+        context_map_data: ContextMapDict,
+        bounded_contexts: Optional[List[BoundedContextDict]] = None,
     ) -> str:
         """
         Convert Context Map JSON to CML syntax.
@@ -217,7 +233,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.error(f"Context Map conversion failed: {e}")
             raise ConversionError(f"Failed to convert Context Map: {str(e)}") from e
 
-    def convert_bounded_context(self, context_data: Dict[str, Any]) -> str:
+    def convert_bounded_context(self, context_data: BoundedContextDict) -> str:
         """
         Convert Bounded Context JSON to CML syntax.
 
@@ -243,25 +259,21 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
 
             bc_parts.append(header)
 
-            # Add properties
-            properties = [
-                ("domainVisionStatement", "domainVisionStatement"),
-                ("implementationTechnology", "implementationTechnology"),
-                ("knowledgeLevel", "knowledgeLevel"),
-                ("businessModel", "businessModel"),
-                ("evolution", "evolution"),
-            ]
+            # Add optional string properties (quoted in CML)
+            if "domainVisionStatement" in context_data:
+                bc_parts.append(
+                    f'  domainVisionStatement = "{context_data["domainVisionStatement"]}"'
+                )
+            if "implementationTechnology" in context_data:
+                bc_parts.append(
+                    f'  implementationTechnology = "{context_data["implementationTechnology"]}"'
+                )
 
-            for prop_name, cml_name in properties:
-                if prop_name in context_data:
-                    value = context_data[prop_name]
-                    if prop_name in [
-                        "domainVisionStatement",
-                        "implementationTechnology",
-                    ]:
-                        bc_parts.append(f'  {cml_name} = "{value}"')
-                    else:
-                        bc_parts.append(f"  {cml_name} = {value}")
+            # Add optional enum properties (unquoted in CML)
+            for prop_name in ("knowledgeLevel", "businessModel", "evolution"):
+                value = context_data.get(prop_name)
+                if value is not None:
+                    bc_parts.append(f"  {prop_name} = {value}")
 
             # Handle responsibilities (array)
             if "responsibilities" in context_data:
@@ -290,7 +302,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.error(f"Bounded Context conversion failed: {e}")
             raise ConversionError(f"Failed to convert Bounded Context: {str(e)}") from e
 
-    def convert_relationships(self, relationships: List[Dict[str, Any]]) -> List[str]:
+    def convert_relationships(self, relationships: List[RelationshipDict]) -> List[str]:
         """
         Convert relationship JSON to CML relationship syntax.
 
@@ -370,7 +382,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
         return cml_relationships
 
     def convert_subdomains(
-        self, subdomains: List[Dict[str, Any]], domain_name: str = "DefaultDomain"
+        self, subdomains: List[SubdomainDict], domain_name: str = "DefaultDomain"
     ) -> str:
         """
         Convert subdomain JSON to CML Domain syntax.
@@ -395,7 +407,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.error(f"Subdomain conversion failed: {e}")
             raise ConversionError(f"Failed to convert Subdomains: {str(e)}") from e
 
-    def convert_aggregate(self, aggregate_data: Dict[str, Any]) -> str:
+    def convert_aggregate(self, aggregate_data: AggregateDict) -> str:
         """
         Convert Aggregate JSON to CML syntax.
 
@@ -491,7 +503,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.error(f"Aggregate conversion failed: {e}")
             raise ConversionError(f"Failed to convert Aggregate: {str(e)}") from e
 
-    def convert_entity(self, entity_data: Dict[str, Any]) -> str:
+    def convert_entity(self, entity_data: EntityDict) -> str:
         """Convert Entity JSON to CML syntax."""
         try:
             name = entity_data.get("name")
@@ -525,7 +537,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.error(f"Entity conversion failed: {e}")
             raise ConversionError(f"Failed to convert Entity: {str(e)}") from e
 
-    def convert_value_object(self, vo_data: Dict[str, Any]) -> str:
+    def convert_value_object(self, vo_data: ValueObjectDict) -> str:
         """Convert Value Object JSON to CML syntax."""
         try:
             name = vo_data.get("name")
@@ -552,7 +564,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.error(f"Value Object conversion failed: {e}")
             raise ConversionError(f"Failed to convert Value Object: {str(e)}") from e
 
-    def convert_domain_event(self, event_data: Dict[str, Any]) -> str:
+    def convert_domain_event(self, event_data: DomainEventDict) -> str:
         """Convert Domain Event JSON to CML syntax."""
         try:
             name = event_data.get("name")
@@ -573,7 +585,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.error(f"Domain Event conversion failed: {e}")
             raise ConversionError(f"Failed to convert Domain Event: {str(e)}") from e
 
-    def convert_command(self, command_data: Dict[str, Any]) -> str:
+    def convert_command(self, command_data: CommandDict) -> str:
         """Convert Command JSON to CML syntax."""
         try:
             name = command_data.get("name")
@@ -594,7 +606,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.error(f"Command conversion failed: {e}")
             raise ConversionError(f"Failed to convert Command: {str(e)}") from e
 
-    def convert_service(self, service_data: Dict[str, Any]) -> str:
+    def convert_service(self, service_data: ServiceDict) -> str:
         """Convert Service JSON to CML syntax."""
         try:
             name = service_data.get("name")
@@ -615,7 +627,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.error(f"Service conversion failed: {e}")
             raise ConversionError(f"Failed to convert Service: {str(e)}") from e
 
-    def convert_repository(self, repo_data: Dict[str, Any]) -> str:
+    def convert_repository(self, repo_data: RepositoryDict) -> str:
         """Convert Repository JSON to CML syntax."""
         try:
             name = repo_data.get("name")
@@ -636,7 +648,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.error(f"Repository conversion failed: {e}")
             raise ConversionError(f"Failed to convert Repository: {str(e)}") from e
 
-    def convert_attribute(self, attr_data: Dict[str, Any]) -> str:
+    def convert_attribute(self, attr_data: AttributeDict) -> str:
         """Convert Attribute JSON to CML syntax."""
         name = attr_data.get("name")
         attr_type = attr_data.get("type")
@@ -652,7 +664,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
 
         return attr_str
 
-    def convert_operation(self, op_data: Dict[str, Any]) -> str:
+    def convert_operation(self, op_data: OperationDict) -> str:
         """Convert Operation JSON to CML syntax."""
         name = op_data.get("name")
         parameters = op_data.get("parameters", [])

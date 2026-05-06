@@ -32,6 +32,23 @@ from .exceptions import (
     SchemaLoadError,
 )
 from .round_trip_validator import RoundTripValidator
+from .types import (
+    AggregateDict,
+    AttributeDict,
+    BoundedContextDict,
+    CommandDict,
+    ContextMapDict,
+    ContextMapperDocument,
+    DomainEventDict,
+    EntityDict,
+    OperationDict,
+    ParameterDict,
+    RelationshipDict,
+    RepositoryDict,
+    ServiceDict,
+    SubdomainDict,
+    ValueObjectDict,
+)
 from .validation import ValidationEngine, ValidationResult
 
 __all__ = [
@@ -60,4 +77,20 @@ __all__ = [
     "ConversionError",
     "SchemaLoadError",
     "CMLParseError",
+    # TypedDicts
+    "ContextMapperDocument",
+    "ContextMapDict",
+    "BoundedContextDict",
+    "RelationshipDict",
+    "AggregateDict",
+    "EntityDict",
+    "ValueObjectDict",
+    "DomainEventDict",
+    "CommandDict",
+    "ServiceDict",
+    "RepositoryDict",
+    "SubdomainDict",
+    "AttributeDict",
+    "OperationDict",
+    "ParameterDict",
 ]

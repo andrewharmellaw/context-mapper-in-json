@@ -16,6 +16,7 @@ from .schemas.bounded_context import (
 )
 from .schemas.context_map import CONTEXT_MAP_SCHEMA, CONTEXT_MAP_SEMANTIC_RULES
 from .schemas.subdomain import SUBDOMAIN_SCHEMA, SUBDOMAIN_SEMANTIC_RULES
+from .types import BoundedContextDict, ContextMapDict, ContextMapperDocument
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +87,9 @@ class ValidationEngine:
         self.bounded_context_validator = Draft7Validator(BOUNDED_CONTEXT_SCHEMA)
         self.subdomain_validator = Draft7Validator(SUBDOMAIN_SCHEMA)
 
-    def validate_json_schema(self, json_data: Dict[str, Any]) -> ValidationResult:
+    def validate_json_schema(
+        self, json_data: ContextMapperDocument
+    ) -> ValidationResult:
         """
         Validate JSON data against the appropriate schema.
 
@@ -130,7 +133,7 @@ class ValidationEngine:
         return result
 
     def _validate_context_map_schema(
-        self, context_map_data: Dict[str, Any], result: ValidationResult
+        self, context_map_data: ContextMapDict, result: ValidationResult
     ) -> None:
         """Validate Context Map against schema."""
         try:
@@ -203,7 +206,7 @@ class ValidationEngine:
                 logger.warning(f"Subdomain {i} schema validation failed: {error}")
 
     def _validate_complete_structure_schema(
-        self, json_data: Dict[str, Any], result: ValidationResult
+        self, json_data: ContextMapperDocument, result: ValidationResult
     ) -> None:
         """Validate the complete JSON structure."""
         # Check that the root structure is valid
@@ -219,7 +222,9 @@ class ValidationEngine:
                     )
                 )
 
-    def validate_semantic_rules(self, json_data: Dict[str, Any]) -> ValidationResult:
+    def validate_semantic_rules(
+        self, json_data: ContextMapperDocument
+    ) -> ValidationResult:
         """
         Validate semantic rules and business constraints.
 
@@ -256,8 +261,8 @@ class ValidationEngine:
 
     def _validate_context_map_semantics(
         self,
-        context_map: Dict[str, Any],
-        bounded_contexts: List[Dict[str, Any]],
+        context_map: ContextMapDict,
+        bounded_contexts: List[BoundedContextDict],
         result: ValidationResult,
     ) -> None:
         """Validate Context Map semantic rules."""
@@ -316,7 +321,7 @@ class ValidationEngine:
                 )
 
     def _validate_bounded_context_semantics(
-        self, bounded_contexts: List[Dict[str, Any]], result: ValidationResult
+        self, bounded_contexts: List[BoundedContextDict], result: ValidationResult
     ) -> None:
         """Validate Bounded Context semantic rules."""
         context_names = []
@@ -356,7 +361,7 @@ class ValidationEngine:
                         )
                     )
 
-    def validate_references(self, json_data: Dict[str, Any]) -> ValidationResult:
+    def validate_references(self, json_data: ContextMapperDocument) -> ValidationResult:
         """
         Validate cross-reference integrity.
 
@@ -390,8 +395,8 @@ class ValidationEngine:
 
     def _validate_cross_references(
         self,
-        context_map: Dict[str, Any],
-        bounded_contexts: List[Dict[str, Any]],
+        context_map: ContextMapDict,
+        bounded_contexts: List[BoundedContextDict],
         result: ValidationResult,
     ) -> None:
         """Validate cross-references between Context Map and Bounded Contexts."""

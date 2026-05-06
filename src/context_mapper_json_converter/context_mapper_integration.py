@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from .exceptions import ConversionError
+from .types import ContextMapperDocument
 from .validation import ValidationError, ValidationResult
 
 logger = logging.getLogger(__name__)
@@ -423,7 +424,7 @@ class ContextMapperWorkflow:
         self.integration = ContextMapperIntegration()
 
     def validate_and_generate_workflow(
-        self, json_data: Dict[str, Any], generators: Optional[List[str]] = None
+        self, json_data: ContextMapperDocument, generators: Optional[List[str]] = None
     ) -> Dict[str, Any]:
         """
         Complete workflow: JSON → CML → Validation → Artifact Generation.
