@@ -41,7 +41,12 @@ class ConverterEngine:
 
     def __init__(self) -> None:
         """Initialize the converter engine with CML templates."""
-        self.jinja_env = Environment(loader=BaseLoader())
+        # autoescape=False is intentional: this converter generates CML (a DSL text
+        # file), not HTML. Autoescaping would corrupt CML syntax characters like
+        # < > { }.  nosec B701
+        self.jinja_env = Environment(
+            loader=BaseLoader(), autoescape=False
+        )  # nosec B701
         self._setup_templates()
 
     def _setup_templates(self) -> None:

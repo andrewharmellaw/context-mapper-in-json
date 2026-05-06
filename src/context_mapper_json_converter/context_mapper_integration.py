@@ -6,7 +6,7 @@ Provides integration with Context Mapper CLI tools and ecosystem.
 
 import logging
 import os
-import subprocess
+import subprocess  # nosec B404 — subprocess is used only to invoke known external CLI tools (contextmapper, cml, java); no user-controlled data is passed as a command name
 import tempfile
 from dataclasses import dataclass
 from pathlib import Path
@@ -59,7 +59,7 @@ class ContextMapperIntegration:
         """Detect available Context Mapper tools."""
         for tool_id, tool in self.tools.items():
             try:
-                result = subprocess.run(
+                result = subprocess.run(  # nosec B603 B607 — command is a fixed tool name from ContextMapperTool.command, not user input
                     [tool.command, tool.version_arg],
                     capture_output=True,
                     text=True,
@@ -189,7 +189,7 @@ class ContextMapperIntegration:
 
         try:
             # Run Context Mapper validation
-            cmd_result = subprocess.run(
+            cmd_result = subprocess.run(  # nosec B603 B607 — "contextmapper" is a fixed string, file_path is a temp file created by this code
                 ["contextmapper", "validate", file_path],
                 capture_output=True,
                 text=True,
@@ -243,7 +243,7 @@ class ContextMapperIntegration:
 
         try:
             # Run CML validation
-            cmd_result = subprocess.run(
+            cmd_result = subprocess.run(  # nosec B603 B607 — "cml" is a fixed string, file_path is a temp file created by this code
                 ["cml", "validate", file_path],
                 capture_output=True,
                 text=True,
@@ -323,7 +323,7 @@ class ContextMapperIntegration:
 
             try:
                 # Run generator
-                cmd_result = subprocess.run(
+                cmd_result = subprocess.run(  # nosec B603 B607 — "contextmapper" is a fixed string, temp_file_path is created by this code
                     ["contextmapper", "generate", generator_type, temp_file_path],
                     capture_output=True,
                     text=True,

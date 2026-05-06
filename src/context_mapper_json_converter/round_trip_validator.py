@@ -150,8 +150,12 @@ class CMLParser:
                 break
 
             if in_context_map:
-                # context_map is always set when in_context_map is True
-                assert context_map is not None
+                # context_map is always set when in_context_map is True;
+                # guard defensively rather than using assert (removed by -O)
+                if context_map is None:
+                    raise CMLParseError(
+                        "Internal parse error: context_map is None inside in_context_map block"
+                    )
 
                 # Parse contains
                 contains_match = self.contains_pattern.match(line)
@@ -252,8 +256,12 @@ class CMLParser:
                 # Count braces
                 brace_count += line.count("{") - line.count("}")
 
-                # current_bc is always set when in_bc is True
-                assert current_bc is not None
+                # current_bc is always set when in_bc is True;
+                # guard defensively rather than using assert (removed by -O)
+                if current_bc is None:
+                    raise CMLParseError(
+                        "Internal parse error: current_bc is None inside in_bc block"
+                    )
 
                 # Parse properties
                 prop_match = self.property_pattern.match(line)
