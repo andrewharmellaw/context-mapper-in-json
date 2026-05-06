@@ -11,11 +11,18 @@ import json
 from pathlib import Path
 from typing import Any, Dict
 
+from ..exceptions import SchemaLoadError
+
 # Co-located with this file inside the installed package
 _SCHEMA_PATH = Path(__file__).parent / "context-map.json"
 
-with open(_SCHEMA_PATH, encoding="utf-8") as _f:
-    CONTEXT_MAP_SCHEMA: Dict[str, Any] = json.load(_f)
+try:
+    with open(_SCHEMA_PATH, encoding="utf-8") as _f:
+        CONTEXT_MAP_SCHEMA: Dict[str, Any] = json.load(_f)
+except (OSError, json.JSONDecodeError) as _e:
+    raise SchemaLoadError(
+        f"Failed to load context-map schema from {_SCHEMA_PATH}: {_e}"
+    ) from _e
 
 # Semantic validation rules (business constraints not expressible in JSON Schema)
 CONTEXT_MAP_SEMANTIC_RULES: Dict[str, str] = {

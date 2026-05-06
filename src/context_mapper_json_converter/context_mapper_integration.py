@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from .exceptions import ConversionError
 from .validation import ValidationError, ValidationResult
 
 logger = logging.getLogger(__name__)
@@ -168,8 +169,8 @@ class ContextMapperIntegration:
                 # Clean up temporary file
                 os.unlink(temp_file_path)
 
-        except Exception as e:
-            logger.error(f"CLI validation failed: {e}")
+        except (OSError, subprocess.SubprocessError) as e:
+            logger.error(f"CLI validation failed: {e}", exc_info=True)
             result.add_error(
                 ValidationError(
                     message=f"CLI validation error: {str(e)}",
@@ -223,7 +224,7 @@ class ContextMapperIntegration:
                     error_type="INTEGRATION_TIMEOUT",
                 )
             )
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError) as e:
             result.add_error(
                 ValidationError(
                     message=f"Context Mapper CLI error: {str(e)}",
@@ -273,7 +274,7 @@ class ContextMapperIntegration:
                     error_type="INTEGRATION_TIMEOUT",
                 )
             )
-        except Exception as e:
+        except (OSError, subprocess.SubprocessError) as e:
             result.add_error(
                 ValidationError(
                     message=f"CML CLI error: {str(e)}",
@@ -348,8 +349,8 @@ class ContextMapperIntegration:
                 # Clean up temporary file
                 os.unlink(temp_file_path)
 
-        except Exception as e:
-            logger.error(f"Artifact generation failed: {e}")
+        except (OSError, subprocess.SubprocessError) as e:
+            logger.error(f"Artifact generation failed: {e}", exc_info=True)
             result.add_error(
                 ValidationError(
                     message=f"Artifact generation error: {str(e)}",
@@ -454,7 +455,7 @@ class ContextMapperWorkflow:
             results["conversion"] = ValidationResult(
                 is_valid=True, errors=[], warnings=[]
             )
-        except Exception as e:
+        except ConversionError as e:
             results["conversion"] = ValidationResult(
                 is_valid=False,
                 errors=[

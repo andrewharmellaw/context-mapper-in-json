@@ -115,8 +115,10 @@ class ValidationEngine:
             if "contextMap" in json_data and "boundedContexts" in json_data:
                 self._validate_complete_structure_schema(json_data, result)
 
-        except Exception as e:
-            logger.error(f"Unexpected error during schema validation: {e}")
+        except Exception as e:  # Safety net: re-raise as structured error
+            logger.error(
+                f"Unexpected error during schema validation: {e}", exc_info=True
+            )
             result.add_error(
                 ValidationError(
                     message=f"Unexpected validation error: {str(e)}",
@@ -238,8 +240,10 @@ class ValidationEngine:
                     json_data["boundedContexts"], result
                 )
 
-        except Exception as e:
-            logger.error(f"Unexpected error during semantic validation: {e}")
+        except Exception as e:  # Safety net: re-raise as structured error
+            logger.error(
+                f"Unexpected error during semantic validation: {e}", exc_info=True
+            )
             result.add_error(
                 ValidationError(
                     message=f"Unexpected semantic validation error: {str(e)}",
@@ -370,8 +374,10 @@ class ValidationEngine:
                     json_data["contextMap"], json_data["boundedContexts"], result
                 )
 
-        except Exception as e:
-            logger.error(f"Unexpected error during reference validation: {e}")
+        except Exception as e:  # Safety net: re-raise as structured error
+            logger.error(
+                f"Unexpected error during reference validation: {e}", exc_info=True
+            )
             result.add_error(
                 ValidationError(
                     message=f"Unexpected reference validation error: {str(e)}",

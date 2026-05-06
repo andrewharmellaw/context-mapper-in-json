@@ -7,7 +7,10 @@ Transforms validated JSON definitions into Context Mapper DSL (CML) code.
 import logging
 from typing import Any, Dict, List, Optional
 
-from jinja2 import BaseLoader, Environment, Template
+from jinja2 import BaseLoader, Environment, TemplateError, UndefinedError
+
+from .enums import RelationshipType
+from .exceptions import ConversionError
 
 logger = logging.getLogger(__name__)
 
@@ -175,9 +178,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             # Join all parts with double newlines
             return "\n\n".join(cml_parts)
 
-        except Exception as e:
+        except (TemplateError, UndefinedError, KeyError, TypeError) as e:
             logger.error(f"Conversion failed: {e}")
-            raise ValueError(f"Failed to convert JSON to CML: {str(e)}")
+            raise ConversionError(f"Failed to convert JSON to CML: {str(e)}") from e
 
     def convert_context_map(
         self,
@@ -210,9 +213,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.debug(f"Generated Context Map CML: {cml_output}")
             return cml_output
 
-        except Exception as e:
+        except (TemplateError, UndefinedError, KeyError, TypeError) as e:
             logger.error(f"Context Map conversion failed: {e}")
-            raise ValueError(f"Failed to convert Context Map: {str(e)}")
+            raise ConversionError(f"Failed to convert Context Map: {str(e)}") from e
 
     def convert_bounded_context(self, context_data: Dict[str, Any]) -> str:
         """
@@ -283,9 +286,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.debug(f"Generated Bounded Context CML: {cml_output}")
             return cml_output
 
-        except Exception as e:
+        except (KeyError, TypeError) as e:
             logger.error(f"Bounded Context conversion failed: {e}")
-            raise ValueError(f"Failed to convert Bounded Context: {str(e)}")
+            raise ConversionError(f"Failed to convert Bounded Context: {str(e)}") from e
 
     def convert_relationships(self, relationships: List[Dict[str, Any]]) -> List[str]:
         """
@@ -309,17 +312,17 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
                 downstream_roles = rel.get("downstreamRoles", [])
                 exposed_aggregates = rel.get("exposedAggregates", [])
 
-                if rel_type == "Partnership":
+                if rel_type == RelationshipType.PARTNERSHIP:
                     # Partnership: A Partnership B
                     rel_str = f"{upstream} Partnership {downstream}"
 
-                elif rel_type == "SharedKernel":
+                elif rel_type == RelationshipType.SHARED_KERNEL:
                     # Shared Kernel: A [SK] <-> [SK] B
                     rel_str = f"{upstream} [SK] <-> [SK] {downstream}"
                     if impl_tech:
                         rel_str += f" : {impl_tech}"
 
-                elif rel_type == "CustomerSupplier":
+                elif rel_type == RelationshipType.CUSTOMER_SUPPLIER:
                     # Customer/Supplier: A [U,OHS,PL]->[D,ACL] B
                     upstream_role_str = (
                         ",".join(upstream_roles) if upstream_roles else "U"
@@ -335,7 +338,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
                     if exposed_aggregates:
                         rel_str += f" {{ {', '.join(exposed_aggregates)} }}"
 
-                elif rel_type == "UpstreamDownstream":
+                elif rel_type == RelationshipType.UPSTREAM_DOWNSTREAM:
                     # Upstream/Downstream: A [U,OHS,PL]->[D,ACL] B (similar to Customer/Supplier)
                     upstream_role_str = (
                         ",".join(upstream_roles) if upstream_roles else "U"
@@ -360,7 +363,7 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
                 cml_relationships.append(rel_str)
                 logger.debug(f"Generated relationship: {rel_str}")
 
-            except Exception as e:
+            except (KeyError, TypeError) as e:
                 logger.warning(f"Failed to convert relationship {rel}: {e}")
                 continue
 
@@ -388,9 +391,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.debug(f"Generated Subdomain CML: {cml_output}")
             return cml_output
 
-        except Exception as e:
+        except (TemplateError, UndefinedError, KeyError, TypeError) as e:
             logger.error(f"Subdomain conversion failed: {e}")
-            raise ValueError(f"Failed to convert Subdomains: {str(e)}")
+            raise ConversionError(f"Failed to convert Subdomains: {str(e)}") from e
 
     def convert_aggregate(self, aggregate_data: Dict[str, Any]) -> str:
         """
@@ -484,9 +487,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
             logger.debug(f"Generated Aggregate CML: {cml_output}")
             return cml_output
 
-        except Exception as e:
+        except (KeyError, TypeError) as e:
             logger.error(f"Aggregate conversion failed: {e}")
-            raise ValueError(f"Failed to convert Aggregate: {str(e)}")
+            raise ConversionError(f"Failed to convert Aggregate: {str(e)}") from e
 
     def convert_entity(self, entity_data: Dict[str, Any]) -> str:
         """Convert Entity JSON to CML syntax."""
@@ -518,9 +521,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
 
             return "\n".join(entity_parts)
 
-        except Exception as e:
+        except (KeyError, TypeError) as e:
             logger.error(f"Entity conversion failed: {e}")
-            raise ValueError(f"Failed to convert Entity: {str(e)}")
+            raise ConversionError(f"Failed to convert Entity: {str(e)}") from e
 
     def convert_value_object(self, vo_data: Dict[str, Any]) -> str:
         """Convert Value Object JSON to CML syntax."""
@@ -545,9 +548,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
 
             return "\n".join(vo_parts)
 
-        except Exception as e:
+        except (KeyError, TypeError) as e:
             logger.error(f"Value Object conversion failed: {e}")
-            raise ValueError(f"Failed to convert Value Object: {str(e)}")
+            raise ConversionError(f"Failed to convert Value Object: {str(e)}") from e
 
     def convert_domain_event(self, event_data: Dict[str, Any]) -> str:
         """Convert Domain Event JSON to CML syntax."""
@@ -566,9 +569,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
 
             return "\n".join(event_parts)
 
-        except Exception as e:
+        except (KeyError, TypeError) as e:
             logger.error(f"Domain Event conversion failed: {e}")
-            raise ValueError(f"Failed to convert Domain Event: {str(e)}")
+            raise ConversionError(f"Failed to convert Domain Event: {str(e)}") from e
 
     def convert_command(self, command_data: Dict[str, Any]) -> str:
         """Convert Command JSON to CML syntax."""
@@ -587,9 +590,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
 
             return "\n".join(command_parts)
 
-        except Exception as e:
+        except (KeyError, TypeError) as e:
             logger.error(f"Command conversion failed: {e}")
-            raise ValueError(f"Failed to convert Command: {str(e)}")
+            raise ConversionError(f"Failed to convert Command: {str(e)}") from e
 
     def convert_service(self, service_data: Dict[str, Any]) -> str:
         """Convert Service JSON to CML syntax."""
@@ -608,9 +611,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
 
             return "\n".join(service_parts)
 
-        except Exception as e:
+        except (KeyError, TypeError) as e:
             logger.error(f"Service conversion failed: {e}")
-            raise ValueError(f"Failed to convert Service: {str(e)}")
+            raise ConversionError(f"Failed to convert Service: {str(e)}") from e
 
     def convert_repository(self, repo_data: Dict[str, Any]) -> str:
         """Convert Repository JSON to CML syntax."""
@@ -629,9 +632,9 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
 
             return "\n".join(repo_parts)
 
-        except Exception as e:
+        except (KeyError, TypeError) as e:
             logger.error(f"Repository conversion failed: {e}")
-            raise ValueError(f"Failed to convert Repository: {str(e)}")
+            raise ConversionError(f"Failed to convert Repository: {str(e)}") from e
 
     def convert_attribute(self, attr_data: Dict[str, Any]) -> str:
         """Convert Attribute JSON to CML syntax."""

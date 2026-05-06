@@ -11,6 +11,7 @@ from typing import Any, Dict, List, Optional, Tuple, cast
 
 from .cml_validator import CMLValidator
 from .converter import ConverterEngine
+from .exceptions import CMLParseError
 from .validation import ValidationError, ValidationResult
 
 logger = logging.getLogger(__name__)
@@ -135,7 +136,7 @@ class CMLParser:
 
         except Exception as e:
             logger.error(f"CML parsing failed: {e}")
-            raise ValueError(f"Failed to parse CML: {str(e)}")
+            raise CMLParseError(f"Failed to parse CML: {str(e)}") from e
 
     def _parse_context_map(self, lines: List[str]) -> Optional[Dict[str, Any]]:
         """Parse Context Map from CML lines."""
@@ -410,8 +411,8 @@ class RoundTripValidator:
                 f"Round-trip validation completed with {len(result.errors)} errors and {len(result.warnings)} warnings"
             )
 
-        except Exception as e:
-            logger.error(f"Round-trip validation failed: {e}")
+        except Exception as e:  # Safety net for unexpected round-trip failures
+            logger.error(f"Round-trip validation failed: {e}", exc_info=True)
             result.add_error(
                 ValidationError(
                     message=f"Round-trip validation error: {str(e)}",
@@ -732,8 +733,8 @@ class RoundTripValidator:
                 )
             )
 
-        except Exception as e:
-            logger.error(f"Context Mapper validation failed: {e}")
+        except Exception as e:  # Safety net for unexpected validation failures
+            logger.error(f"Context Mapper validation failed: {e}", exc_info=True)
             result.add_error(
                 ValidationError(
                     message=f"Context Mapper validation error: {str(e)}",

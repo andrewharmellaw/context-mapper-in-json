@@ -9,6 +9,14 @@ import re
 from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Tuple
 
+from .enums import (
+    BoundedContextType,
+    BusinessModel,
+    ContextMapState,
+    ContextMapType,
+    Evolution,
+    KnowledgeLevel,
+)
 from .validation import ValidationError, ValidationResult
 
 logger = logging.getLogger(__name__)
@@ -64,18 +72,13 @@ class CMLValidator:
         self.property_pattern = re.compile(r'(\w+)\s*=\s*"([^"]*)"')
         self.enum_property_pattern = re.compile(r"(\w+)\s*=\s*(\w+)")
 
-        # Valid enum values
-        self.valid_context_map_types = {"SYSTEM_LANDSCAPE", "ORGANIZATIONAL"}
-        self.valid_context_map_states = {"AS_IS", "TO_BE"}
-        self.valid_bounded_context_types = {"FEATURE", "APPLICATION", "SYSTEM", "TEAM"}
-        self.valid_knowledge_levels = {"CONCRETE", "META"}
-        self.valid_business_models = {
-            "REVENUE",
-            "ENGAGEMENT",
-            "COMPLIANCE",
-            "COST_REDUCTION",
-        }
-        self.valid_evolutions = {"GENESIS", "CUSTOM_BUILT", "PRODUCT", "COMMODITY"}
+        # Valid enum values (derived from enums module — single source of truth)
+        self.valid_context_map_types = {e.value for e in ContextMapType}
+        self.valid_context_map_states = {e.value for e in ContextMapState}
+        self.valid_bounded_context_types = {e.value for e in BoundedContextType}
+        self.valid_knowledge_levels = {e.value for e in KnowledgeLevel}
+        self.valid_business_models = {e.value for e in BusinessModel}
+        self.valid_evolutions = {e.value for e in Evolution}
 
     def validate_syntax(self, cml_code: str) -> ValidationResult:
         """
@@ -97,8 +100,10 @@ class CMLValidator:
                 # Validate parsed elements
                 self._validate_parsed_elements(elements, result)
 
-        except Exception as e:
-            logger.error(f"Unexpected error during CML syntax validation: {e}")
+        except Exception as e:  # Safety net for unexpected parse failures
+            logger.error(
+                f"Unexpected error during CML syntax validation: {e}", exc_info=True
+            )
             result.add_error(
                 ValidationError(
                     message=f"Unexpected CML validation error: {str(e)}",
@@ -256,7 +261,7 @@ class CMLValidator:
                         elements.append(current_element)
                         current_element = None
 
-            except Exception as e:
+            except (KeyError, TypeError, re.error) as e:
                 result.add_error(
                     ValidationError(
                         message=f"Parse error on line {line_num}: {str(e)}",
