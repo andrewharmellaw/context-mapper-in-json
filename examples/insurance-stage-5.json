@@ -1,0 +1,537 @@
+{
+  "contextMap": {
+    "name": "InsuranceContextMap",
+    "type": "SYSTEM_LANDSCAPE",
+    "state": "TO_BE",
+    "contains": [
+      "CustomerManagementContext",
+      "CustomerSelfServiceContext",
+      "PrintingContext",
+      "PolicyManagementContext",
+      "RiskManagementContext",
+      "DebtCollection"
+    ],
+    "relationships": [
+      {
+        "type": "CustomerSupplier",
+        "upstream": "CustomerManagementContext",
+        "downstream": "CustomerSelfServiceContext",
+        "upstreamRoles": ["OHS"],
+        "downstreamRoles": [],
+        "exposedAggregates": ["Customers"]
+      },
+      {
+        "type": "CustomerSupplier",
+        "upstream": "PrintingContext",
+        "downstream": "CustomerManagementContext",
+        "upstreamRoles": ["OHS", "PL"],
+        "downstreamRoles": ["ACL"],
+        "implementationTechnology": "SOAP",
+        "exposedAggregates": ["Printing"]
+      },
+      {
+        "type": "CustomerSupplier",
+        "upstream": "PolicyManagementContext",
+        "downstream": "PrintingContext",
+        "upstreamRoles": ["OHS", "PL"],
+        "downstreamRoles": ["ACL"],
+        "implementationTechnology": "SOAP",
+        "exposedAggregates": ["Printing"]
+      },
+      {
+        "type": "Partnership",
+        "upstream": "RiskManagementContext",
+        "downstream": "PolicyManagementContext",
+        "implementationTechnology": "RabbitMQ"
+      },
+      {
+        "type": "CustomerSupplier",
+        "upstream": "CustomerManagementContext",
+        "downstream": "PolicyManagementContext",
+        "upstreamRoles": ["OHS", "PL"],
+        "downstreamRoles": ["CF"],
+        "implementationTechnology": "RESTfulHTTP",
+        "exposedAggregates": ["Customers"]
+      },
+      {
+        "type": "CustomerSupplier",
+        "upstream": "PrintingContext",
+        "downstream": "DebtCollection",
+        "upstreamRoles": ["OHS", "PL"],
+        "downstreamRoles": ["ACL"],
+        "implementationTechnology": "SOAP",
+        "exposedAggregates": ["Printing"]
+      },
+      {
+        "type": "SharedKernel",
+        "upstream": "PolicyManagementContext",
+        "downstream": "DebtCollection",
+        "implementationTechnology": "Shared Java Library, Communication over RESTful HTTP"
+      }
+    ]
+  },
+  "boundedContexts": [
+    {
+      "name": "CustomerManagementContext",
+      "type": "FEATURE",
+      "aggregates": [
+        {
+          "name": "Customers",
+          "owner": "ContractsTeam",
+          "entities": [
+            {
+              "name": "Customer",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "firstname",
+                  "type": "String"
+                },
+                {
+                  "name": "lastname",
+                  "type": "String"
+                },
+                {
+                  "name": "addresses",
+                  "type": "List<Address>"
+                }
+              ]
+            },
+            {
+              "name": "Address",
+              "attributes": [
+                {
+                  "name": "street",
+                  "type": "String"
+                },
+                {
+                  "name": "city",
+                  "type": "String"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CustomerSelfServiceContext",
+      "type": "APPLICATION",
+      "implements": ["CustomerManagementDomain"],
+      "domainVisionStatement": "This context represents a web application which allows the customer to login and change basic data records like the address.",
+      "responsibilities": ["AddressChange"],
+      "implementationTechnology": "PHP Web Application",
+      "aggregates": [
+        {
+          "name": "CustomerFrontend",
+          "entities": [
+            {
+              "name": "CustomerAddressChange",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "issuer",
+                  "type": "UserAccount"
+                },
+                {
+                  "name": "changedAddress",
+                  "type": "Address"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Acounts",
+          "entities": [
+            {
+              "name": "UserAccount",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "username",
+                  "type": "String"
+                },
+                {
+                  "name": "accountCustomer",
+                  "type": "Customer"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PrintingContext",
+      "type": "SYSTEM",
+      "implements": ["PrintingDomain"],
+      "responsibilities": ["Document Printing"],
+      "domainVisionStatement": "An external system which provides printing services to the other Bounded Contexts.",
+      "aggregates": [
+        {
+          "name": "Printing",
+          "entities": [
+            {
+              "name": "PrintingJob",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "printingId",
+                  "type": "int"
+                },
+                {
+                  "name": "document",
+                  "type": "Document"
+                },
+                {
+                  "name": "template",
+                  "type": "Template"
+                }
+              ],
+              "operations": [
+                {
+                  "name": "printJob",
+                  "parameters": [
+                    {
+                      "name": "printingId",
+                      "type": "PrintingId"
+                    }
+                  ],
+                  "returnType": "PrintStatus"
+                }
+              ]
+            },
+            {
+              "name": "Document",
+              "attributes": [
+                {
+                  "name": "source",
+                  "type": "DomainObject"
+                },
+                {
+                  "name": "template",
+                  "type": "String"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Templating",
+          "entities": [
+            {
+              "name": "Template",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "templateId",
+                  "type": "int"
+                },
+                {
+                  "name": "templateName",
+                  "type": "String"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PolicyManagementContext",
+      "type": "FEATURE",
+      "implements": ["PolicyManagementDomain"],
+      "domainVisionStatement": "This bounded context manages the contracts and policies of the customers.",
+      "responsibilities": ["Offers", "Contracts", "Policies"],
+      "implementationTechnology": "Java, Spring App",
+      "aggregates": [
+        {
+          "name": "Offers",
+          "owner": "ContractsTeam",
+          "entities": [
+            {
+              "name": "Offer",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "offerId",
+                  "type": "int"
+                },
+                {
+                  "name": "client",
+                  "type": "Customer"
+                },
+                {
+                  "name": "products",
+                  "type": "List<Product>"
+                },
+                {
+                  "name": "price",
+                  "type": "BigDecimal"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Products",
+          "owner": "ProductsTeam",
+          "entities": [
+            {
+              "name": "Product",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "identifier",
+                  "type": "ProductId"
+                },
+                {
+                  "name": "productName",
+                  "type": "String"
+                }
+              ]
+            }
+          ],
+          "valueObjects": [
+            {
+              "name": "ProductId",
+              "attributes": [
+                {
+                  "name": "productId",
+                  "type": "int",
+                  "key": true
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "Contract",
+          "owner": "ContractsTeam",
+          "entities": [
+            {
+              "name": "Contract",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "identifier",
+                  "type": "ContractId"
+                },
+                {
+                  "name": "client",
+                  "type": "Customer"
+                },
+                {
+                  "name": "products",
+                  "type": "List<Product>"
+                }
+              ]
+            },
+            {
+              "name": "Policy",
+              "attributes": [
+                {
+                  "name": "policyNr",
+                  "type": "int"
+                },
+                {
+                  "name": "contract",
+                  "type": "Contract"
+                },
+                {
+                  "name": "price",
+                  "type": "BigDecimal"
+                }
+              ]
+            }
+          ],
+          "valueObjects": [
+            {
+              "name": "ContractId",
+              "attributes": [
+                {
+                  "name": "contractId",
+                  "type": "int",
+                  "key": true
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RiskManagementContext",
+      "type": "FEATURE",
+      "implements": ["RiskManagementDomain"],
+      "domainVisionStatement": "Uses data from PolicyManagement context to calculate risks.",
+      "responsibilities": ["Customer Risk Calculation"],
+      "implementationTechnology": "Java, Spring App",
+      "aggregates": [
+        {
+          "name": "Risks",
+          "owner": "RisksTeam",
+          "entities": [
+            {
+              "name": "CustomerRiskFactor",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "totalRiskFactor",
+                  "type": "int"
+                },
+                {
+                  "name": "risks",
+                  "type": "List<Risk>"
+                },
+                {
+                  "name": "client",
+                  "type": "Customer"
+                }
+              ]
+            }
+          ],
+          "valueObjects": [
+            {
+              "name": "Risk",
+              "attributes": [
+                {
+                  "name": "likelihood",
+                  "type": "int"
+                },
+                {
+                  "name": "risk",
+                  "type": "String"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DebtCollection",
+      "type": "FEATURE",
+      "implements": ["DebtsDomain"],
+      "domainVisionStatement": "The debt collection context is responsible for the financial income of the insurance company (the debts) which depend on the corresponding contracts and policies.",
+      "responsibilities": ["Debts", "Dunning"],
+      "implementationTechnology": "JEE",
+      "aggregates": [
+        {
+          "name": "Debts",
+          "owner": "FinancesTeam",
+          "entities": [
+            {
+              "name": "Debt",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "debtNr",
+                  "type": "int"
+                },
+                {
+                  "name": "policy",
+                  "type": "Policy"
+                },
+                {
+                  "name": "creationDate",
+                  "type": "Date"
+                },
+                {
+                  "name": "paymentDate",
+                  "type": "Date"
+                },
+                {
+                  "name": "paymentDeadline",
+                  "type": "Date"
+                },
+                {
+                  "name": "price",
+                  "type": "BigDecimal"
+                },
+                {
+                  "name": "status",
+                  "type": "PaymentStatus"
+                },
+                {
+                  "name": "dunnigs",
+                  "type": "List<Dunning>"
+                }
+              ]
+            },
+            {
+              "name": "Dunning",
+              "attributes": [
+                {
+                  "name": "dunningNr",
+                  "type": "int"
+                },
+                {
+                  "name": "debt",
+                  "type": "Debt"
+                },
+                {
+                  "name": "dunningDate",
+                  "type": "Date"
+                },
+                {
+                  "name": "paymentDeadline",
+                  "type": "Date"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "ContractsTeam",
+      "type": "TEAM"
+    },
+    {
+      "name": "ProductsTeam",
+      "type": "TEAM"
+    },
+    {
+      "name": "FinancesTeam",
+      "type": "TEAM"
+    },
+    {
+      "name": "RisksTeam",
+      "type": "TEAM"
+    }
+  ],
+  "domains": [
+    {
+      "name": "InsuranceDomain",
+      "subdomains": [
+        {
+          "name": "CustomerManagementDomain",
+          "type": "CORE_DOMAIN",
+          "domainVisionStatement": "Subdomain managing everything customer-related."
+        },
+        {
+          "name": "PolicyManagementDomain",
+          "type": "CORE_DOMAIN",
+          "domainVisionStatement": "Subdomain managing contracts and policies."
+        },
+        {
+          "name": "PrintingDomain",
+          "type": "SUPPORTING_DOMAIN",
+          "domainVisionStatement": "Service (external system) to solve printing for all kinds of documents (debts, policies, etc.)"
+        },
+        {
+          "name": "RiskManagementDomain",
+          "type": "GENERIC_SUBDOMAIN",
+          "domainVisionStatement": "Subdomain supporting everything which relates to risk management."
+        },
+        {
+          "name": "DebtsDomain",
+          "type": "GENERIC_SUBDOMAIN",
+          "domainVisionStatement": "Subomain including everything related to the incoming money (debts, dunning, etc.)"
+        }
+      ]
+    }
+  ]
+}

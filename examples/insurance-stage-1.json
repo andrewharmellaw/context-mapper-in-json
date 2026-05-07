@@ -1,0 +1,116 @@
+{
+  "contextMap": {
+    "name": "InsuranceContextMap",
+    "type": "SYSTEM_LANDSCAPE",
+    "state": "TO_BE",
+    "contains": [
+      "CustomerManagementContext",
+      "CustomerSelfServiceContext",
+      "PrintingContext",
+      "PolicyManagementContext",
+      "RiskManagementContext",
+      "DebtCollection"
+    ],
+    "relationships": [
+      {
+        "type": "UpstreamDownstream",
+        "upstream": "CustomerManagementContext",
+        "downstream": "CustomerSelfServiceContext"
+      },
+      {
+        "type": "UpstreamDownstream",
+        "upstream": "PrintingContext",
+        "downstream": "CustomerManagementContext"
+      },
+      {
+        "type": "UpstreamDownstream",
+        "upstream": "PolicyManagementContext",
+        "downstream": "PrintingContext"
+      },
+      {
+        "type": "Partnership",
+        "upstream": "RiskManagementContext",
+        "downstream": "PolicyManagementContext"
+      },
+      {
+        "type": "UpstreamDownstream",
+        "upstream": "CustomerManagementContext",
+        "downstream": "PolicyManagementContext"
+      },
+      {
+        "type": "UpstreamDownstream",
+        "upstream": "PrintingContext",
+        "downstream": "DebtCollection"
+      },
+      {
+        "type": "SharedKernel",
+        "upstream": "PolicyManagementContext",
+        "downstream": "DebtCollection"
+      }
+    ]
+  },
+  "boundedContexts": [
+    {
+      "name": "CustomerManagementContext",
+      "type": "FEATURE",
+      "implements": ["CustomerManagementDomain"]
+    },
+    {
+      "name": "CustomerSelfServiceContext",
+      "type": "APPLICATION",
+      "implements": ["CustomerManagementDomain"]
+    },
+    {
+      "name": "PrintingContext",
+      "type": "SYSTEM",
+      "implements": ["PrintingDomain"]
+    },
+    {
+      "name": "PolicyManagementContext",
+      "type": "FEATURE",
+      "implements": ["PolicyManagementDomain"]
+    },
+    {
+      "name": "RiskManagementContext",
+      "type": "FEATURE",
+      "implements": ["RiskManagementDomain"]
+    },
+    {
+      "name": "DebtCollection",
+      "type": "FEATURE",
+      "implements": ["DebtsDomain"]
+    }
+  ],
+  "domains": [
+    {
+      "name": "InsuranceDomain",
+      "subdomains": [
+        {
+          "name": "CustomerManagementDomain",
+          "type": "CORE_DOMAIN",
+          "domainVisionStatement": "Subdomain managing everything customer-related."
+        },
+        {
+          "name": "PolicyManagementDomain",
+          "type": "CORE_DOMAIN",
+          "domainVisionStatement": "Subdomain managing contracts and policies."
+        },
+        {
+          "name": "PrintingDomain",
+          "type": "SUPPORTING_DOMAIN",
+          "domainVisionStatement": "Service (external system) to solve printing for all kinds of documents (debts, policies, etc.)"
+        },
+        {
+          "name": "RiskManagementDomain",
+          "type": "GENERIC_SUBDOMAIN",
+          "domainVisionStatement": "Subdomain supporting everything which relates to risk management."
+        },
+        {
+          "name": "DebtsDomain",
+          "type": "GENERIC_SUBDOMAIN",
+          "domainVisionStatement": "Subomain including everything related to the incoming money (debts, dunning, etc.)"
+        }
+      ]
+    }
+  ]
+}

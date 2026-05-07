@@ -1,264 +1,198 @@
 # JSON Schema Reference
 
-Complete reference for the Context Mapper JSON Converter schema structure.
+Quick reference guide for the Context Mapper JSON format.
 
-## 📋 Table of Contents
-
-- [Root Structure](#root-structure)
+## Table of Contents
 - [Context Map](#context-map)
 - [Bounded Context](#bounded-context)
 - [Relationships](#relationships)
-- [Subdomains](#subdomains)
-- [Tactical DDD Patterns](#tactical-ddd-patterns)
-- [Data Types](#data-types)
-- [Validation Rules](#validation-rules)
+- [Aggregates](#aggregates)
+- [Entities and Value Objects](#entities-and-value-objects)
+- [Domain and Subdomains](#domain-and-subdomains)
+- [Complete Example](#complete-example)
 
-## 🏗️ Root Structure
+---
 
-The root JSON object can contain the following top-level properties:
+## Context Map
 
-```json
-{
-  "domainName": "string (optional)",
-  "contextMap": { /* Context Map definition */ },
-  "boundedContexts": [ /* Array of Bounded Context definitions */ ],
-  "subdomains": [ /* Array of Subdomain definitions */ ]
-}
-```
+The top-level container for your system architecture.
 
-### Properties
+### Required Fields
+- `type`: `"SYSTEM_LANDSCAPE"` or `"ORGANIZATIONAL"`
+- `contains`: Array of bounded context names
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `domainName` | string | No | Name of the domain (used for subdomain organization) |
-| `contextMap` | object | No* | Context Map definition |
-| `boundedContexts` | array | No* | Array of Bounded Context definitions |
-| `subdomains` | array | No | Array of Subdomain definitions |
+### Optional Fields
+- `name`: String (context map name)
+- `state`: `"AS_IS"` or `"TO_BE"`
+- `relationships`: Array of relationship objects
 
-*At least one of `contextMap` or `boundedContexts` is required.
-
-## 🗺️ Context Map
-
-Defines the strategic view of the system with bounded contexts and their relationships.
-
+### Example
 ```json
 {
   "contextMap": {
-    "name": "ECommerceSystem",
+    "name": "MySystem",
     "type": "SYSTEM_LANDSCAPE",
     "state": "TO_BE",
-    "contains": ["OrderManagement", "PaymentService"],
-    "relationships": [
-      {
-        "type": "CustomerSupplier",
-        "upstream": "PaymentService",
-        "downstream": "OrderManagement",
-        "upstreamRoles": ["OHS", "PL"],
-        "downstreamRoles": ["ACL"],
-        "implementationTechnology": "REST API",
-        "exposedAggregates": ["Payment", "Transaction"]
-      }
-    ]
+    "contains": ["ContextA", "ContextB"],
+    "relationships": [...]
   }
 }
 ```
 
-### Context Map Properties
+---
 
-| Property | Type | Required | Values | Description |
-|----------|------|----------|--------|-------------|
-| `name` | string | No | Valid identifier | Name of the Context Map |
-| `type` | string | Yes | `SYSTEM_LANDSCAPE`, `ORGANIZATIONAL` | Type of Context Map |
-| `state` | string | No | `AS_IS`, `TO_BE` | Current or future state |
-| `contains` | array | Yes | Array of context names | Bounded Contexts in this map |
-| `relationships` | array | No | Array of relationship objects | Relationships between contexts |
+## Bounded Context
 
-## 🏢 Bounded Context
+Represents a bounded context in your domain.
 
-Defines a bounded context with its properties and tactical DDD patterns.
+### Required Fields
+- `name`: String (must match pattern `^[A-Za-z][A-Za-z0-9_]*$`)
+- `type`: `"FEATURE"`, `"APPLICATION"`, `"SYSTEM"`, or `"TEAM"`
 
+### Optional Fields
+- `implements`: Array of subdomain names
+- `realizes`: String (for TEAM type only)
+- `domainVisionStatement`: String (max 500 chars)
+- `implementationTechnology`: String (max 200 chars)
+- `responsibilities`: Array of strings
+- `knowledgeLevel`: `"CONCRETE"` or `"META"`
+- `businessModel`: `"REVENUE"`, `"ENGAGEMENT"`, `"COMPLIANCE"`, or `"COST_REDUCTION"`
+- `evolution`: `"GENESIS"`, `"CUSTOM_BUILT"`, `"PRODUCT"`, or `"COMMODITY"`
+- `aggregates`: Array of aggregate objects
+
+### Example
 ```json
 {
   "name": "OrderManagement",
   "type": "FEATURE",
-  "implements": ["OrderProcessing"],
-  "realizes": "OrderTeam",
-  "domainVisionStatement": "Manages customer orders and order lifecycle",
+  "implements": ["OrderDomain"],
+  "domainVisionStatement": "Manages customer orders",
   "implementationTechnology": "Java Spring Boot",
-  "responsibilities": ["Order creation", "Order tracking", "Order fulfillment"],
-  "knowledgeLevel": "CONCRETE",
-  "businessModel": "REVENUE",
-  "evolution": "CUSTOM_BUILT",
-  "aggregates": [
-    {
-      "name": "Order",
-      "owner": "OrderTeam",
-      "knowledgeLevel": "CONCRETE",
-      "likelihoodForChange": "OFTEN",
-      "entities": [ /* Entity definitions */ ],
-      "valueObjects": [ /* Value Object definitions */ ],
-      "domainEvents": [ /* Domain Event definitions */ ],
-      "commands": [ /* Command definitions */ ],
-      "services": [ /* Service definitions */ ],
-      "repositories": [ /* Repository definitions */ ]
-    }
-  ]
+  "responsibilities": ["Order Processing", "Order Tracking"],
+  "aggregates": [...]
 }
 ```
 
-### Bounded Context Properties
+---
 
-| Property | Type | Required | Values | Description |
-|----------|------|----------|--------|-------------|
-| `name` | string | Yes | Valid identifier | Name of the Bounded Context |
-| `type` | string | Yes | `FEATURE`, `APPLICATION`, `SYSTEM`, `TEAM` | Type of Bounded Context |
-| `implements` | array | No | Array of subdomain names | Subdomains implemented by this context |
-| `realizes` | string | No | Context name | Context realized by this TEAM context |
-| `domainVisionStatement` | string | No | Text (max 500 chars) | Vision statement for this context |
-| `implementationTechnology` | string | No | Text (max 200 chars) | Technology stack used |
-| `responsibilities` | array | No | Array of strings | Key responsibilities |
-| `knowledgeLevel` | string | No | `CONCRETE`, `META` | Knowledge level |
-| `businessModel` | string | No | `REVENUE`, `ENGAGEMENT`, `COMPLIANCE`, `COST_REDUCTION` | Business model driver |
-| `evolution` | string | No | `GENESIS`, `CUSTOM_BUILT`, `PRODUCT`, `COMMODITY` | Evolution stage |
-| `aggregates` | array | No | Array of aggregate objects | Tactical DDD aggregates |
+## Relationships
 
-## 🔗 Relationships
+Defines relationships between bounded contexts.
 
-Define relationships between bounded contexts in a Context Map.
+### Required Fields
+- `type`: `"Partnership"`, `"SharedKernel"`, `"CustomerSupplier"`, or `"UpstreamDownstream"`
+- `upstream`: String (upstream context name)
+- `downstream`: String (downstream context name)
+
+### Optional Fields
+- `implementationTechnology`: String (max 200 chars)
+- `upstreamRoles`: Array of `"OHS"`, `"PL"`, or `"SK"`
+- `downstreamRoles`: Array of `"ACL"`, `"CF"`, or `"SK"`
+- `exposedAggregates`: Array of aggregate names
 
 ### Relationship Types
 
-#### Partnership
-```json
-{
-  "type": "Partnership",
-  "upstream": "ContextA",
-  "downstream": "ContextB"
-}
-```
-
-#### Shared Kernel
-```json
-{
-  "type": "SharedKernel",
-  "upstream": "ContextA",
-  "downstream": "ContextB",
-  "implementationTechnology": "Shared Database"
-}
-```
-
-#### Customer/Supplier
-```json
-{
-  "type": "CustomerSupplier",
-  "upstream": "SupplierContext",
-  "downstream": "CustomerContext",
-  "upstreamRoles": ["OHS", "PL"],
-  "downstreamRoles": ["ACL"],
-  "implementationTechnology": "REST API",
-  "exposedAggregates": ["Product", "Order"]
-}
-```
-
-#### Upstream/Downstream
+#### UpstreamDownstream
+Basic upstream-downstream relationship.
 ```json
 {
   "type": "UpstreamDownstream",
-  "upstream": "UpstreamContext",
-  "downstream": "DownstreamContext",
-  "upstreamRoles": ["OHS"],
-  "downstreamRoles": ["CF"],
-  "implementationTechnology": "Message Queue"
+  "upstream": "ServiceA",
+  "downstream": "ServiceB"
 }
 ```
 
-### Relationship Properties
+#### CustomerSupplier
+Customer-supplier relationship with roles.
+```json
+{
+  "type": "CustomerSupplier",
+  "upstream": "ServiceA",
+  "downstream": "ServiceB",
+  "upstreamRoles": ["OHS", "PL"],
+  "downstreamRoles": ["ACL"]
+}
+```
 
-| Property | Type | Required | Values | Description |
-|----------|------|----------|--------|-------------|
-| `type` | string | Yes | `Partnership`, `SharedKernel`, `CustomerSupplier`, `UpstreamDownstream` | Relationship type |
-| `upstream` | string | Yes | Context name | Upstream context |
-| `downstream` | string | Yes | Context name | Downstream context |
-| `upstreamRoles` | array | No | `OHS`, `PL`, `SK` | Upstream context roles |
-| `downstreamRoles` | array | No | `ACL`, `CF`, `SK` | Downstream context roles |
-| `implementationTechnology` | string | No | Text (max 200 chars) | Implementation technology |
-| `exposedAggregates` | array | No | Array of aggregate names | Exposed aggregates |
+#### Partnership
+Equal partnership between contexts.
+```json
+{
+  "type": "Partnership",
+  "upstream": "ServiceA",
+  "downstream": "ServiceB",
+  "implementationTechnology": "RabbitMQ"
+}
+```
 
-### Role Definitions
+#### SharedKernel
+Shared kernel between contexts.
+```json
+{
+  "type": "SharedKernel",
+  "upstream": "ServiceA",
+  "downstream": "ServiceB"
+}
+```
+
+### Strategic Patterns
 
 **Upstream Roles:**
-- `OHS` - Open Host Service
-- `PL` - Published Language
-- `SK` - Shared Kernel
+- `OHS` (Open Host Service): Provides well-defined service interface
+- `PL` (Published Language): Publishes formal language/protocol
+- `SK` (Shared Kernel): Shares code/model with downstream
 
 **Downstream Roles:**
-- `ACL` - Anti-Corruption Layer
-- `CF` - Conformist
-- `SK` - Shared Kernel
+- `ACL` (Anti-Corruption Layer): Protects from upstream changes
+- `CF` (Conformist): Conforms to upstream's model
+- `SK` (Shared Kernel): Shares code/model with upstream
 
-## 🏗️ Subdomains
+---
 
-Define domain and subdomain structure for strategic modeling.
+## Aggregates
 
+Cluster of domain objects treated as a unit.
+
+### Required Fields
+- `name`: String
+
+### Optional Fields
+- `owner`: String (team/context name)
+- `knowledgeLevel`: `"CONCRETE"` or `"META"`
+- `likelihoodForChange`: `"OFTEN"`, `"NORMAL"`, or `"RARELY"`
+- `entities`: Array of entity objects
+- `valueObjects`: Array of value object objects
+- `domainEvents`: Array of domain event objects
+- `commands`: Array of command objects
+- `services`: Array of service objects
+- `repositories`: Array of repository objects
+
+### Example
 ```json
 {
-  "domainName": "ECommerceDomain",
-  "subdomains": [
-    {
-      "name": "OrderProcessing",
-      "type": "CORE_DOMAIN",
-      "domainVisionStatement": "Core business capability for processing customer orders",
-      "entities": ["Order", "OrderItem", "Customer"],
-      "services": ["OrderService", "PricingService"]
-    },
-    {
-      "name": "Authentication",
-      "type": "GENERIC_SUBDOMAIN",
-      "domainVisionStatement": "Generic user authentication and authorization",
-      "entities": ["User", "Role", "Permission"],
-      "services": ["AuthService", "UserService"]
-    }
-  ]
-}
-```
-
-### Subdomain Properties
-
-| Property | Type | Required | Values | Description |
-|----------|------|----------|--------|-------------|
-| `name` | string | Yes | Valid identifier | Name of the subdomain |
-| `type` | string | Yes | `CORE_DOMAIN`, `SUPPORTING_DOMAIN`, `GENERIC_SUBDOMAIN` | Subdomain type |
-| `domainVisionStatement` | string | No | Text (max 500 chars) | Vision statement |
-| `entities` | array | No | Array of entity names | Main entities |
-| `services` | array | No | Array of service names | Domain services |
-
-## 🎯 Tactical DDD Patterns
-
-### Aggregate
-
-```json
-{
-  "name": "Order",
+  "name": "Orders",
   "owner": "OrderTeam",
-  "knowledgeLevel": "CONCRETE",
-  "likelihoodForChange": "OFTEN",
-  "entities": [ /* entities */ ],
-  "valueObjects": [ /* value objects */ ],
-  "domainEvents": [ /* domain events */ ],
-  "commands": [ /* commands */ ],
-  "services": [ /* services */ ],
-  "repositories": [ /* repositories */ ]
+  "likelihoodForChange": "NORMAL",
+  "entities": [...],
+  "valueObjects": [...]
 }
 ```
 
-| Property | Type | Required | Values | Description |
-|----------|------|----------|--------|-------------|
-| `name` | string | Yes | Valid identifier | Aggregate name |
-| `owner` | string | No | Context/team name | Owning team or context |
-| `knowledgeLevel` | string | No | `CONCRETE`, `META` | Knowledge level |
-| `likelihoodForChange` | string | No | `OFTEN`, `NORMAL`, `RARELY` | Change frequency |
+---
+
+## Entities and Value Objects
 
 ### Entity
+
+Object with identity that persists over time.
+
+**Required Fields:**
+- `name`: String
+
+**Optional Fields:**
+- `aggregateRoot`: Boolean (marks as aggregate root)
+- `attributes`: Array of attribute objects
+- `operations`: Array of operation objects
 
 ```json
 {
@@ -267,201 +201,284 @@ Define domain and subdomain structure for strategic modeling.
   "attributes": [
     {
       "name": "orderId",
-      "type": "OrderId",
+      "type": "String",
       "key": true
     },
     {
-      "name": "customerId",
-      "type": "CustomerId",
-      "nullable": false
+      "name": "totalAmount",
+      "type": "BigDecimal"
     }
   ],
   "operations": [
     {
-      "name": "placeOrder",
-      "parameters": [
-        {"name": "customerId", "type": "CustomerId"},
-        {"name": "items", "type": "List<OrderItem>"}
-      ],
-      "returnType": "void",
-      "visibility": "PUBLIC"
+      "name": "calculateTotal",
+      "returnType": "BigDecimal"
     }
   ]
 }
 ```
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | Yes | Entity name |
-| `aggregateRoot` | boolean | No | Whether this is the aggregate root |
-| `attributes` | array | No | Entity attributes |
-| `operations` | array | No | Entity operations/methods |
-
 ### Value Object
+
+Immutable object defined by its attributes.
+
+**Required Fields:**
+- `name`: String
+
+**Optional Fields:**
+- `attributes`: Array of attribute objects
+- `operations`: Array of operation objects
 
 ```json
 {
   "name": "Money",
   "attributes": [
-    {"name": "amount", "type": "BigDecimal"},
-    {"name": "currency", "type": "Currency"}
-  ],
-  "operations": [
     {
-      "name": "add",
-      "parameters": [{"name": "other", "type": "Money"}],
-      "returnType": "Money"
-    }
-  ]
-}
-```
-
-### Domain Event
-
-```json
-{
-  "name": "OrderPlaced",
-  "attributes": [
-    {"name": "orderId", "type": "OrderId"},
-    {"name": "customerId", "type": "CustomerId"},
-    {"name": "timestamp", "type": "DateTime"}
-  ]
-}
-```
-
-### Command
-
-```json
-{
-  "name": "PlaceOrderCommand",
-  "attributes": [
-    {"name": "customerId", "type": "CustomerId"},
-    {"name": "items", "type": "List<OrderItem>"}
-  ]
-}
-```
-
-### Service
-
-```json
-{
-  "name": "OrderPricingService",
-  "operations": [
-    {
-      "name": "calculateTotal",
-      "parameters": [{"name": "items", "type": "List<OrderItem>"}],
-      "returnType": "Money"
-    }
-  ]
-}
-```
-
-### Repository
-
-```json
-{
-  "name": "OrderRepository",
-  "operations": [
-    {
-      "name": "save",
-      "parameters": [{"name": "order", "type": "Order"}],
-      "returnType": "void"
+      "name": "amount",
+      "type": "BigDecimal"
     },
     {
-      "name": "findById",
-      "parameters": [{"name": "id", "type": "OrderId"}],
-      "returnType": "Order"
+      "name": "currency",
+      "type": "String"
     }
   ]
 }
 ```
-
-## 📊 Data Types
 
 ### Attribute
 
+**Required Fields:**
+- `name`: String
+- `type`: String (data type)
+
+**Optional Fields:**
+- `key`: Boolean (marks as identifier)
+- `nullable`: Boolean
+
 ```json
 {
-  "name": "orderId",
-  "type": "OrderId",
-  "key": true,
+  "name": "email",
+  "type": "String",
   "nullable": false
 }
 ```
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | Yes | Attribute name |
-| `type` | string | Yes | Data type |
-| `key` | boolean | No | Whether this is a key/identifier |
-| `nullable` | boolean | No | Whether this can be null |
-
 ### Operation
+
+**Required Fields:**
+- `name`: String
+
+**Optional Fields:**
+- `parameters`: Array of parameter objects
+- `returnType`: String
+- `visibility`: `"PUBLIC"`, `"PRIVATE"`, or `"PROTECTED"`
 
 ```json
 {
-  "name": "placeOrder",
+  "name": "processPayment",
   "parameters": [
-    {"name": "customerId", "type": "CustomerId"},
-    {"name": "items", "type": "List<OrderItem>"}
+    {
+      "name": "amount",
+      "type": "BigDecimal"
+    }
   ],
-  "returnType": "void",
+  "returnType": "PaymentResult",
   "visibility": "PUBLIC"
 }
 ```
 
-| Property | Type | Required | Values | Description |
-|----------|------|----------|--------|-------------|
-| `name` | string | Yes | Valid identifier | Operation name |
-| `parameters` | array | No | Array of parameter objects | Operation parameters |
-| `returnType` | string | No | Type name | Return type |
-| `visibility` | string | No | `PUBLIC`, `PRIVATE`, `PROTECTED` | Visibility level |
+---
 
-### Parameter
+## Domain and Subdomains
+
+### Domain
+
+**Required Fields:**
+- `name`: String
+
+**Optional Fields:**
+- `subdomains`: Array of subdomain objects
+
+### Subdomain
+
+**Required Fields:**
+- `name`: String
+- `type`: `"CORE_DOMAIN"`, `"SUPPORTING_DOMAIN"`, or `"GENERIC_SUBDOMAIN"`
+
+**Optional Fields:**
+- `domainVisionStatement`: String
 
 ```json
 {
-  "name": "customerId",
-  "type": "CustomerId"
+  "domains": [
+    {
+      "name": "ECommerceDomain",
+      "subdomains": [
+        {
+          "name": "OrderManagement",
+          "type": "CORE_DOMAIN",
+          "domainVisionStatement": "Core business capability for order processing"
+        },
+        {
+          "name": "Shipping",
+          "type": "SUPPORTING_DOMAIN",
+          "domainVisionStatement": "Supports order fulfillment"
+        },
+        {
+          "name": "Authentication",
+          "type": "GENERIC_SUBDOMAIN",
+          "domainVisionStatement": "Generic user authentication"
+        }
+      ]
+    }
+  ]
 }
 ```
 
-| Property | Type | Required | Description |
-|----------|------|----------|-------------|
-| `name` | string | Yes | Parameter name |
-| `type` | string | Yes | Parameter type |
+---
 
-## ✅ Validation Rules
+## Complete Example
 
-### Naming Conventions
-- All names must start with a letter
-- Names can contain letters, numbers, and underscores
-- Names must be 1-100 characters long
+Minimal complete example:
 
-### Reference Integrity
-- All referenced contexts in `contains` must be defined in `boundedContexts`
-- All relationship participants must exist in the Context Map `contains`
-- TEAM contexts can only `realize` other defined contexts
-- Aggregate `owner` must reference a valid TEAM context
+```json
+{
+  "contextMap": {
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["OrderService", "PaymentService"],
+    "relationships": [
+      {
+        "type": "CustomerSupplier",
+        "upstream": "PaymentService",
+        "downstream": "OrderService",
+        "upstreamRoles": ["OHS"],
+        "downstreamRoles": ["ACL"]
+      }
+    ]
+  },
+  "boundedContexts": [
+    {
+      "name": "OrderService",
+      "type": "FEATURE",
+      "aggregates": [
+        {
+          "name": "Orders",
+          "entities": [
+            {
+              "name": "Order",
+              "aggregateRoot": true,
+              "attributes": [
+                {
+                  "name": "orderId",
+                  "type": "String"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PaymentService",
+      "type": "SYSTEM"
+    }
+  ]
+}
+```
 
-### Semantic Rules
-- Context names must be unique within a Context Map
-- Aggregate names must be unique within a Bounded Context
-- No self-relationships allowed (context cannot relate to itself)
-- TEAM contexts are the only ones that can have a `realizes` property
+---
 
-### Type Constraints
-- Context Map `type` must be `SYSTEM_LANDSCAPE` or `ORGANIZATIONAL`
-- Bounded Context `type` must be `FEATURE`, `APPLICATION`, `SYSTEM`, or `TEAM`
-- Subdomain `type` must be `CORE_DOMAIN`, `SUPPORTING_DOMAIN`, or `GENERIC_SUBDOMAIN`
-- Relationship `type` must be `Partnership`, `SharedKernel`, `CustomerSupplier`, or `UpstreamDownstream`
+## Validation
 
-## 🔍 Schema Validation
+Validate your JSON:
 
-The converter performs multi-layer validation:
+```bash
+# Validate JSON schema
+cml-convert validate my-model.json
 
-1. **JSON Schema Validation** - Structure and type checking
-2. **Semantic Validation** - Business rule enforcement
-3. **Reference Validation** - Cross-reference integrity
-4. **CML Validation** - Generated CML syntax checking
-5. **Round-Trip Validation** - Information preservation (Phase 4)
+# Validate with semantic rules
+cml-convert validate my-model.json --strict
+
+# Convert and validate CML output
+cml-convert convert my-model.json output.cml --enable-round-trip
+```
+
+---
+
+## Common Patterns
+
+### Microservices Architecture
+```json
+{
+  "contextMap": {
+    "type": "SYSTEM_LANDSCAPE",
+    "contains": ["ServiceA", "ServiceB", "ServiceC"],
+    "relationships": [
+      {
+        "type": "CustomerSupplier",
+        "upstream": "ServiceA",
+        "downstream": "ServiceB",
+        "upstreamRoles": ["OHS", "PL"],
+        "downstreamRoles": ["ACL"],
+        "implementationTechnology": "REST API"
+      }
+    ]
+  }
+}
+```
+
+### Team Topology
+```json
+{
+  "boundedContexts": [
+    {
+      "name": "OrderTeam",
+      "type": "TEAM"
+    },
+    {
+      "name": "OrderService",
+      "type": "FEATURE",
+      "aggregates": [
+        {
+          "name": "Orders",
+          "owner": "OrderTeam"
+        }
+      ]
+    }
+  ]
+}
+```
+
+### Domain Events
+```json
+{
+  "aggregates": [
+    {
+      "name": "Orders",
+      "domainEvents": [
+        {
+          "name": "OrderPlaced",
+          "attributes": [
+            {
+              "name": "orderId",
+              "type": "String"
+            },
+            {
+              "name": "timestamp",
+              "type": "DateTime"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+---
+
+## See Also
+
+- [Insurance Example Tutorial](insurance-example-tutorial.md) - Complete staged example
+- [JSON Schema Files](../src/context_mapper_json_converter/schemas/) - Full schema definitions
+- [Context Mapper Documentation](https://contextmapper.org/docs/) - CML language reference

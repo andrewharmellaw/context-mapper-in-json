@@ -1,0 +1,267 @@
+{
+  "contextMap": {
+    "name": "InsuranceContextMap",
+    "type": "SYSTEM_LANDSCAPE",
+    "state": "TO_BE",
+    "contains": [
+      "CustomerManagementContext",
+      "CustomerSelfServiceContext",
+      "PrintingContext",
+      "PolicyManagementContext",
+      "RiskManagementContext",
+      "DebtCollection"
+    ],
+    "relationships": [
+      {
+        "type": "CustomerSupplier",
+        "upstream": "CustomerManagementContext",
+        "downstream": "CustomerSelfServiceContext",
+        "upstreamRoles": ["OHS"],
+        "downstreamRoles": []
+      },
+      {
+        "type": "CustomerSupplier",
+        "upstream": "PrintingContext",
+        "downstream": "CustomerManagementContext",
+        "upstreamRoles": ["OHS", "PL"],
+        "downstreamRoles": ["ACL"]
+      },
+      {
+        "type": "CustomerSupplier",
+        "upstream": "PolicyManagementContext",
+        "downstream": "PrintingContext",
+        "upstreamRoles": [],
+        "downstreamRoles": ["ACL"]
+      },
+      {
+        "type": "Partnership",
+        "upstream": "RiskManagementContext",
+        "downstream": "PolicyManagementContext"
+      },
+      {
+        "type": "CustomerSupplier",
+        "upstream": "CustomerManagementContext",
+        "downstream": "PolicyManagementContext",
+        "upstreamRoles": ["OHS", "PL"],
+        "downstreamRoles": ["CF"]
+      },
+      {
+        "type": "CustomerSupplier",
+        "upstream": "PrintingContext",
+        "downstream": "DebtCollection",
+        "upstreamRoles": ["OHS", "PL"],
+        "downstreamRoles": ["ACL"]
+      },
+      {
+        "type": "SharedKernel",
+        "upstream": "PolicyManagementContext",
+        "downstream": "DebtCollection"
+      }
+    ]
+  },
+  "boundedContexts": [
+    {
+      "name": "CustomerManagementContext",
+      "type": "FEATURE",
+      "implements": ["CustomerManagementDomain"],
+      "domainVisionStatement": "The customer management context is responsible for managing all the data of the insurance companies customers.",
+      "implementationTechnology": "Java, JEE Application",
+      "responsibilities": ["Customers", "Addresses"],
+      "aggregates": [
+        {
+          "name": "Customers",
+          "entities": [
+            {
+              "name": "Customer"
+            },
+            {
+              "name": "Address"
+            }
+          ],
+          "valueObjects": [
+            {
+              "name": "SocialInsuranceNumber"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "CustomerSelfServiceContext",
+      "type": "APPLICATION",
+      "implements": ["CustomerManagementDomain"],
+      "domainVisionStatement": "This context represents a web application which allows the customer to login and change basic data records like the address.",
+      "responsibilities": ["AddressChange"],
+      "implementationTechnology": "PHP Web Application",
+      "aggregates": [
+        {
+          "name": "CustomerFrontend",
+          "entities": [
+            {
+              "name": "CustomerAddressChange"
+            }
+          ]
+        },
+        {
+          "name": "Acounts",
+          "entities": [
+            {
+              "name": "UserAccount"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PrintingContext",
+      "type": "SYSTEM",
+      "implements": ["PrintingDomain"],
+      "responsibilities": ["Document Printing"],
+      "domainVisionStatement": "An external system which provides printing services to the other Bounded Contexts.",
+      "aggregates": [
+        {
+          "name": "Printing",
+          "entities": [
+            {
+              "name": "PrintingJob"
+            },
+            {
+              "name": "Document"
+            }
+          ]
+        },
+        {
+          "name": "Templating",
+          "entities": [
+            {
+              "name": "Template"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "PolicyManagementContext",
+      "type": "FEATURE",
+      "implements": ["PolicyManagementDomain"],
+      "domainVisionStatement": "This bounded context manages the contracts and policies of the customers.",
+      "responsibilities": ["Offers", "Contracts", "Policies"],
+      "implementationTechnology": "Java, Spring App",
+      "aggregates": [
+        {
+          "name": "Offers",
+          "entities": [
+            {
+              "name": "Offer"
+            }
+          ]
+        },
+        {
+          "name": "Products",
+          "entities": [
+            {
+              "name": "Product"
+            }
+          ],
+          "valueObjects": [
+            {
+              "name": "ProductId"
+            }
+          ]
+        },
+        {
+          "name": "Contract",
+          "entities": [
+            {
+              "name": "Contract"
+            },
+            {
+              "name": "Policy"
+            }
+          ],
+          "valueObjects": [
+            {
+              "name": "ContractId"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "RiskManagementContext",
+      "type": "FEATURE",
+      "implements": ["RiskManagementDomain"],
+      "domainVisionStatement": "Uses data from PolicyManagement context to calculate risks.",
+      "responsibilities": ["Customer Risk Calculation"],
+      "implementationTechnology": "Java, Spring App",
+      "aggregates": [
+        {
+          "name": "Risks",
+          "entities": [
+            {
+              "name": "CustomerRiskFactor"
+            }
+          ],
+          "valueObjects": [
+            {
+              "name": "Risk"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "DebtCollection",
+      "type": "FEATURE",
+      "implements": ["DebtsDomain"],
+      "domainVisionStatement": "The debt collection context is responsible for the financial income of the insurance company (the debts) which depend on the corresponding contracts and policies.",
+      "responsibilities": ["Debts", "Dunning"],
+      "implementationTechnology": "JEE",
+      "aggregates": [
+        {
+          "name": "Debts",
+          "entities": [
+            {
+              "name": "Debt"
+            },
+            {
+              "name": "Dunning"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "domains": [
+    {
+      "name": "InsuranceDomain",
+      "subdomains": [
+        {
+          "name": "CustomerManagementDomain",
+          "type": "CORE_DOMAIN",
+          "domainVisionStatement": "Subdomain managing everything customer-related."
+        },
+        {
+          "name": "PolicyManagementDomain",
+          "type": "CORE_DOMAIN",
+          "domainVisionStatement": "Subdomain managing contracts and policies."
+        },
+        {
+          "name": "PrintingDomain",
+          "type": "SUPPORTING_DOMAIN",
+          "domainVisionStatement": "Service (external system) to solve printing for all kinds of documents (debts, policies, etc.)"
+        },
+        {
+          "name": "RiskManagementDomain",
+          "type": "GENERIC_SUBDOMAIN",
+          "domainVisionStatement": "Subdomain supporting everything which relates to risk management."
+        },
+        {
+          "name": "DebtsDomain",
+          "type": "GENERIC_SUBDOMAIN",
+          "domainVisionStatement": "Subomain including everything related to the incoming money (debts, dunning, etc.)"
+        }
+      ]
+    }
+  ]
+}

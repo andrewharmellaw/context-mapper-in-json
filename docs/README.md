@@ -175,9 +175,9 @@ BoundedContext PaymentService type = SYSTEM {
 
 ## 📚 Documentation Structure
 
+- **[Insurance Example Tutorial](insurance-example-tutorial.md)** - Complete 5-stage progressive tutorial
 - **[JSON Schema Reference](json-schema-reference.md)** - Complete schema documentation
 - **[CLI Reference](cli-reference.md)** - Command-line interface guide
-- **[Examples](examples/)** - Comprehensive example library
 - **[API Documentation](api-documentation.md)** - Python API reference
 - **[Validation Guide](validation-guide.md)** - Validation layers and error handling
 - **[Integration Guide](integration-guide.md)** - Context Mapper ecosystem integration
