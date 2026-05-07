@@ -171,7 +171,6 @@ tmp/
 
 # Development artifacts
 .kiro/
-test_*.py
 
 # OS specific
 .DS_Store
