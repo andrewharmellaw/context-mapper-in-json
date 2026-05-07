@@ -28,6 +28,7 @@ EXPECTED_DIR = FIXTURES_DIR / "expected"
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def load_json(path: Path) -> dict:
     with open(path) as f:
         return json.load(f)
@@ -42,6 +43,7 @@ def load_text(path: Path) -> str:
 # Full JSON → CML workflow tests (no CLI)
 # ---------------------------------------------------------------------------
 
+
 class TestFullConversionWorkflow:
     """Test complete JSON to CML conversion workflows using the engine directly."""
 
@@ -51,10 +53,14 @@ class TestFullConversionWorkflow:
 
         validator = ValidationEngine()
         schema_result = validator.validate_json_schema(json_data)
-        assert schema_result.is_valid, f"Schema validation failed: {schema_result.errors}"
+        assert (
+            schema_result.is_valid
+        ), f"Schema validation failed: {schema_result.errors}"
 
         semantic_result = validator.validate_semantic_rules(json_data)
-        assert semantic_result.is_valid, f"Semantic validation failed: {semantic_result.errors}"
+        assert (
+            semantic_result.is_valid
+        ), f"Semantic validation failed: {semantic_result.errors}"
 
         converter = ConverterEngine()
         cml_output = converter.convert(json_data)
@@ -159,9 +165,9 @@ class TestFullConversionWorkflow:
         for json_file in VALID_DIR.glob("*.json"):
             json_data = load_json(json_file)
             schema_result = validator.validate_json_schema(json_data)
-            assert schema_result.is_valid, (
-                f"{json_file.name}: schema validation failed: {schema_result.errors}"
-            )
+            assert (
+                schema_result.is_valid
+            ), f"{json_file.name}: schema validation failed: {schema_result.errors}"
             cml_output = converter.convert(json_data)
             assert cml_output, f"{json_file.name}: CML output should not be empty"
 
@@ -169,6 +175,7 @@ class TestFullConversionWorkflow:
 # ---------------------------------------------------------------------------
 # CLI integration tests
 # ---------------------------------------------------------------------------
+
 
 class TestCLIIntegration:
     """Test CLI integration with file system operations."""
@@ -213,9 +220,7 @@ class TestCLIIntegration:
 
     def test_cli_invalid_json_exits_with_error(self):
         """CLI exits with non-zero code for invalid JSON."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
             tmp.write("{invalid json}")
             tmp_path = tmp.name
 
@@ -228,9 +233,7 @@ class TestCLIIntegration:
     def test_cli_missing_required_fields_exits_with_error(self):
         """CLI exits with error for JSON missing required fields."""
         invalid_data = {"contextMap": {"name": "Test"}}  # missing type and contains
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
             json.dump(invalid_data, tmp)
             tmp_path = tmp.name
 
@@ -287,9 +290,9 @@ class TestCLIIntegration:
         """All valid fixtures should convert successfully via CLI."""
         for json_file in VALID_DIR.glob("*.json"):
             result = self.runner.invoke(main, ["convert", str(json_file)])
-            assert result.exit_code == 0, (
-                f"CLI failed for {json_file.name}: {result.output}"
-            )
+            assert (
+                result.exit_code == 0
+            ), f"CLI failed for {json_file.name}: {result.output}"
 
     def test_cli_conversion_summary_shown(self):
         """CLI shows conversion summary after successful conversion."""
@@ -304,6 +307,7 @@ class TestCLIIntegration:
 # Error handling across complete workflows
 # ---------------------------------------------------------------------------
 
+
 class TestWorkflowErrorHandling:
     """Test error handling across complete workflows."""
 
@@ -312,9 +316,7 @@ class TestWorkflowErrorHandling:
 
     def test_invalid_json_syntax_error_message(self):
         """Workflow produces clear error for malformed JSON."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
             tmp.write("{ not valid json }")
             tmp_path = tmp.name
 
@@ -333,9 +335,7 @@ class TestWorkflowErrorHandling:
                 # missing required 'type' and 'contains'
             }
         }
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
             json.dump(invalid_data, tmp)
             tmp_path = tmp.name
 
@@ -394,6 +394,7 @@ class TestWorkflowErrorHandling:
 # Logging and output formatting
 # ---------------------------------------------------------------------------
 
+
 class TestLoggingAndOutputFormatting:
     """Test logging and output formatting across workflows."""
 
@@ -410,9 +411,7 @@ class TestLoggingAndOutputFormatting:
 
     def test_cli_error_output_uses_stderr(self):
         """CLI error messages go to stderr (captured in output by CliRunner)."""
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".json", delete=False
-        ) as tmp:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as tmp:
             tmp.write("{bad}")
             tmp_path = tmp.name
 

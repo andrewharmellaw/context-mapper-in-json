@@ -19,6 +19,7 @@ from context_mapper_json_converter.cli import convert, main
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _write_json(data: dict) -> str:
     """Write JSON data to a temp file and return its path."""
     with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -63,6 +64,7 @@ def invalid_json_file():
 # main group
 # ---------------------------------------------------------------------------
 
+
 class TestMainGroup:
     def test_main_help(self, runner):
         result = runner.invoke(main, ["--help"])
@@ -91,6 +93,7 @@ class TestMainGroup:
 # version command
 # ---------------------------------------------------------------------------
 
+
 class TestVersionCommand:
     def test_version_shows_version(self, runner):
         result = runner.invoke(main, ["version"])
@@ -101,6 +104,7 @@ class TestVersionCommand:
 # ---------------------------------------------------------------------------
 # convert command – help
 # ---------------------------------------------------------------------------
+
 
 class TestConvertHelp:
     def test_convert_help(self, runner):
@@ -116,6 +120,7 @@ class TestConvertHelp:
 # ---------------------------------------------------------------------------
 # convert command – successful conversion
 # ---------------------------------------------------------------------------
+
 
 class TestConvertSuccess:
     def test_convert_valid_file_to_stdout(self, runner, valid_json_file):
@@ -142,7 +147,9 @@ class TestConvertSuccess:
         assert "Conversion Summary" in result.output or "Context Maps" in result.output
 
     def test_convert_with_skip_cml_validation(self, runner, valid_json_file):
-        result = runner.invoke(main, ["convert", valid_json_file, "--skip-cml-validation"])
+        result = runner.invoke(
+            main, ["convert", valid_json_file, "--skip-cml-validation"]
+        )
         assert result.exit_code == 0
 
     def test_convert_with_verbose_flag(self, runner, valid_json_file):
@@ -153,6 +160,7 @@ class TestConvertSuccess:
 # ---------------------------------------------------------------------------
 # convert command – validate-only mode
 # ---------------------------------------------------------------------------
+
 
 class TestConvertValidateOnly:
     def test_validate_only_valid_file(self, runner, valid_json_file):
@@ -175,6 +183,7 @@ class TestConvertValidateOnly:
 # convert command – error handling
 # ---------------------------------------------------------------------------
 
+
 class TestConvertErrors:
     def test_nonexistent_file_exits_nonzero(self, runner):
         result = runner.invoke(main, ["convert", "/nonexistent/path/file.json"])
@@ -186,7 +195,12 @@ class TestConvertErrors:
 
     def test_invalid_json_schema_shows_error_message(self, runner, invalid_json_file):
         result = runner.invoke(main, ["convert", invalid_json_file])
-        assert "❌" in result.output or "Failed" in result.output or "Error" in result.output or "error" in result.output.lower()
+        assert (
+            "❌" in result.output
+            or "Failed" in result.output
+            or "Error" in result.output
+            or "error" in result.output.lower()
+        )
 
     def test_malformed_json_exits_nonzero(self, runner):
         with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
@@ -204,7 +218,11 @@ class TestConvertErrors:
             path = f.name
         try:
             result = runner.invoke(main, ["convert", path])
-            assert "Invalid JSON" in result.output or "JSON" in result.output or "error" in result.output.lower()
+            assert (
+                "Invalid JSON" in result.output
+                or "JSON" in result.output
+                or "error" in result.output.lower()
+            )
         finally:
             os.unlink(path)
 
@@ -213,7 +231,9 @@ class TestConvertErrors:
             "contextMap": {
                 "type": "SYSTEM_LANDSCAPE",
                 "contains": ["A", "B"],
-                "relationships": [{"type": "Partnership", "upstream": "A", "downstream": "A"}],
+                "relationships": [
+                    {"type": "Partnership", "upstream": "A", "downstream": "A"}
+                ],
             },
             "boundedContexts": [
                 {"name": "A", "type": "FEATURE"},
@@ -232,6 +252,7 @@ class TestConvertErrors:
 # validate command
 # ---------------------------------------------------------------------------
 
+
 class TestValidateCommand:
     def test_validate_valid_file(self, runner, valid_json_file):
         result = runner.invoke(main, ["validate", valid_json_file])
@@ -245,6 +266,7 @@ class TestValidateCommand:
 # ---------------------------------------------------------------------------
 # round_trip command
 # ---------------------------------------------------------------------------
+
 
 class TestRoundTripCommand:
     def test_round_trip_valid_file(self, runner, valid_json_file):
@@ -261,6 +283,7 @@ class TestRoundTripCommand:
 # integration_status command
 # ---------------------------------------------------------------------------
 
+
 class TestIntegrationStatusCommand:
     def test_integration_status_runs(self, runner):
         result = runner.invoke(main, ["integration-status"])
@@ -274,6 +297,7 @@ class TestIntegrationStatusCommand:
 # ---------------------------------------------------------------------------
 # convert command – with fixture files
 # ---------------------------------------------------------------------------
+
 
 class TestConvertWithFixtures:
     def test_convert_simple_context_map_fixture(self, runner):
@@ -323,37 +347,63 @@ class TestConvertWithFixtures:
 # convert command – Phase 4 flags (round-trip, context-mapper-cli)
 # ---------------------------------------------------------------------------
 
+
 class TestConvertPhase4Flags:
     def test_convert_with_enable_round_trip(self, runner, valid_json_file):
-        result = runner.invoke(main, ["convert", valid_json_file, "--enable-round-trip"])
+        result = runner.invoke(
+            main, ["convert", valid_json_file, "--enable-round-trip"]
+        )
         assert result.exit_code == 0
-        assert "Round-trip" in result.output or "round-trip" in result.output.lower() or "✅" in result.output
+        assert (
+            "Round-trip" in result.output
+            or "round-trip" in result.output.lower()
+            or "✅" in result.output
+        )
 
     def test_convert_with_use_context_mapper_cli(self, runner, valid_json_file):
-        result = runner.invoke(main, ["convert", valid_json_file, "--use-context-mapper-cli"])
+        result = runner.invoke(
+            main, ["convert", valid_json_file, "--use-context-mapper-cli"]
+        )
         # Should complete (CLI may not be available, but should not crash)
         assert result.exit_code == 0 or "Context Mapper" in result.output
 
     def test_convert_with_generate_artifacts(self, runner, valid_json_file):
-        result = runner.invoke(main, ["convert", valid_json_file, "--generate-artifacts", "plantuml"])
+        result = runner.invoke(
+            main, ["convert", valid_json_file, "--generate-artifacts", "plantuml"]
+        )
         # Should complete (CLI may not be available, but should not crash)
-        assert result.exit_code == 0 or "generation" in result.output.lower() or "artifact" in result.output.lower()
+        assert (
+            result.exit_code == 0
+            or "generation" in result.output.lower()
+            or "artifact" in result.output.lower()
+        )
 
     def test_convert_round_trip_summary_shown(self, runner, valid_json_file):
-        result = runner.invoke(main, ["convert", valid_json_file, "--enable-round-trip"])
+        result = runner.invoke(
+            main, ["convert", valid_json_file, "--enable-round-trip"]
+        )
         assert result.exit_code == 0
         # Summary should mention round-trip
-        assert "Round-trip" in result.output or "round-trip" in result.output.lower() or "Conversion Summary" in result.output
+        assert (
+            "Round-trip" in result.output
+            or "round-trip" in result.output.lower()
+            or "Conversion Summary" in result.output
+        )
 
     def test_convert_context_mapper_cli_summary_shown(self, runner, valid_json_file):
-        result = runner.invoke(main, ["convert", valid_json_file, "--use-context-mapper-cli"])
+        result = runner.invoke(
+            main, ["convert", valid_json_file, "--use-context-mapper-cli"]
+        )
         assert result.exit_code == 0
-        assert "Context Mapper" in result.output or "Conversion Summary" in result.output
+        assert (
+            "Context Mapper" in result.output or "Conversion Summary" in result.output
+        )
 
 
 # ---------------------------------------------------------------------------
 # convert command – verbose traceback on unexpected error
 # ---------------------------------------------------------------------------
+
 
 class TestConvertVerboseError:
     def test_convert_verbose_with_invalid_json(self, runner):
@@ -371,6 +421,7 @@ class TestConvertVerboseError:
 # generate command
 # ---------------------------------------------------------------------------
 
+
 class TestGenerateCommand:
     def test_generate_command_exists(self, runner):
         result = runner.invoke(main, ["generate", "--help"])
@@ -380,15 +431,24 @@ class TestGenerateCommand:
     def test_generate_command_with_valid_file(self, runner, valid_json_file):
         result = runner.invoke(main, ["generate", valid_json_file])
         # Should complete without crashing (CLI may not be available)
-        assert result.exit_code == 0 or "generation" in result.output.lower() or "artifact" in result.output.lower() or "failed" in result.output.lower()
+        assert (
+            result.exit_code == 0
+            or "generation" in result.output.lower()
+            or "artifact" in result.output.lower()
+            or "failed" in result.output.lower()
+        )
 
     def test_generate_command_with_plantuml_generator(self, runner, valid_json_file):
-        result = runner.invoke(main, ["generate", valid_json_file, "--generator", "plantuml"])
+        result = runner.invoke(
+            main, ["generate", valid_json_file, "--generator", "plantuml"]
+        )
         # Should complete without crashing
         assert result.exit_code == 0 or isinstance(result.output, str)
 
     def test_generate_command_with_mdsl_generator(self, runner, valid_json_file):
-        result = runner.invoke(main, ["generate", valid_json_file, "--generator", "mdsl"])
+        result = runner.invoke(
+            main, ["generate", valid_json_file, "--generator", "mdsl"]
+        )
         # Should complete without crashing
         assert result.exit_code == 0 or isinstance(result.output, str)
 
@@ -399,7 +459,11 @@ class TestGenerateCommand:
         try:
             result = runner.invoke(main, ["generate", path])
             # Should handle error gracefully
-            assert "error" in result.output.lower() or "Generation error" in result.output or result.exit_code != 0
+            assert (
+                "error" in result.output.lower()
+                or "Generation error" in result.output
+                or result.exit_code != 0
+            )
         finally:
             os.unlink(path)
 
@@ -407,6 +471,7 @@ class TestGenerateCommand:
 # ---------------------------------------------------------------------------
 # round_trip command – error handling
 # ---------------------------------------------------------------------------
+
 
 class TestRoundTripCommandErrors:
     def test_round_trip_with_invalid_json(self, runner):
@@ -425,6 +490,7 @@ class TestRoundTripCommandErrors:
 # integration_status command – recommendations shown
 # ---------------------------------------------------------------------------
 
+
 class TestIntegrationStatusRecommendations:
     def test_integration_status_shows_recommendations_when_tools_missing(self, runner):
         result = runner.invoke(main, ["integration-status"])
@@ -438,6 +504,7 @@ class TestIntegrationStatusRecommendations:
 # convert command – data with aggregates in summary
 # ---------------------------------------------------------------------------
 
+
 class TestConvertSummaryWithAggregates:
     def test_convert_shows_aggregate_count_when_present(self, runner):
         data = {
@@ -448,7 +515,7 @@ class TestConvertSummaryWithAggregates:
                     "type": "FEATURE",
                     "aggregates": [
                         {"name": "Order", "entities": [{"name": "OrderItem"}]}
-                    ]
+                    ],
                 }
             ],
         }
@@ -464,6 +531,7 @@ class TestConvertSummaryWithAggregates:
 # ---------------------------------------------------------------------------
 # Tests for missing coverage lines
 # ---------------------------------------------------------------------------
+
 
 class TestConvertWithValidationWarnings:
     """Tests for lines 128-130: validation warnings shown during convert."""
@@ -502,9 +570,17 @@ class TestConvertCMLValidationFailure:
             ValidationResult,
         )
 
-        mock_result = ValidationResult(is_valid=False, errors=[
-            ValidationError(message="CML syntax error", property_path="line 1", error_type="CML_SYNTAX_ERROR")
-        ], warnings=[])
+        mock_result = ValidationResult(
+            is_valid=False,
+            errors=[
+                ValidationError(
+                    message="CML syntax error",
+                    property_path="line 1",
+                    error_type="CML_SYNTAX_ERROR",
+                )
+            ],
+            warnings=[],
+        )
 
         with patch("context_mapper_json_converter.cli.CMLValidator") as MockValidator:
             mock_instance = MagicMock()
@@ -516,7 +592,11 @@ class TestConvertCMLValidationFailure:
             try:
                 result = runner.invoke(main, ["convert", path])
                 assert result.exit_code != 0
-                assert "CML" in result.output or "Failed" in result.output or "error" in result.output.lower()
+                assert (
+                    "CML" in result.output
+                    or "Failed" in result.output
+                    or "error" in result.output.lower()
+                )
             finally:
                 os.unlink(path)
 
@@ -533,9 +613,17 @@ class TestConvertCMLValidationWarnings:
             ValidationResult,
         )
 
-        mock_result = ValidationResult(is_valid=True, errors=[], warnings=[
-            ValidationError(message="CML warning message", property_path="line 1", error_type="CML_WARNING")
-        ])
+        mock_result = ValidationResult(
+            is_valid=True,
+            errors=[],
+            warnings=[
+                ValidationError(
+                    message="CML warning message",
+                    property_path="line 1",
+                    error_type="CML_WARNING",
+                )
+            ],
+        )
 
         with patch("context_mapper_json_converter.cli.CMLValidator") as MockValidator:
             mock_instance = MagicMock()
@@ -547,7 +635,11 @@ class TestConvertCMLValidationWarnings:
             try:
                 result = runner.invoke(main, ["convert", path])
                 assert result.exit_code == 0
-                assert "CML" in result.output or "warning" in result.output.lower() or "⚠️" in result.output
+                assert (
+                    "CML" in result.output
+                    or "warning" in result.output.lower()
+                    or "⚠️" in result.output
+                )
             finally:
                 os.unlink(path)
 
@@ -564,11 +656,21 @@ class TestConvertContextMapperCLIFailure:
             ValidationResult,
         )
 
-        mock_result = ValidationResult(is_valid=False, errors=[
-            ValidationError(message="CLI validation error", property_path="", error_type="CLI_ERROR")
-        ], warnings=[])
+        mock_result = ValidationResult(
+            is_valid=False,
+            errors=[
+                ValidationError(
+                    message="CLI validation error",
+                    property_path="",
+                    error_type="CLI_ERROR",
+                )
+            ],
+            warnings=[],
+        )
 
-        with patch("context_mapper_json_converter.cli.ContextMapperIntegration") as MockIntegration:
+        with patch(
+            "context_mapper_json_converter.cli.ContextMapperIntegration"
+        ) as MockIntegration:
             mock_instance = MagicMock()
             mock_instance.validate_cml_with_cli.return_value = mock_result
             MockIntegration.return_value = mock_instance
@@ -576,9 +678,15 @@ class TestConvertContextMapperCLIFailure:
             data = _simple_valid_data()
             path = _write_json(data)
             try:
-                result = runner.invoke(main, ["convert", path, "--use-context-mapper-cli"])
+                result = runner.invoke(
+                    main, ["convert", path, "--use-context-mapper-cli"]
+                )
                 # Should show the failure but not necessarily exit non-zero
-                assert "Context Mapper" in result.output or "CLI" in result.output or "Failed" in result.output
+                assert (
+                    "Context Mapper" in result.output
+                    or "CLI" in result.output
+                    or "Failed" in result.output
+                )
             finally:
                 os.unlink(path)
 
@@ -595,11 +703,21 @@ class TestConvertRoundTripFailure:
             ValidationResult,
         )
 
-        mock_result = ValidationResult(is_valid=False, errors=[
-            ValidationError(message="Round-trip error", property_path="", error_type="ROUND_TRIP_ERROR")
-        ], warnings=[])
+        mock_result = ValidationResult(
+            is_valid=False,
+            errors=[
+                ValidationError(
+                    message="Round-trip error",
+                    property_path="",
+                    error_type="ROUND_TRIP_ERROR",
+                )
+            ],
+            warnings=[],
+        )
 
-        with patch("context_mapper_json_converter.cli.RoundTripValidator") as MockValidator:
+        with patch(
+            "context_mapper_json_converter.cli.RoundTripValidator"
+        ) as MockValidator:
             mock_instance = MagicMock()
             mock_instance.validate_round_trip.return_value = mock_result
             MockValidator.return_value = mock_instance
@@ -608,7 +726,11 @@ class TestConvertRoundTripFailure:
             path = _write_json(data)
             try:
                 result = runner.invoke(main, ["convert", path, "--enable-round-trip"])
-                assert "Round-Trip" in result.output or "round-trip" in result.output.lower() or "Failed" in result.output
+                assert (
+                    "Round-Trip" in result.output
+                    or "round-trip" in result.output.lower()
+                    or "Failed" in result.output
+                )
             finally:
                 os.unlink(path)
 
@@ -625,11 +747,21 @@ class TestConvertRoundTripWarnings:
             ValidationResult,
         )
 
-        mock_result = ValidationResult(is_valid=True, errors=[], warnings=[
-            ValidationError(message="Round-trip warning", property_path="", error_type="ROUND_TRIP_WARNING")
-        ])
+        mock_result = ValidationResult(
+            is_valid=True,
+            errors=[],
+            warnings=[
+                ValidationError(
+                    message="Round-trip warning",
+                    property_path="",
+                    error_type="ROUND_TRIP_WARNING",
+                )
+            ],
+        )
 
-        with patch("context_mapper_json_converter.cli.RoundTripValidator") as MockValidator:
+        with patch(
+            "context_mapper_json_converter.cli.RoundTripValidator"
+        ) as MockValidator:
             mock_instance = MagicMock()
             mock_instance.validate_round_trip.return_value = mock_result
             MockValidator.return_value = mock_instance
@@ -639,7 +771,11 @@ class TestConvertRoundTripWarnings:
             try:
                 result = runner.invoke(main, ["convert", path, "--enable-round-trip"])
                 assert result.exit_code == 0
-                assert "Round-Trip" in result.output or "warning" in result.output.lower() or "⚠️" in result.output
+                assert (
+                    "Round-Trip" in result.output
+                    or "warning" in result.output.lower()
+                    or "⚠️" in result.output
+                )
             finally:
                 os.unlink(path)
 
@@ -656,21 +792,40 @@ class TestConvertGenerateArtifactsFailure:
             ValidationResult,
         )
 
-        mock_gen_result = ValidationResult(is_valid=False, errors=[
-            ValidationError(message="Artifact generation failed", property_path="", error_type="GEN_ERROR")
-        ], warnings=[])
+        mock_gen_result = ValidationResult(
+            is_valid=False,
+            errors=[
+                ValidationError(
+                    message="Artifact generation failed",
+                    property_path="",
+                    error_type="GEN_ERROR",
+                )
+            ],
+            warnings=[],
+        )
 
-        with patch("context_mapper_json_converter.cli.ContextMapperIntegration") as MockIntegration:
+        with patch(
+            "context_mapper_json_converter.cli.ContextMapperIntegration"
+        ) as MockIntegration:
             mock_instance = MagicMock()
-            mock_instance.validate_cml_with_cli.return_value = ValidationResult(is_valid=True, errors=[], warnings=[])
+            mock_instance.validate_cml_with_cli.return_value = ValidationResult(
+                is_valid=True, errors=[], warnings=[]
+            )
             mock_instance.generate_artifacts.return_value = mock_gen_result
             MockIntegration.return_value = mock_instance
 
             data = _simple_valid_data()
             path = _write_json(data)
             try:
-                result = runner.invoke(main, ["convert", path, "--generate-artifacts", "plantuml"])
-                assert "plantuml" in result.output.lower() or "artifact" in result.output.lower() or "failed" in result.output.lower() or "generation" in result.output.lower()
+                result = runner.invoke(
+                    main, ["convert", path, "--generate-artifacts", "plantuml"]
+                )
+                assert (
+                    "plantuml" in result.output.lower()
+                    or "artifact" in result.output.lower()
+                    or "failed" in result.output.lower()
+                    or "generation" in result.output.lower()
+                )
             finally:
                 os.unlink(path)
 
@@ -686,19 +841,29 @@ class TestConvertGenerateArtifactsSummary:
 
         mock_gen_result = ValidationResult(is_valid=True, errors=[], warnings=[])
 
-        with patch("context_mapper_json_converter.cli.ContextMapperIntegration") as MockIntegration:
+        with patch(
+            "context_mapper_json_converter.cli.ContextMapperIntegration"
+        ) as MockIntegration:
             mock_instance = MagicMock()
-            mock_instance.validate_cml_with_cli.return_value = ValidationResult(is_valid=True, errors=[], warnings=[])
+            mock_instance.validate_cml_with_cli.return_value = ValidationResult(
+                is_valid=True, errors=[], warnings=[]
+            )
             mock_instance.generate_artifacts.return_value = mock_gen_result
             MockIntegration.return_value = mock_instance
 
             data = _simple_valid_data()
             path = _write_json(data)
             try:
-                result = runner.invoke(main, ["convert", path, "--generate-artifacts", "plantuml"])
+                result = runner.invoke(
+                    main, ["convert", path, "--generate-artifacts", "plantuml"]
+                )
                 assert result.exit_code == 0
                 # Summary should mention generated artifacts
-                assert "plantuml" in result.output.lower() or "artifact" in result.output.lower() or "Generated" in result.output
+                assert (
+                    "plantuml" in result.output.lower()
+                    or "artifact" in result.output.lower()
+                    or "Generated" in result.output
+                )
             finally:
                 os.unlink(path)
 
@@ -710,15 +875,22 @@ class TestConvertUnexpectedException:
         """When an unexpected exception occurs, error is shown and exit code is non-zero."""
         from unittest.mock import patch
 
-        with patch("context_mapper_json_converter.cli.ConverterEngine") as MockConverter:
-            MockConverter.return_value.convert.side_effect = RuntimeError("Unexpected internal error")
+        with patch(
+            "context_mapper_json_converter.cli.ConverterEngine"
+        ) as MockConverter:
+            MockConverter.return_value.convert.side_effect = RuntimeError(
+                "Unexpected internal error"
+            )
 
             data = _simple_valid_data()
             path = _write_json(data)
             try:
                 result = runner.invoke(main, ["convert", path])
                 assert result.exit_code != 0
-                assert "Unexpected error" in result.output or "error" in result.output.lower()
+                assert (
+                    "Unexpected error" in result.output
+                    or "error" in result.output.lower()
+                )
             finally:
                 os.unlink(path)
 
@@ -726,8 +898,12 @@ class TestConvertUnexpectedException:
         """When an unexpected exception occurs with --verbose, traceback is shown."""
         from unittest.mock import patch
 
-        with patch("context_mapper_json_converter.cli.ConverterEngine") as MockConverter:
-            MockConverter.return_value.convert.side_effect = RuntimeError("Unexpected internal error")
+        with patch(
+            "context_mapper_json_converter.cli.ConverterEngine"
+        ) as MockConverter:
+            MockConverter.return_value.convert.side_effect = RuntimeError(
+                "Unexpected internal error"
+            )
 
             data = _simple_valid_data()
             path = _write_json(data)
@@ -750,11 +926,21 @@ class TestRoundTripCommandWithErrors:
             ValidationResult,
         )
 
-        mock_result = ValidationResult(is_valid=False, errors=[
-            ValidationError(message="Round-trip discrepancy found", property_path="contextMap.type", error_type="ROUND_TRIP_ERROR")
-        ], warnings=[])
+        mock_result = ValidationResult(
+            is_valid=False,
+            errors=[
+                ValidationError(
+                    message="Round-trip discrepancy found",
+                    property_path="contextMap.type",
+                    error_type="ROUND_TRIP_ERROR",
+                )
+            ],
+            warnings=[],
+        )
 
-        with patch("context_mapper_json_converter.cli.RoundTripValidator") as MockValidator:
+        with patch(
+            "context_mapper_json_converter.cli.RoundTripValidator"
+        ) as MockValidator:
             mock_instance = MagicMock()
             mock_instance.validate_round_trip.return_value = mock_result
             MockValidator.return_value = mock_instance
@@ -763,7 +949,11 @@ class TestRoundTripCommandWithErrors:
             path = _write_json(data)
             try:
                 result = runner.invoke(main, ["round-trip", path])
-                assert "FAILED" in result.output or "failed" in result.output.lower() or "Round-trip" in result.output
+                assert (
+                    "FAILED" in result.output
+                    or "failed" in result.output.lower()
+                    or "Round-trip" in result.output
+                )
             finally:
                 os.unlink(path)
 
@@ -780,11 +970,21 @@ class TestRoundTripCommandWithWarnings:
             ValidationResult,
         )
 
-        mock_result = ValidationResult(is_valid=True, errors=[], warnings=[
-            ValidationError(message="Minor round-trip warning", property_path="", error_type="ROUND_TRIP_WARNING")
-        ])
+        mock_result = ValidationResult(
+            is_valid=True,
+            errors=[],
+            warnings=[
+                ValidationError(
+                    message="Minor round-trip warning",
+                    property_path="",
+                    error_type="ROUND_TRIP_WARNING",
+                )
+            ],
+        )
 
-        with patch("context_mapper_json_converter.cli.RoundTripValidator") as MockValidator:
+        with patch(
+            "context_mapper_json_converter.cli.RoundTripValidator"
+        ) as MockValidator:
             mock_instance = MagicMock()
             mock_instance.validate_round_trip.return_value = mock_result
             MockValidator.return_value = mock_instance
@@ -794,7 +994,11 @@ class TestRoundTripCommandWithWarnings:
             try:
                 result = runner.invoke(main, ["round-trip", path])
                 assert result.exit_code == 0
-                assert "warning" in result.output.lower() or "⚠️" in result.output or "Warning" in result.output
+                assert (
+                    "warning" in result.output.lower()
+                    or "⚠️" in result.output
+                    or "Warning" in result.output
+                )
             finally:
                 os.unlink(path)
 
@@ -811,9 +1015,17 @@ class TestGenerateCommandArtifactFailure:
             ValidationResult,
         )
 
-        mock_gen_result = ValidationResult(is_valid=False, errors=[
-            ValidationError(message="PlantUML generation failed", property_path="", error_type="GEN_ERROR")
-        ], warnings=[])
+        mock_gen_result = ValidationResult(
+            is_valid=False,
+            errors=[
+                ValidationError(
+                    message="PlantUML generation failed",
+                    property_path="",
+                    error_type="GEN_ERROR",
+                )
+            ],
+            warnings=[],
+        )
 
         mock_workflow_results = {
             "json_validation": ValidationResult(is_valid=True, errors=[], warnings=[]),
@@ -822,16 +1034,26 @@ class TestGenerateCommandArtifactFailure:
             "artifact_generation": {"plantuml": mock_gen_result},
         }
 
-        with patch("context_mapper_json_converter.cli.ContextMapperWorkflow") as MockWorkflow:
+        with patch(
+            "context_mapper_json_converter.cli.ContextMapperWorkflow"
+        ) as MockWorkflow:
             mock_instance = MagicMock()
-            mock_instance.validate_and_generate_workflow.return_value = mock_workflow_results
+            mock_instance.validate_and_generate_workflow.return_value = (
+                mock_workflow_results
+            )
             MockWorkflow.return_value = mock_instance
 
             data = _simple_valid_data()
             path = _write_json(data)
             try:
-                result = runner.invoke(main, ["generate", path, "--generator", "plantuml"])
-                assert "plantuml" in result.output.lower() or "failed" in result.output.lower() or "generation" in result.output.lower()
+                result = runner.invoke(
+                    main, ["generate", path, "--generator", "plantuml"]
+                )
+                assert (
+                    "plantuml" in result.output.lower()
+                    or "failed" in result.output.lower()
+                    or "generation" in result.output.lower()
+                )
             finally:
                 os.unlink(path)
 
@@ -848,24 +1070,40 @@ class TestGenerateCommandStepFailure:
             ValidationResult,
         )
 
-        mock_failed_result = ValidationResult(is_valid=False, errors=[
-            ValidationError(message="Conversion step failed", property_path="", error_type="CONVERSION_ERROR")
-        ], warnings=[])
+        mock_failed_result = ValidationResult(
+            is_valid=False,
+            errors=[
+                ValidationError(
+                    message="Conversion step failed",
+                    property_path="",
+                    error_type="CONVERSION_ERROR",
+                )
+            ],
+            warnings=[],
+        )
 
         mock_workflow_results = {
             "json_validation": ValidationResult(is_valid=True, errors=[], warnings=[]),
             "conversion": mock_failed_result,
         }
 
-        with patch("context_mapper_json_converter.cli.ContextMapperWorkflow") as MockWorkflow:
+        with patch(
+            "context_mapper_json_converter.cli.ContextMapperWorkflow"
+        ) as MockWorkflow:
             mock_instance = MagicMock()
-            mock_instance.validate_and_generate_workflow.return_value = mock_workflow_results
+            mock_instance.validate_and_generate_workflow.return_value = (
+                mock_workflow_results
+            )
             MockWorkflow.return_value = mock_instance
 
             data = _simple_valid_data()
             path = _write_json(data)
             try:
                 result = runner.invoke(main, ["generate", path])
-                assert "failed" in result.output.lower() or "conversion" in result.output.lower() or "❌" in result.output
+                assert (
+                    "failed" in result.output.lower()
+                    or "conversion" in result.output.lower()
+                    or "❌" in result.output
+                )
             finally:
                 os.unlink(path)

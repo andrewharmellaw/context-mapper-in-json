@@ -19,6 +19,7 @@ def converter():
 # Basic instantiation
 # ---------------------------------------------------------------------------
 
+
 class TestConverterEngineInit:
     def test_instantiation(self, converter):
         assert converter is not None
@@ -36,10 +37,15 @@ class TestConverterEngineInit:
 # convert() – top-level entry point
 # ---------------------------------------------------------------------------
 
+
 class TestConvert:
     def test_convert_simple_context_map(self, converter):
         data = {
-            "contextMap": {"name": "TestMap", "type": "SYSTEM_LANDSCAPE", "contains": ["CtxA"]},
+            "contextMap": {
+                "name": "TestMap",
+                "type": "SYSTEM_LANDSCAPE",
+                "contains": ["CtxA"],
+            },
             "boundedContexts": [{"name": "CtxA", "type": "FEATURE"}],
         }
         result = converter.convert(data)
@@ -98,6 +104,7 @@ class TestConvert:
 # convert_context_map()
 # ---------------------------------------------------------------------------
 
+
 class TestConvertContextMap:
     def test_basic_context_map(self, converter):
         data = {"type": "SYSTEM_LANDSCAPE", "contains": ["A", "B"]}
@@ -126,7 +133,9 @@ class TestConvertContextMap:
         data = {
             "type": "SYSTEM_LANDSCAPE",
             "contains": ["A", "B"],
-            "relationships": [{"type": "Partnership", "upstream": "A", "downstream": "B"}],
+            "relationships": [
+                {"type": "Partnership", "upstream": "A", "downstream": "B"}
+            ],
         }
         result = converter.convert_context_map(data)
         assert "Partnership" in result
@@ -143,6 +152,7 @@ class TestConvertContextMap:
 # convert_bounded_context()
 # ---------------------------------------------------------------------------
 
+
 class TestConvertBoundedContext:
     def test_minimal_bounded_context(self, converter):
         data = {"name": "MyCtx", "type": "FEATURE"}
@@ -150,12 +160,20 @@ class TestConvertBoundedContext:
         assert "BoundedContext MyCtx type = FEATURE" in result
 
     def test_bounded_context_with_domain_vision(self, converter):
-        data = {"name": "MyCtx", "type": "FEATURE", "domainVisionStatement": "Handles orders"}
+        data = {
+            "name": "MyCtx",
+            "type": "FEATURE",
+            "domainVisionStatement": "Handles orders",
+        }
         result = converter.convert_bounded_context(data)
         assert 'domainVisionStatement = "Handles orders"' in result
 
     def test_bounded_context_with_implementation_technology(self, converter):
-        data = {"name": "MyCtx", "type": "SYSTEM", "implementationTechnology": "Java Spring"}
+        data = {
+            "name": "MyCtx",
+            "type": "SYSTEM",
+            "implementationTechnology": "Java Spring",
+        }
         result = converter.convert_bounded_context(data)
         assert 'implementationTechnology = "Java Spring"' in result
 
@@ -175,7 +193,11 @@ class TestConvertBoundedContext:
         assert "evolution = GENESIS" in result
 
     def test_bounded_context_with_responsibilities(self, converter):
-        data = {"name": "MyCtx", "type": "FEATURE", "responsibilities": ["Order processing", "Billing"]}
+        data = {
+            "name": "MyCtx",
+            "type": "FEATURE",
+            "responsibilities": ["Order processing", "Billing"],
+        }
         result = converter.convert_bounded_context(data)
         assert "responsibilities" in result
 
@@ -209,6 +231,7 @@ class TestConvertBoundedContext:
 # convert_relationships()
 # ---------------------------------------------------------------------------
 
+
 class TestConvertRelationships:
     def test_partnership_relationship(self, converter):
         rels = [{"type": "Partnership", "upstream": "A", "downstream": "B"}]
@@ -225,7 +248,14 @@ class TestConvertRelationships:
         assert "B" in result[0]
 
     def test_shared_kernel_with_impl_tech(self, converter):
-        rels = [{"type": "SharedKernel", "upstream": "A", "downstream": "B", "implementationTechnology": "REST"}]
+        rels = [
+            {
+                "type": "SharedKernel",
+                "upstream": "A",
+                "downstream": "B",
+                "implementationTechnology": "REST",
+            }
+        ]
         result = converter.convert_relationships(rels)
         assert "REST" in result[0]
 
@@ -237,35 +267,41 @@ class TestConvertRelationships:
         assert "B" in result[0]
 
     def test_customer_supplier_with_roles(self, converter):
-        rels = [{
-            "type": "CustomerSupplier",
-            "upstream": "A",
-            "downstream": "B",
-            "upstreamRoles": ["OHS", "PL"],
-            "downstreamRoles": ["ACL"],
-        }]
+        rels = [
+            {
+                "type": "CustomerSupplier",
+                "upstream": "A",
+                "downstream": "B",
+                "upstreamRoles": ["OHS", "PL"],
+                "downstreamRoles": ["ACL"],
+            }
+        ]
         result = converter.convert_relationships(rels)
         assert "OHS" in result[0]
         assert "PL" in result[0]
         assert "ACL" in result[0]
 
     def test_customer_supplier_with_impl_tech(self, converter):
-        rels = [{
-            "type": "CustomerSupplier",
-            "upstream": "A",
-            "downstream": "B",
-            "implementationTechnology": "gRPC",
-        }]
+        rels = [
+            {
+                "type": "CustomerSupplier",
+                "upstream": "A",
+                "downstream": "B",
+                "implementationTechnology": "gRPC",
+            }
+        ]
         result = converter.convert_relationships(rels)
         assert "gRPC" in result[0]
 
     def test_customer_supplier_with_exposed_aggregates(self, converter):
-        rels = [{
-            "type": "CustomerSupplier",
-            "upstream": "A",
-            "downstream": "B",
-            "exposedAggregates": ["OrderAggregate"],
-        }]
+        rels = [
+            {
+                "type": "CustomerSupplier",
+                "upstream": "A",
+                "downstream": "B",
+                "exposedAggregates": ["OrderAggregate"],
+            }
+        ]
         result = converter.convert_relationships(rels)
         assert "OrderAggregate" in result[0]
 
@@ -277,13 +313,15 @@ class TestConvertRelationships:
         assert "B" in result[0]
 
     def test_upstream_downstream_with_roles(self, converter):
-        rels = [{
-            "type": "UpstreamDownstream",
-            "upstream": "A",
-            "downstream": "B",
-            "upstreamRoles": ["OHS"],
-            "downstreamRoles": ["CF"],
-        }]
+        rels = [
+            {
+                "type": "UpstreamDownstream",
+                "upstream": "A",
+                "downstream": "B",
+                "upstreamRoles": ["OHS"],
+                "downstreamRoles": ["CF"],
+            }
+        ]
         result = converter.convert_relationships(rels)
         assert "OHS" in result[0]
         assert "CF" in result[0]
@@ -312,6 +350,7 @@ class TestConvertRelationships:
 # convert_subdomains()
 # ---------------------------------------------------------------------------
 
+
 class TestConvertSubdomains:
     def test_basic_subdomain(self, converter):
         subdomains = [{"name": "CoreSub", "type": "CORE_DOMAIN"}]
@@ -321,7 +360,13 @@ class TestConvertSubdomains:
         assert "CORE_DOMAIN" in result
 
     def test_subdomain_with_vision_statement(self, converter):
-        subdomains = [{"name": "CoreSub", "type": "CORE_DOMAIN", "domainVisionStatement": "Core business"}]
+        subdomains = [
+            {
+                "name": "CoreSub",
+                "type": "CORE_DOMAIN",
+                "domainVisionStatement": "Core business",
+            }
+        ]
         result = converter.convert_subdomains(subdomains, "MyDomain")
         assert "Core business" in result
 
@@ -340,7 +385,9 @@ class TestConvertSubdomains:
         assert "DefaultDomain" in result
 
     def test_subdomain_with_entities(self, converter):
-        subdomains = [{"name": "Sub", "type": "CORE_DOMAIN", "entities": ["Order", "Customer"]}]
+        subdomains = [
+            {"name": "Sub", "type": "CORE_DOMAIN", "entities": ["Order", "Customer"]}
+        ]
         result = converter.convert_subdomains(subdomains, "D")
         assert "Order" in result
         assert "Customer" in result
@@ -349,6 +396,7 @@ class TestConvertSubdomains:
 # ---------------------------------------------------------------------------
 # convert_aggregate()
 # ---------------------------------------------------------------------------
+
 
 class TestConvertAggregate:
     def test_minimal_aggregate(self, converter):
@@ -425,6 +473,7 @@ class TestConvertAggregate:
 # convert_entity()
 # ---------------------------------------------------------------------------
 
+
 class TestConvertEntity:
     def test_minimal_entity(self, converter):
         data = {"name": "MyEntity"}
@@ -472,6 +521,7 @@ class TestConvertEntity:
 # convert_value_object()
 # ---------------------------------------------------------------------------
 
+
 class TestConvertValueObject:
     def test_minimal_value_object(self, converter):
         data = {"name": "MyVO"}
@@ -504,6 +554,7 @@ class TestConvertValueObject:
 # convert_domain_event()
 # ---------------------------------------------------------------------------
 
+
 class TestConvertDomainEvent:
     def test_minimal_domain_event(self, converter):
         data = {"name": "OrderPlaced"}
@@ -524,6 +575,7 @@ class TestConvertDomainEvent:
 # convert_command()
 # ---------------------------------------------------------------------------
 
+
 class TestConvertCommand:
     def test_minimal_command(self, converter):
         data = {"name": "PlaceOrder"}
@@ -543,6 +595,7 @@ class TestConvertCommand:
 # ---------------------------------------------------------------------------
 # convert_service()
 # ---------------------------------------------------------------------------
+
 
 class TestConvertService:
     def test_minimal_service(self, converter):
@@ -565,6 +618,7 @@ class TestConvertService:
 # convert_repository()
 # ---------------------------------------------------------------------------
 
+
 class TestConvertRepository:
     def test_minimal_repository(self, converter):
         data = {"name": "OrderRepository"}
@@ -585,6 +639,7 @@ class TestConvertRepository:
 # ---------------------------------------------------------------------------
 # convert_attribute()
 # ---------------------------------------------------------------------------
+
 
 class TestConvertAttribute:
     def test_basic_attribute(self, converter):
@@ -618,6 +673,7 @@ class TestConvertAttribute:
 # ---------------------------------------------------------------------------
 # convert_operation()
 # ---------------------------------------------------------------------------
+
 
 class TestConvertOperation:
     def test_basic_operation(self, converter):
@@ -677,6 +733,7 @@ class TestConvertOperation:
 # ---------------------------------------------------------------------------
 # End-to-end fixture-based tests
 # ---------------------------------------------------------------------------
+
 
 class TestConverterWithFixtures:
     def test_convert_aggregates_entities_fixture(self, converter, load_test_json):

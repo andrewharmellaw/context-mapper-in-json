@@ -19,48 +19,49 @@ from hypothesis import strategies as st
 
 class TestCoverageBugCondition:
     """Test that demonstrates inadequate test coverage exists."""
-    
+
     def test_overall_coverage_below_threshold(self):
         """
         **Property 1: Bug Condition** - Test Coverage Below 85% Threshold
-        
+
         This test validates that current test coverage is below 85% for the project.
         EXPECTED OUTCOME: Test FAILS (this confirms inadequate coverage exists)
         """
         # Get the pytest executable from the current Python environment
         pytest_cmd = [sys.executable, "-m", "pytest"]
-        
+
         # Run coverage analysis - EXCLUDE this test file to prevent infinite recursion
         result = subprocess.run(
-            pytest_cmd + [
-                "--cov=src", 
-                "--cov-report=json", 
-                "--cov-report=term-missing", 
+            pytest_cmd
+            + [
+                "--cov=src",
+                "--cov-report=json",
+                "--cov-report=term-missing",
                 "-q",
-                "--ignore=tests/test_bug_condition_exploration.py"
+                "--ignore=tests/test_bug_condition_exploration.py",
             ],
             capture_output=True,
             text=True,
-            cwd=Path.cwd()
+            cwd=Path.cwd(),
         )
-        
+
         # Load coverage data
         coverage_file = Path("coverage.json")
         if not coverage_file.exists():
             pytest.fail("Coverage report not generated")
-            
+
         with open(coverage_file) as f:
             coverage_data = json.load(f)
-        
+
         total_coverage = coverage_data["totals"]["percent_covered"]
-        
+
         # This assertion SHOULD FAIL on unfixed code - proving bug exists
         assert total_coverage >= 85, (
             f"EXPECTED FAILURE: Total coverage is {total_coverage:.1f}%, "
             f"which is below the required 85% threshold. "
             f"This confirms the bug condition exists."
         )
-    
+
     def test_critical_modules_coverage_below_threshold(self):
         """
         Test that critical modules have inadequate coverage.
@@ -68,28 +69,29 @@ class TestCoverageBugCondition:
         """
         # Get the pytest executable from the current Python environment
         pytest_cmd = [sys.executable, "-m", "pytest"]
-        
+
         # Run coverage analysis - EXCLUDE this test file to prevent infinite recursion
         result = subprocess.run(
-            pytest_cmd + [
-                "--cov=src", 
-                "--cov-report=json", 
+            pytest_cmd
+            + [
+                "--cov=src",
+                "--cov-report=json",
                 "-q",
-                "--ignore=tests/test_bug_condition_exploration.py"
+                "--ignore=tests/test_bug_condition_exploration.py",
             ],
             capture_output=True,
             text=True,
-            cwd=Path.cwd()
+            cwd=Path.cwd(),
         )
-        
+
         # Load coverage data
         coverage_file = Path("coverage.json")
         if not coverage_file.exists():
             pytest.fail("Coverage report not generated")
-            
+
         with open(coverage_file) as f:
             coverage_data = json.load(f)
-        
+
         # Critical modules that should have high coverage
         critical_modules = {
             "src/context_mapper_json_converter/converter.py": 80,
@@ -97,26 +99,28 @@ class TestCoverageBugCondition:
             "src/context_mapper_json_converter/cli.py": 80,
             "src/context_mapper_json_converter/round_trip_validator.py": 80,
             "src/context_mapper_json_converter/cml_validator.py": 80,
-            "src/context_mapper_json_converter/context_mapper_integration.py": 80
+            "src/context_mapper_json_converter/context_mapper_integration.py": 80,
         }
-        
+
         coverage_failures = []
-        
+
         for module_path, min_coverage in critical_modules.items():
             if module_path in coverage_data["files"]:
-                module_coverage = coverage_data["files"][module_path]["summary"]["percent_covered"]
+                module_coverage = coverage_data["files"][module_path]["summary"][
+                    "percent_covered"
+                ]
                 if module_coverage < min_coverage:
                     coverage_failures.append(
                         f"{module_path}: {module_coverage:.1f}% (required: {min_coverage}%)"
                     )
-        
+
         # This assertion SHOULD FAIL on unfixed code - proving module-specific gaps exist
         assert not coverage_failures, (
-            f"EXPECTED FAILURE: Critical modules have inadequate coverage:\n" +
-            "\n".join(coverage_failures) +
-            "\nThis confirms module-specific coverage gaps exist."
+            f"EXPECTED FAILURE: Critical modules have inadequate coverage:\n"
+            + "\n".join(coverage_failures)
+            + "\nThis confirms module-specific coverage gaps exist."
         )
-    
+
     def test_test_fixture_directories_empty(self):
         """
         Test that test fixture directories are empty or missing.
@@ -124,25 +128,25 @@ class TestCoverageBugCondition:
         """
         fixture_dirs = [
             Path("tests/fixtures/valid"),
-            Path("tests/fixtures/invalid"), 
-            Path("tests/fixtures/expected")
+            Path("tests/fixtures/invalid"),
+            Path("tests/fixtures/expected"),
         ]
-        
+
         missing_or_empty_dirs = []
-        
+
         for fixture_dir in fixture_dirs:
             if not fixture_dir.exists():
                 missing_or_empty_dirs.append(f"{fixture_dir}: Directory does not exist")
             elif not any(fixture_dir.iterdir()):
                 missing_or_empty_dirs.append(f"{fixture_dir}: Directory is empty")
-        
+
         # This assertion SHOULD FAIL on unfixed code - proving missing test infrastructure
         assert not missing_or_empty_dirs, (
-            f"EXPECTED FAILURE: Test fixture directories are missing or empty:\n" +
-            "\n".join(missing_or_empty_dirs) +
-            "\nThis confirms missing test infrastructure."
+            f"EXPECTED FAILURE: Test fixture directories are missing or empty:\n"
+            + "\n".join(missing_or_empty_dirs)
+            + "\nThis confirms missing test infrastructure."
         )
-    
+
     def test_comprehensive_test_categories_missing(self):
         """
         Test that comprehensive test categories are missing.
@@ -150,25 +154,27 @@ class TestCoverageBugCondition:
         """
         test_categories = {
             "tests/unit": "Unit tests directory",
-            "tests/integration": "Integration tests directory", 
+            "tests/integration": "Integration tests directory",
             "tests/property": "Property-based tests directory",
-            "tests/performance": "Performance tests directory"
+            "tests/performance": "Performance tests directory",
         }
-        
+
         missing_categories = []
-        
+
         for test_dir, description in test_categories.items():
             test_path = Path(test_dir)
             if not test_path.exists():
                 missing_categories.append(f"{test_dir}: {description} missing")
             elif not any(test_path.glob("test_*.py")):
-                missing_categories.append(f"{test_dir}: {description} has no test files")
-        
+                missing_categories.append(
+                    f"{test_dir}: {description} has no test files"
+                )
+
         # This assertion SHOULD FAIL on unfixed code - proving missing test categories
         assert not missing_categories, (
-            f"EXPECTED FAILURE: Comprehensive test categories are missing:\n" +
-            "\n".join(missing_categories) +
-            "\nThis confirms missing test types."
+            f"EXPECTED FAILURE: Comprehensive test categories are missing:\n"
+            + "\n".join(missing_categories)
+            + "\nThis confirms missing test types."
         )
 
     @given(st.text(min_size=1, max_size=100))
@@ -177,17 +183,17 @@ class TestCoverageBugCondition:
         """
         Property-based test to validate that PBT infrastructure is missing.
         EXPECTED OUTCOME: Test FAILS (this confirms missing PBT setup)
-        
+
         Note: Reduced to 5 examples for faster execution.
         """
         # Check if property-based tests exist for core modules
         pbt_files = [
             Path("tests/property/test_converter_properties.py"),
-            Path("tests/property/test_validation_properties.py")
+            Path("tests/property/test_validation_properties.py"),
         ]
-        
+
         existing_pbt_files = [f for f in pbt_files if f.exists()]
-        
+
         # This assertion SHOULD FAIL on unfixed code - proving missing PBT infrastructure
         assert len(existing_pbt_files) == len(pbt_files), (
             f"EXPECTED FAILURE: Property-based testing infrastructure missing. "

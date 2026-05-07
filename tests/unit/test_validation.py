@@ -23,6 +23,7 @@ def validator():
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def _simple_valid():
     return {
         "contextMap": {"type": "SYSTEM_LANDSCAPE", "contains": ["A", "B"]},
@@ -36,6 +37,7 @@ def _simple_valid():
 # ---------------------------------------------------------------------------
 # Instantiation
 # ---------------------------------------------------------------------------
+
 
 class TestValidationEngineInit:
     def test_instantiation(self, validator):
@@ -51,6 +53,7 @@ class TestValidationEngineInit:
 # validate_json_schema() – valid inputs
 # ---------------------------------------------------------------------------
 
+
 class TestValidateJsonSchemaValid:
     def test_simple_valid_data(self, validator):
         result = validator.validate_json_schema(_simple_valid())
@@ -59,7 +62,11 @@ class TestValidateJsonSchemaValid:
 
     def test_valid_with_name(self, validator):
         data = {
-            "contextMap": {"name": "MyMap", "type": "SYSTEM_LANDSCAPE", "contains": ["A"]},
+            "contextMap": {
+                "name": "MyMap",
+                "type": "SYSTEM_LANDSCAPE",
+                "contains": ["A"],
+            },
             "boundedContexts": [{"name": "A", "type": "FEATURE"}],
         }
         result = validator.validate_json_schema(data)
@@ -67,7 +74,11 @@ class TestValidateJsonSchemaValid:
 
     def test_valid_with_state(self, validator):
         data = {
-            "contextMap": {"type": "SYSTEM_LANDSCAPE", "state": "AS_IS", "contains": ["A"]},
+            "contextMap": {
+                "type": "SYSTEM_LANDSCAPE",
+                "state": "AS_IS",
+                "contains": ["A"],
+            },
             "boundedContexts": [{"name": "A", "type": "FEATURE"}],
         }
         result = validator.validate_json_schema(data)
@@ -93,7 +104,13 @@ class TestValidateJsonSchemaValid:
     def test_valid_with_domain_vision_statement(self, validator):
         data = {
             "contextMap": {"type": "SYSTEM_LANDSCAPE", "contains": ["A"]},
-            "boundedContexts": [{"name": "A", "type": "FEATURE", "domainVisionStatement": "Handles orders"}],
+            "boundedContexts": [
+                {
+                    "name": "A",
+                    "type": "FEATURE",
+                    "domainVisionStatement": "Handles orders",
+                }
+            ],
         }
         result = validator.validate_json_schema(data)
         assert result.is_valid
@@ -103,7 +120,9 @@ class TestValidateJsonSchemaValid:
             "contextMap": {
                 "type": "SYSTEM_LANDSCAPE",
                 "contains": ["A", "B"],
-                "relationships": [{"type": "Partnership", "upstream": "A", "downstream": "B"}],
+                "relationships": [
+                    {"type": "Partnership", "upstream": "A", "downstream": "B"}
+                ],
             },
             "boundedContexts": [
                 {"name": "A", "type": "FEATURE"},
@@ -148,7 +167,9 @@ class TestValidateJsonSchemaValid:
                                 {
                                     "name": "MyEntity",
                                     "aggregateRoot": True,
-                                    "attributes": [{"name": "id", "type": "String", "key": True}],
+                                    "attributes": [
+                                        {"name": "id", "type": "String", "key": True}
+                                    ],
                                 }
                             ],
                         }
@@ -169,6 +190,7 @@ class TestValidateJsonSchemaValid:
 # ---------------------------------------------------------------------------
 # validate_json_schema() – invalid inputs
 # ---------------------------------------------------------------------------
+
 
 class TestValidateJsonSchemaInvalid:
     def test_missing_context_map_type(self, validator):
@@ -198,7 +220,11 @@ class TestValidateJsonSchemaInvalid:
 
     def test_invalid_context_map_state(self, validator):
         data = {
-            "contextMap": {"type": "SYSTEM_LANDSCAPE", "state": "INVALID", "contains": ["A"]},
+            "contextMap": {
+                "type": "SYSTEM_LANDSCAPE",
+                "state": "INVALID",
+                "contains": ["A"],
+            },
             "boundedContexts": [{"name": "A", "type": "FEATURE"}],
         }
         result = validator.validate_json_schema(data)
@@ -233,7 +259,9 @@ class TestValidateJsonSchemaInvalid:
             "contextMap": {
                 "type": "SYSTEM_LANDSCAPE",
                 "contains": ["A", "B"],
-                "relationships": [{"type": "INVALID", "upstream": "A", "downstream": "B"}],
+                "relationships": [
+                    {"type": "INVALID", "upstream": "A", "downstream": "B"}
+                ],
             },
             "boundedContexts": [
                 {"name": "A", "type": "FEATURE"},
@@ -263,12 +291,14 @@ class TestValidateJsonSchemaInvalid:
             "contextMap": {
                 "type": "SYSTEM_LANDSCAPE",
                 "contains": ["A", "B"],
-                "relationships": [{
-                    "type": "CustomerSupplier",
-                    "upstream": "A",
-                    "downstream": "B",
-                    "upstreamRoles": ["INVALID_ROLE"],
-                }],
+                "relationships": [
+                    {
+                        "type": "CustomerSupplier",
+                        "upstream": "A",
+                        "downstream": "B",
+                        "upstreamRoles": ["INVALID_ROLE"],
+                    }
+                ],
             },
             "boundedContexts": [
                 {"name": "A", "type": "FEATURE"},
@@ -307,6 +337,7 @@ class TestValidateJsonSchemaInvalid:
 # validate_semantic_rules()
 # ---------------------------------------------------------------------------
 
+
 class TestValidateSemanticRules:
     def test_valid_data_passes_semantic_rules(self, validator):
         result = validator.validate_semantic_rules(_simple_valid())
@@ -322,7 +353,10 @@ class TestValidateSemanticRules:
         }
         result = validator.validate_semantic_rules(data)
         assert not result.is_valid
-        assert any("Duplicate" in e.message or "duplicate" in e.message.lower() for e in result.errors)
+        assert any(
+            "Duplicate" in e.message or "duplicate" in e.message.lower()
+            for e in result.errors
+        )
 
     def test_context_map_references_undefined_context(self, validator):
         data = {
@@ -337,7 +371,9 @@ class TestValidateSemanticRules:
             "contextMap": {
                 "type": "SYSTEM_LANDSCAPE",
                 "contains": ["A", "B"],
-                "relationships": [{"type": "Partnership", "upstream": "C", "downstream": "B"}],
+                "relationships": [
+                    {"type": "Partnership", "upstream": "C", "downstream": "B"}
+                ],
             },
             "boundedContexts": [
                 {"name": "A", "type": "FEATURE"},
@@ -352,7 +388,9 @@ class TestValidateSemanticRules:
             "contextMap": {
                 "type": "SYSTEM_LANDSCAPE",
                 "contains": ["A", "B"],
-                "relationships": [{"type": "Partnership", "upstream": "A", "downstream": "C"}],
+                "relationships": [
+                    {"type": "Partnership", "upstream": "A", "downstream": "C"}
+                ],
             },
             "boundedContexts": [
                 {"name": "A", "type": "FEATURE"},
@@ -367,7 +405,9 @@ class TestValidateSemanticRules:
             "contextMap": {
                 "type": "SYSTEM_LANDSCAPE",
                 "contains": ["A"],
-                "relationships": [{"type": "Partnership", "upstream": "A", "downstream": "A"}],
+                "relationships": [
+                    {"type": "Partnership", "upstream": "A", "downstream": "A"}
+                ],
             },
             "boundedContexts": [{"name": "A", "type": "FEATURE"}],
         }
@@ -377,7 +417,9 @@ class TestValidateSemanticRules:
     def test_non_team_with_realizes_generates_warning(self, validator):
         data = {
             "contextMap": {"type": "SYSTEM_LANDSCAPE", "contains": ["A"]},
-            "boundedContexts": [{"name": "A", "type": "FEATURE", "realizes": "SomeCtx"}],
+            "boundedContexts": [
+                {"name": "A", "type": "FEATURE", "realizes": "SomeCtx"}
+            ],
         }
         result = validator.validate_semantic_rules(data)
         # Should produce a warning (not necessarily an error)
@@ -402,6 +444,7 @@ class TestValidateSemanticRules:
 # validate_references()
 # ---------------------------------------------------------------------------
 
+
 class TestValidateReferences:
     def test_valid_references(self, validator):
         result = validator.validate_references(_simple_valid())
@@ -409,7 +452,10 @@ class TestValidateReferences:
 
     def test_team_realizes_valid_context(self, validator):
         data = {
-            "contextMap": {"type": "SYSTEM_LANDSCAPE", "contains": ["TeamA", "OrderCtx"]},
+            "contextMap": {
+                "type": "SYSTEM_LANDSCAPE",
+                "contains": ["TeamA", "OrderCtx"],
+            },
             "boundedContexts": [
                 {"name": "TeamA", "type": "TEAM", "realizes": "OrderCtx"},
                 {"name": "OrderCtx", "type": "FEATURE"},
@@ -442,31 +488,57 @@ class TestValidateReferences:
 # get_validation_suggestions()
 # ---------------------------------------------------------------------------
 
+
 class TestGetValidationSuggestions:
     def test_returns_list(self, validator):
-        errors = [ValidationError(message="test", property_path="", error_type="SCHEMA_ERROR")]
+        errors = [
+            ValidationError(message="test", property_path="", error_type="SCHEMA_ERROR")
+        ]
         result = validator.get_validation_suggestions(errors)
         assert isinstance(result, list)
 
     def test_returns_suggestions_for_schema_errors(self, validator):
-        errors = [ValidationError(message="test", property_path="", error_type="SCHEMA_ERROR")]
+        errors = [
+            ValidationError(message="test", property_path="", error_type="SCHEMA_ERROR")
+        ]
         result = validator.get_validation_suggestions(errors)
         assert len(result) > 0
 
     def test_returns_suggestions_for_reference_errors(self, validator):
-        errors = [ValidationError(message="test", property_path="", error_type="REFERENCE_ERROR")]
+        errors = [
+            ValidationError(
+                message="test", property_path="", error_type="REFERENCE_ERROR"
+            )
+        ]
         result = validator.get_validation_suggestions(errors)
         assert len(result) > 0
 
     def test_uses_error_suggestion_when_available(self, validator):
-        errors = [ValidationError(message="test", property_path="", error_type="SCHEMA_ERROR", suggestion="Fix this")]
+        errors = [
+            ValidationError(
+                message="test",
+                property_path="",
+                error_type="SCHEMA_ERROR",
+                suggestion="Fix this",
+            )
+        ]
         result = validator.get_validation_suggestions(errors)
         assert "Fix this" in result
 
     def test_deduplicates_suggestions(self, validator):
         errors = [
-            ValidationError(message="t1", property_path="", error_type="SCHEMA_ERROR", suggestion="Same suggestion"),
-            ValidationError(message="t2", property_path="", error_type="SCHEMA_ERROR", suggestion="Same suggestion"),
+            ValidationError(
+                message="t1",
+                property_path="",
+                error_type="SCHEMA_ERROR",
+                suggestion="Same suggestion",
+            ),
+            ValidationError(
+                message="t2",
+                property_path="",
+                error_type="SCHEMA_ERROR",
+                suggestion="Same suggestion",
+            ),
         ]
         result = validator.get_validation_suggestions(errors)
         assert result.count("Same suggestion") == 1
@@ -480,6 +552,7 @@ class TestGetValidationSuggestions:
 # ValidationResult dataclass
 # ---------------------------------------------------------------------------
 
+
 class TestValidationResult:
     def test_initial_state_valid(self):
         result = ValidationResult(is_valid=True, errors=[], warnings=[])
@@ -489,20 +562,28 @@ class TestValidationResult:
 
     def test_add_error_sets_invalid(self):
         result = ValidationResult(is_valid=True, errors=[], warnings=[])
-        result.add_error(ValidationError(message="err", property_path="", error_type="TEST"))
+        result.add_error(
+            ValidationError(message="err", property_path="", error_type="TEST")
+        )
         assert not result.is_valid
         assert result.has_errors
 
     def test_add_warning_keeps_valid(self):
         result = ValidationResult(is_valid=True, errors=[], warnings=[])
-        result.add_warning(ValidationError(message="warn", property_path="", error_type="TEST"))
+        result.add_warning(
+            ValidationError(message="warn", property_path="", error_type="TEST")
+        )
         assert result.is_valid
         assert result.has_warnings
 
     def test_multiple_errors(self):
         result = ValidationResult(is_valid=True, errors=[], warnings=[])
-        result.add_error(ValidationError(message="e1", property_path="", error_type="T"))
-        result.add_error(ValidationError(message="e2", property_path="", error_type="T"))
+        result.add_error(
+            ValidationError(message="e1", property_path="", error_type="T")
+        )
+        result.add_error(
+            ValidationError(message="e2", property_path="", error_type="T")
+        )
         assert len(result.errors) == 2
 
 
@@ -510,15 +591,22 @@ class TestValidationResult:
 # ValidationError dataclass
 # ---------------------------------------------------------------------------
 
+
 class TestValidationError:
     def test_str_representation(self):
-        error = ValidationError(message="Something wrong", property_path="contextMap.type", error_type="SCHEMA_ERROR")
+        error = ValidationError(
+            message="Something wrong",
+            property_path="contextMap.type",
+            error_type="SCHEMA_ERROR",
+        )
         s = str(error)
         assert "SCHEMA_ERROR" in s
         assert "Something wrong" in s
 
     def test_str_with_line_number(self):
-        error = ValidationError(message="err", property_path="", error_type="T", line_number=42)
+        error = ValidationError(
+            message="err", property_path="", error_type="T", line_number=42
+        )
         s = str(error)
         assert "42" in s
 

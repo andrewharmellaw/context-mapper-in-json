@@ -45,29 +45,33 @@ def test_simple_conversion(simple_context_map, converter_engine):
         assert len(result) > 0
     except Exception as e:
         # If conversion fails, at least we know the method exists and can be called
-        assert hasattr(converter_engine, 'convert')
+        assert hasattr(converter_engine, "convert")
 
 
 class TestBasicFunctionality:
     """Test class for basic functionality."""
-    
+
     def test_version_available(self):
         """Test that version information is available."""
         from context_mapper_json_converter import __version__
+
         assert __version__ is not None
         assert isinstance(__version__, str)
-    
+
     def test_cli_module_exists(self):
         """Test that CLI module can be imported."""
         from context_mapper_json_converter import cli
+
         assert cli is not None
-    
+
     def test_validation_module_exists(self):
         """Test that validation module can be imported."""
         from context_mapper_json_converter import validation
+
         assert validation is not None
-    
+
     def test_converter_module_exists(self):
         """Test that converter module can be imported."""
         from context_mapper_json_converter import converter
+
         assert converter is not None

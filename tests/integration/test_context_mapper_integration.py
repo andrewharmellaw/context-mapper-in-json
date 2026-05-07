@@ -28,6 +28,7 @@ def load_json(path: Path) -> dict:
 
 # Module-scoped fixtures so tool detection only runs once per test session.
 
+
 @pytest.fixture(scope="module")
 def integration():
     return ContextMapperIntegration()
@@ -41,6 +42,7 @@ def workflow():
 # ---------------------------------------------------------------------------
 # ContextMapperIntegration – tool detection
 # ---------------------------------------------------------------------------
+
 
 class TestContextMapperIntegrationToolDetection:
     """Test tool detection and availability checking."""
@@ -89,6 +91,7 @@ class TestContextMapperIntegrationToolDetection:
 # ContextMapperIntegration – validate_cml_with_cli
 # ---------------------------------------------------------------------------
 
+
 class TestValidateCMLWithCLI:
     """Test CML validation via CLI (graceful degradation when unavailable)."""
 
@@ -100,8 +103,13 @@ class TestValidateCMLWithCLI:
 
     def test_validate_cml_without_cli_returns_warning(self, integration):
         """When CLI is unavailable, validation returns a warning (not an error)."""
-        if integration.tools["contextmapper"].available or integration.tools["cml"].available:
-            pytest.skip("A Context Mapper CLI tool is available – skipping unavailability test")
+        if (
+            integration.tools["contextmapper"].available
+            or integration.tools["cml"].available
+        ):
+            pytest.skip(
+                "A Context Mapper CLI tool is available – skipping unavailability test"
+            )
 
         cml_code = "ContextMap Test type = SYSTEM_LANDSCAPE { contains ServiceA }\nBoundedContext ServiceA type = FEATURE {}"
         result = integration.validate_cml_with_cli(cml_code)
@@ -111,13 +119,20 @@ class TestValidateCMLWithCLI:
 
     def test_validate_cml_warning_mentions_no_cli(self, integration):
         """Warning message mentions that no CLI tools are available."""
-        if integration.tools["contextmapper"].available or integration.tools["cml"].available:
+        if (
+            integration.tools["contextmapper"].available
+            or integration.tools["cml"].available
+        ):
             pytest.skip("A Context Mapper CLI tool is available")
 
         cml_code = "ContextMap Test type = SYSTEM_LANDSCAPE { contains ServiceA }\nBoundedContext ServiceA type = FEATURE {}"
         result = integration.validate_cml_with_cli(cml_code)
         warning_messages = " ".join(str(w) for w in result.warnings)
-        assert "Context Mapper" in warning_messages or "CLI" in warning_messages or "available" in warning_messages.lower()
+        assert (
+            "Context Mapper" in warning_messages
+            or "CLI" in warning_messages
+            or "available" in warning_messages.lower()
+        )
 
     def test_validate_empty_cml_does_not_crash(self, integration):
         """Validating empty CML string does not raise an exception."""
@@ -139,6 +154,7 @@ class TestValidateCMLWithCLI:
 # ---------------------------------------------------------------------------
 # ContextMapperIntegration – generate_artifacts
 # ---------------------------------------------------------------------------
+
 
 class TestGenerateArtifacts:
     """Test artifact generation (graceful degradation when CLI unavailable)."""
@@ -181,6 +197,7 @@ class TestGenerateArtifacts:
 # ---------------------------------------------------------------------------
 # ContextMapperIntegration – get_integration_status
 # ---------------------------------------------------------------------------
+
 
 class TestGetIntegrationStatus:
     """Test integration status reporting."""
@@ -234,6 +251,7 @@ class TestGetIntegrationStatus:
 # ---------------------------------------------------------------------------
 # ContextMapperWorkflow
 # ---------------------------------------------------------------------------
+
 
 class TestContextMapperWorkflow:
     """Test the high-level ContextMapperWorkflow class."""
@@ -336,18 +354,23 @@ class TestContextMapperWorkflow:
 # External dependency handling and error recovery
 # ---------------------------------------------------------------------------
 
+
 class TestExternalDependencyHandling:
     """Test graceful handling of missing external dependencies."""
 
     def test_missing_cli_does_not_raise_exception(self, integration):
         """Missing Context Mapper CLI does not raise an exception."""
         # This should always work regardless of CLI availability
-        result = integration.validate_cml_with_cli("BoundedContext Test type = FEATURE {}")
+        result = integration.validate_cml_with_cli(
+            "BoundedContext Test type = FEATURE {}"
+        )
         assert isinstance(result, ValidationResult)
 
     def test_missing_cli_artifact_generation_does_not_raise(self, integration):
         """Missing CLI for artifact generation does not raise an exception."""
-        result = integration.generate_artifacts("BoundedContext Test type = FEATURE {}", "plantuml")
+        result = integration.generate_artifacts(
+            "BoundedContext Test type = FEATURE {}", "plantuml"
+        )
         assert isinstance(result, ValidationResult)
 
     def test_integration_status_always_returns_complete_info(self, integration):
@@ -366,6 +389,7 @@ class TestExternalDependencyHandling:
 # ---------------------------------------------------------------------------
 # ContextMapperIntegration – _extract_version
 # ---------------------------------------------------------------------------
+
 
 class TestExtractVersion:
     """Test version extraction from tool output."""
@@ -404,15 +428,21 @@ class TestExtractVersion:
 # ContextMapperIntegration – _validate_with_contextmapper_cli (direct call)
 # ---------------------------------------------------------------------------
 
+
 class TestValidateWithContextmapperCLI:
     """Test _validate_with_contextmapper_cli directly."""
 
-    def test_validate_with_contextmapper_cli_returns_validation_result(self, integration):
+    def test_validate_with_contextmapper_cli_returns_validation_result(
+        self, integration
+    ):
         """_validate_with_contextmapper_cli returns a ValidationResult."""
         import os
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".cml", delete=False) as f:
-            f.write("ContextMap Test type = SYSTEM_LANDSCAPE { contains ServiceA }\nBoundedContext ServiceA type = FEATURE {}")
+            f.write(
+                "ContextMap Test type = SYSTEM_LANDSCAPE { contains ServiceA }\nBoundedContext ServiceA type = FEATURE {}"
+            )
             path = f.name
         try:
             result = integration._validate_with_contextmapper_cli(path)
@@ -443,6 +473,7 @@ class TestValidateWithContextmapperCLI:
 # ContextMapperIntegration – _validate_with_cml_cli (direct call)
 # ---------------------------------------------------------------------------
 
+
 class TestValidateWithCmlCLI:
     """Test _validate_with_cml_cli directly."""
 
@@ -450,8 +481,11 @@ class TestValidateWithCmlCLI:
         """_validate_with_cml_cli returns a ValidationResult."""
         import os
         import tempfile
+
         with tempfile.NamedTemporaryFile(mode="w", suffix=".cml", delete=False) as f:
-            f.write("ContextMap Test type = SYSTEM_LANDSCAPE { contains ServiceA }\nBoundedContext ServiceA type = FEATURE {}")
+            f.write(
+                "ContextMap Test type = SYSTEM_LANDSCAPE { contains ServiceA }\nBoundedContext ServiceA type = FEATURE {}"
+            )
             path = f.name
         try:
             result = integration._validate_with_cml_cli(path)
@@ -463,6 +497,7 @@ class TestValidateWithCmlCLI:
         """_validate_with_cml_cli handles FileNotFoundError gracefully."""
         import os
         import tempfile
+
         original_command = integration.tools["cml"].command
         integration.tools["cml"].command = "/nonexistent/cml"
         with tempfile.NamedTemporaryFile(mode="w", suffix=".cml", delete=False) as f:
@@ -480,13 +515,16 @@ class TestValidateWithCmlCLI:
 # ContextMapperIntegration – validate_cml_with_cli with mocked tool availability
 # ---------------------------------------------------------------------------
 
+
 class TestValidateCMLWithCLIToolPaths:
     """Test validate_cml_with_cli with different tool availability scenarios."""
 
     def test_validate_cml_with_java_only_available(self, integration):
         """When only java is available, validation returns a warning about basic validation."""
         # Force only java to be available
-        original_states = {k: (v.available, v.command) for k, v in integration.tools.items()}
+        original_states = {
+            k: (v.available, v.command) for k, v in integration.tools.items()
+        }
         integration.tools["contextmapper"].available = False
         integration.tools["cml"].available = False
         integration.tools["java"].available = True
@@ -540,6 +578,7 @@ class TestValidateCMLWithCLIToolPaths:
 # ContextMapperIntegration – generate_artifacts with contextmapper available
 # ---------------------------------------------------------------------------
 
+
 class TestGenerateArtifactsWithCLI:
     """Test generate_artifacts when contextmapper CLI is (simulated as) available."""
 
@@ -562,6 +601,7 @@ class TestGenerateArtifactsWithCLI:
 # ---------------------------------------------------------------------------
 # ContextMapperIntegration – _get_setup_recommendations coverage
 # ---------------------------------------------------------------------------
+
 
 class TestSetupRecommendations:
     """Test _get_setup_recommendations for all tool availability scenarios."""
@@ -598,7 +638,10 @@ class TestSetupRecommendations:
 
         try:
             recommendations = integration._get_setup_recommendations()
-            assert any("Context Mapper" in r or "contextmapper" in r.lower() for r in recommendations)
+            assert any(
+                "Context Mapper" in r or "contextmapper" in r.lower()
+                for r in recommendations
+            )
         finally:
             integration.tools["contextmapper"].available = original_cm_available
 
@@ -606,6 +649,7 @@ class TestSetupRecommendations:
 # ---------------------------------------------------------------------------
 # ContextMapperWorkflow – artifact generation in workflow
 # ---------------------------------------------------------------------------
+
 
 class TestWorkflowArtifactGeneration:
     """Test artifact generation within the workflow."""
@@ -616,7 +660,9 @@ class TestWorkflowArtifactGeneration:
         original_available = workflow.integration.tools["contextmapper"].available
         original_command = workflow.integration.tools["contextmapper"].command
         workflow.integration.tools["contextmapper"].available = True
-        workflow.integration.tools["contextmapper"].command = "/nonexistent/contextmapper"
+        workflow.integration.tools["contextmapper"].command = (
+            "/nonexistent/contextmapper"
+        )
 
         try:
             json_data = load_json(VALID_DIR / "simple-context-map.json")
@@ -636,7 +682,9 @@ class TestWorkflowArtifactGeneration:
         original_available = workflow.integration.tools["contextmapper"].available
         original_command = workflow.integration.tools["contextmapper"].command
         workflow.integration.tools["contextmapper"].available = True
-        workflow.integration.tools["contextmapper"].command = "/nonexistent/contextmapper"
+        workflow.integration.tools["contextmapper"].command = (
+            "/nonexistent/contextmapper"
+        )
 
         try:
             json_data = load_json(VALID_DIR / "simple-context-map.json")

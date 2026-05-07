@@ -23,6 +23,7 @@ from context_mapper_json_converter.validation import ValidationEngine
 # Test data generators
 # ---------------------------------------------------------------------------
 
+
 def generate_large_context_map(num_contexts: int = 50) -> dict:
     """Generate a large context map with many bounded contexts and relationships."""
     context_names = [f"BoundedContext{i}" for i in range(num_contexts)]
@@ -40,13 +41,15 @@ def generate_large_context_map(num_contexts: int = 50) -> dict:
     # Add relationships between consecutive contexts
     relationships = []
     for i in range(min(num_contexts - 1, 20)):  # Cap at 20 relationships
-        relationships.append({
-            "type": "CustomerSupplier",
-            "upstream": context_names[i],
-            "downstream": context_names[i + 1],
-            "upstreamRoles": ["OHS", "PL"],
-            "downstreamRoles": ["ACL"],
-        })
+        relationships.append(
+            {
+                "type": "CustomerSupplier",
+                "upstream": context_names[i],
+                "downstream": context_names[i + 1],
+                "upstreamRoles": ["OHS", "PL"],
+                "downstreamRoles": ["ACL"],
+            }
+        )
 
     return {
         "contextMap": {
@@ -59,7 +62,9 @@ def generate_large_context_map(num_contexts: int = 50) -> dict:
     }
 
 
-def generate_context_map_with_aggregates(num_contexts: int = 10, aggregates_per_context: int = 5) -> dict:
+def generate_context_map_with_aggregates(
+    num_contexts: int = 10, aggregates_per_context: int = 5
+) -> dict:
     """Generate a context map with bounded contexts containing aggregates."""
     context_names = [f"Context{i}" for i in range(num_contexts)]
 
@@ -120,18 +125,17 @@ def generate_complex_validation_data(num_contexts: int = 30) -> dict:
     """Generate complex data for validation performance testing."""
     context_names = [f"Ctx{i}" for i in range(num_contexts)]
 
-    bounded_contexts = [
-        {"name": name, "type": "FEATURE"}
-        for name in context_names
-    ]
+    bounded_contexts = [{"name": name, "type": "FEATURE"} for name in context_names]
 
     relationships = []
     for i in range(0, min(num_contexts - 1, 15), 2):
-        relationships.append({
-            "type": "Partnership",
-            "upstream": context_names[i],
-            "downstream": context_names[i + 1],
-        })
+        relationships.append(
+            {
+                "type": "Partnership",
+                "upstream": context_names[i],
+                "downstream": context_names[i + 1],
+            }
+        )
 
     return {
         "contextMap": {
@@ -147,6 +151,7 @@ def generate_complex_validation_data(num_contexts: int = 30) -> dict:
 # ---------------------------------------------------------------------------
 # Conversion performance tests
 # ---------------------------------------------------------------------------
+
 
 class TestConversionPerformance:
     """Tests for conversion performance with various input sizes."""
@@ -192,7 +197,9 @@ class TestConversionPerformance:
 
     def test_context_map_with_aggregates_conversion_speed(self):
         """Context map with aggregates (10 contexts, 5 aggregates each) should convert in under 3 seconds."""
-        json_data = generate_context_map_with_aggregates(num_contexts=10, aggregates_per_context=5)
+        json_data = generate_context_map_with_aggregates(
+            num_contexts=10, aggregates_per_context=5
+        )
         converter = ConverterEngine()
 
         start = time.time()
@@ -201,7 +208,9 @@ class TestConversionPerformance:
 
         assert isinstance(result, str)
         assert len(result) > 0
-        assert elapsed < 3.0, f"Aggregate conversion took {elapsed:.3f}s, expected < 3.0s"
+        assert (
+            elapsed < 3.0
+        ), f"Aggregate conversion took {elapsed:.3f}s, expected < 3.0s"
 
     def test_repeated_conversions_consistent_speed(self):
         """Repeated conversions of the same data should have consistent performance."""
@@ -226,7 +235,9 @@ class TestConversionPerformance:
         # Max should not be more than 10x the min (allows for JIT warmup etc.)
         if min_time > 0:
             ratio = max_time / min_time
-            assert ratio < 10.0, f"Performance variance too high: max={max_time:.3f}s, min={min_time:.3f}s, ratio={ratio:.1f}"
+            assert (
+                ratio < 10.0
+            ), f"Performance variance too high: max={max_time:.3f}s, min={min_time:.3f}s, ratio={ratio:.1f}"
 
     def test_conversion_output_scales_with_input(self):
         """Larger inputs should produce proportionally larger outputs."""
@@ -238,13 +249,18 @@ class TestConversionPerformance:
         large_result = converter.convert(large_data)
 
         # Large output should be bigger than small output
-        assert len(large_result) > len(small_result), (
-            "Larger input should produce larger output"
-        )
+        assert len(large_result) > len(
+            small_result
+        ), "Larger input should produce larger output"
 
     def test_all_relationship_types_performance(self):
         """Converting all relationship types should complete quickly."""
-        relationship_types = ["Partnership", "SharedKernel", "CustomerSupplier", "UpstreamDownstream"]
+        relationship_types = [
+            "Partnership",
+            "SharedKernel",
+            "CustomerSupplier",
+            "UpstreamDownstream",
+        ]
         converter = ConverterEngine()
 
         for rel_type in relationship_types:
@@ -268,12 +284,15 @@ class TestConversionPerformance:
             elapsed = time.time() - start
 
             assert isinstance(result, str)
-            assert elapsed < 1.0, f"Relationship type {rel_type} took {elapsed:.3f}s, expected < 1.0s"
+            assert (
+                elapsed < 1.0
+            ), f"Relationship type {rel_type} took {elapsed:.3f}s, expected < 1.0s"
 
 
 # ---------------------------------------------------------------------------
 # Validation performance tests
 # ---------------------------------------------------------------------------
+
 
 class TestValidationPerformance:
     """Tests for validation performance with complex schemas."""
@@ -312,7 +331,9 @@ class TestValidationPerformance:
         elapsed = time.time() - start
 
         assert result.is_valid
-        assert elapsed < 2.0, f"Semantic validation took {elapsed:.3f}s, expected < 2.0s"
+        assert (
+            elapsed < 2.0
+        ), f"Semantic validation took {elapsed:.3f}s, expected < 2.0s"
 
     def test_combined_validation_speed(self):
         """Combined schema + semantic validation should complete in under 3 seconds."""
@@ -326,7 +347,9 @@ class TestValidationPerformance:
 
         assert schema_result.is_valid
         assert semantic_result.is_valid
-        assert elapsed < 3.0, f"Combined validation took {elapsed:.3f}s, expected < 3.0s"
+        assert (
+            elapsed < 3.0
+        ), f"Combined validation took {elapsed:.3f}s, expected < 3.0s"
 
     def test_invalid_data_validation_speed(self):
         """Validation of invalid data should also complete quickly."""
@@ -357,7 +380,9 @@ class TestValidationPerformance:
         elapsed = time.time() - start
 
         # Validation should complete quickly even for invalid data
-        assert elapsed < 1.0, f"Invalid data validation took {elapsed:.3f}s, expected < 1.0s"
+        assert (
+            elapsed < 1.0
+        ), f"Invalid data validation took {elapsed:.3f}s, expected < 1.0s"
         # The semantic validation should detect the error
         assert not semantic_result.is_valid
 
@@ -382,6 +407,7 @@ class TestValidationPerformance:
 # ---------------------------------------------------------------------------
 # Memory and resource tests
 # ---------------------------------------------------------------------------
+
 
 class TestMemoryAndResources:
     """Tests for memory usage and resource consumption."""
@@ -418,14 +444,16 @@ class TestMemoryAndResources:
         # 50 contexts with relationships should produce at most ~500KB of CML
         max_size_bytes = 500 * 1024  # 500 KB
         output_size = len(result.encode("utf-8"))
-        assert output_size < max_size_bytes, (
-            f"Output size {output_size} bytes exceeds limit of {max_size_bytes} bytes"
-        )
+        assert (
+            output_size < max_size_bytes
+        ), f"Output size {output_size} bytes exceeds limit of {max_size_bytes} bytes"
 
     def test_multiple_converter_instances_work_independently(self):
         """Multiple converter instances should work independently without interference."""
         json_data_1 = generate_large_context_map(num_contexts=10)
-        json_data_2 = generate_context_map_with_aggregates(num_contexts=5, aggregates_per_context=3)
+        json_data_2 = generate_context_map_with_aggregates(
+            num_contexts=5, aggregates_per_context=3
+        )
 
         converter1 = ConverterEngine()
         converter2 = ConverterEngine()
@@ -464,12 +492,15 @@ class TestMemoryAndResources:
         elapsed = time.time() - start
 
         assert isinstance(result, str)
-        assert elapsed < 0.5, f"Empty collections conversion took {elapsed:.3f}s, expected < 0.5s"
+        assert (
+            elapsed < 0.5
+        ), f"Empty collections conversion took {elapsed:.3f}s, expected < 0.5s"
 
 
 # ---------------------------------------------------------------------------
 # File I/O performance tests
 # ---------------------------------------------------------------------------
+
 
 class TestFileIOPerformance:
     """Tests for file I/O performance with large JSON files."""
@@ -495,7 +526,9 @@ class TestFileIOPerformance:
 
             assert isinstance(result, str)
             assert len(result) > 0
-            assert elapsed < 5.0, f"File read + convert took {elapsed:.3f}s, expected < 5.0s"
+            assert (
+                elapsed < 5.0
+            ), f"File read + convert took {elapsed:.3f}s, expected < 5.0s"
         finally:
             os.unlink(temp_path)
 
@@ -529,6 +562,7 @@ class TestFileIOPerformance:
 # ---------------------------------------------------------------------------
 # Scalability tests
 # ---------------------------------------------------------------------------
+
 
 class TestScalability:
     """Tests for scalability limits and error handling under load."""
@@ -566,11 +600,13 @@ class TestScalability:
 
         relationships = []
         for i in range(num_contexts - 1):
-            relationships.append({
-                "type": "CustomerSupplier",
-                "upstream": context_names[i],
-                "downstream": context_names[i + 1],
-            })
+            relationships.append(
+                {
+                    "type": "CustomerSupplier",
+                    "upstream": context_names[i],
+                    "downstream": context_names[i + 1],
+                }
+            )
 
         json_data = {
             "contextMap": {
@@ -580,8 +616,7 @@ class TestScalability:
                 "relationships": relationships,
             },
             "boundedContexts": [
-                {"name": name, "type": "FEATURE"}
-                for name in context_names
+                {"name": name, "type": "FEATURE"} for name in context_names
             ],
         }
 
@@ -594,7 +629,9 @@ class TestScalability:
 
         assert result.is_valid
         assert semantic_result.is_valid
-        assert elapsed < 3.0, f"Many-relationship validation took {elapsed:.3f}s, expected < 3.0s"
+        assert (
+            elapsed < 3.0
+        ), f"Many-relationship validation took {elapsed:.3f}s, expected < 3.0s"
 
     def test_error_handling_under_load(self):
         """Error handling should work correctly even with many invalid inputs."""
@@ -606,7 +643,10 @@ class TestScalability:
             {},  # Empty dict
             {"contextMap": {}},  # Missing required fields
             {"boundedContexts": []},  # Missing contextMap
-            {"contextMap": {"type": "INVALID_TYPE", "contains": []}, "boundedContexts": []},
+            {
+                "contextMap": {"type": "INVALID_TYPE", "contains": []},
+                "boundedContexts": [],
+            },
         ]
 
         start = time.time()
@@ -623,17 +663,16 @@ class TestScalability:
                 pass  # Exceptions are acceptable for invalid inputs
 
         elapsed = time.time() - start
-        assert elapsed < 5.0, f"Error handling under load took {elapsed:.3f}s, expected < 5.0s"
+        assert (
+            elapsed < 5.0
+        ), f"Error handling under load took {elapsed:.3f}s, expected < 5.0s"
 
     def test_batch_conversion_performance(self):
         """Converting multiple independent context maps should be efficient."""
         converter = ConverterEngine()
 
         # Generate 20 small context maps
-        batch = [
-            generate_large_context_map(num_contexts=5)
-            for _ in range(20)
-        ]
+        batch = [generate_large_context_map(num_contexts=5) for _ in range(20)]
 
         start = time.time()
         results = [converter.convert(data) for data in batch]
@@ -644,17 +683,16 @@ class TestScalability:
             assert isinstance(result, str)
             assert len(result) > 0
 
-        assert elapsed < 5.0, f"Batch conversion of 20 items took {elapsed:.3f}s, expected < 5.0s"
+        assert (
+            elapsed < 5.0
+        ), f"Batch conversion of 20 items took {elapsed:.3f}s, expected < 5.0s"
 
     def test_validation_batch_performance(self):
         """Validating multiple context maps in batch should be efficient."""
         validator = ValidationEngine()
 
         # Generate 20 small context maps for validation
-        batch = [
-            generate_complex_validation_data(num_contexts=5)
-            for _ in range(20)
-        ]
+        batch = [generate_complex_validation_data(num_contexts=5) for _ in range(20)]
 
         start = time.time()
         results = [validator.validate_json_schema(data) for data in batch]
@@ -664,4 +702,6 @@ class TestScalability:
         for result in results:
             assert result.is_valid
 
-        assert elapsed < 5.0, f"Batch validation of 20 items took {elapsed:.3f}s, expected < 5.0s"
+        assert (
+            elapsed < 5.0
+        ), f"Batch validation of 20 items took {elapsed:.3f}s, expected < 5.0s"

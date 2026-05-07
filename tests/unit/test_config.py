@@ -15,6 +15,7 @@ from context_mapper_json_converter.config import DEFAULT_CONFIG, Config
 # Instantiation
 # ---------------------------------------------------------------------------
 
+
 class TestConfigInit:
     def test_default_instantiation(self):
         cfg = Config()
@@ -53,6 +54,7 @@ class TestConfigInit:
 # ---------------------------------------------------------------------------
 # Default values
 # ---------------------------------------------------------------------------
+
 
 class TestConfigDefaults:
     def test_default_strict_mode_true(self):
@@ -101,6 +103,7 @@ class TestConfigDefaults:
 # Custom config_dict overrides
 # ---------------------------------------------------------------------------
 
+
 class TestConfigWithCustomDict:
     def test_override_strict_mode(self):
         cfg = Config(config_dict={"validation": {"strict_mode": False}})
@@ -115,7 +118,11 @@ class TestConfigWithCustomDict:
         assert cfg.get("performance.max_contexts") == 500
 
     def test_partial_override_preserves_other_keys(self):
-        cfg = Config(config_dict={"validation": {"strict_mode": False, "validate_references": True}})
+        cfg = Config(
+            config_dict={
+                "validation": {"strict_mode": False, "validate_references": True}
+            }
+        )
         # validate_references should be True as we set it explicitly
         assert cfg.get("validation.validate_references") is True
 
@@ -124,7 +131,9 @@ class TestConfigWithCustomDict:
         assert cfg.get("custom_key") == "custom_value"
 
     def test_nested_override(self):
-        cfg = Config(config_dict={"output": {"format_output": False, "validate_output": False}})
+        cfg = Config(
+            config_dict={"output": {"format_output": False, "validate_output": False}}
+        )
         assert cfg.get("output.format_output") is False
         assert cfg.get("output.validate_output") is False
 
@@ -132,6 +141,7 @@ class TestConfigWithCustomDict:
 # ---------------------------------------------------------------------------
 # get() method
 # ---------------------------------------------------------------------------
+
 
 class TestConfigGet:
     def test_get_existing_key(self):
@@ -176,6 +186,7 @@ class TestConfigGet:
 # ---------------------------------------------------------------------------
 # set() method
 # ---------------------------------------------------------------------------
+
 
 class TestConfigSet:
     def test_set_existing_key(self):
@@ -223,6 +234,7 @@ class TestConfigSet:
 # DEFAULT_CONFIG constant
 # ---------------------------------------------------------------------------
 
+
 class TestDefaultConfig:
     def test_default_config_is_dict(self):
         assert isinstance(DEFAULT_CONFIG, dict)
@@ -255,6 +267,7 @@ class TestDefaultConfig:
 # ---------------------------------------------------------------------------
 # _update_config() – recursive merge
 # ---------------------------------------------------------------------------
+
 
 class TestUpdateConfig:
     def test_recursive_merge_preserves_unset_keys(self):

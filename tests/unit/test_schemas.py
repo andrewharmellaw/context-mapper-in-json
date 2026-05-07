@@ -26,6 +26,7 @@ from context_mapper_json_converter.schemas.subdomain import (
 # ContextMap Schema
 # ---------------------------------------------------------------------------
 
+
 class TestContextMapSchema:
     @pytest.fixture
     def validator(self):
@@ -64,7 +65,9 @@ class TestContextMapSchema:
             "type": "SYSTEM_LANDSCAPE",
             "state": "AS_IS",
             "contains": ["A", "B"],
-            "relationships": [{"type": "Partnership", "upstream": "A", "downstream": "B"}],
+            "relationships": [
+                {"type": "Partnership", "upstream": "A", "downstream": "B"}
+            ],
         }
         validator.validate(data)  # Should not raise
 
@@ -82,7 +85,9 @@ class TestContextMapSchema:
 
     def test_invalid_state_value(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({"type": "SYSTEM_LANDSCAPE", "state": "INVALID", "contains": ["A"]})
+            validator.validate(
+                {"type": "SYSTEM_LANDSCAPE", "state": "INVALID", "contains": ["A"]}
+            )
 
     def test_valid_organizational_type(self, validator):
         data = {"type": "ORGANIZATIONAL", "contains": ["TeamA"]}
@@ -94,7 +99,9 @@ class TestContextMapSchema:
 
     def test_invalid_additional_property(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({"type": "SYSTEM_LANDSCAPE", "contains": ["A"], "extra": "value"})
+            validator.validate(
+                {"type": "SYSTEM_LANDSCAPE", "contains": ["A"], "extra": "value"}
+            )
 
     def test_contains_must_be_array(self, validator):
         with pytest.raises(JsonSchemaValidationError):
@@ -109,89 +116,116 @@ class TestContextMapSchema:
             validator.validate({"type": "SYSTEM_LANDSCAPE", "contains": [123]})
 
     def test_valid_relationship_types(self, validator):
-        for rel_type in ["Partnership", "SharedKernel", "CustomerSupplier", "UpstreamDownstream"]:
+        for rel_type in [
+            "Partnership",
+            "SharedKernel",
+            "CustomerSupplier",
+            "UpstreamDownstream",
+        ]:
             data = {
                 "type": "SYSTEM_LANDSCAPE",
                 "contains": ["A", "B"],
-                "relationships": [{"type": rel_type, "upstream": "A", "downstream": "B"}],
+                "relationships": [
+                    {"type": rel_type, "upstream": "A", "downstream": "B"}
+                ],
             }
             validator.validate(data)  # Should not raise
 
     def test_invalid_relationship_type(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({
-                "type": "SYSTEM_LANDSCAPE",
-                "contains": ["A", "B"],
-                "relationships": [{"type": "INVALID", "upstream": "A", "downstream": "B"}],
-            })
+            validator.validate(
+                {
+                    "type": "SYSTEM_LANDSCAPE",
+                    "contains": ["A", "B"],
+                    "relationships": [
+                        {"type": "INVALID", "upstream": "A", "downstream": "B"}
+                    ],
+                }
+            )
 
     def test_relationship_missing_upstream(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({
-                "type": "SYSTEM_LANDSCAPE",
-                "contains": ["A", "B"],
-                "relationships": [{"type": "Partnership", "downstream": "B"}],
-            })
+            validator.validate(
+                {
+                    "type": "SYSTEM_LANDSCAPE",
+                    "contains": ["A", "B"],
+                    "relationships": [{"type": "Partnership", "downstream": "B"}],
+                }
+            )
 
     def test_relationship_missing_downstream(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({
-                "type": "SYSTEM_LANDSCAPE",
-                "contains": ["A", "B"],
-                "relationships": [{"type": "Partnership", "upstream": "A"}],
-            })
+            validator.validate(
+                {
+                    "type": "SYSTEM_LANDSCAPE",
+                    "contains": ["A", "B"],
+                    "relationships": [{"type": "Partnership", "upstream": "A"}],
+                }
+            )
 
     def test_valid_upstream_roles(self, validator):
         data = {
             "type": "SYSTEM_LANDSCAPE",
             "contains": ["A", "B"],
-            "relationships": [{
-                "type": "CustomerSupplier",
-                "upstream": "A",
-                "downstream": "B",
-                "upstreamRoles": ["OHS", "PL"],
-            }],
+            "relationships": [
+                {
+                    "type": "CustomerSupplier",
+                    "upstream": "A",
+                    "downstream": "B",
+                    "upstreamRoles": ["OHS", "PL"],
+                }
+            ],
         }
         validator.validate(data)  # Should not raise
 
     def test_invalid_upstream_role(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({
-                "type": "SYSTEM_LANDSCAPE",
-                "contains": ["A", "B"],
-                "relationships": [{
-                    "type": "CustomerSupplier",
-                    "upstream": "A",
-                    "downstream": "B",
-                    "upstreamRoles": ["INVALID"],
-                }],
-            })
+            validator.validate(
+                {
+                    "type": "SYSTEM_LANDSCAPE",
+                    "contains": ["A", "B"],
+                    "relationships": [
+                        {
+                            "type": "CustomerSupplier",
+                            "upstream": "A",
+                            "downstream": "B",
+                            "upstreamRoles": ["INVALID"],
+                        }
+                    ],
+                }
+            )
 
     def test_valid_downstream_roles(self, validator):
         data = {
             "type": "SYSTEM_LANDSCAPE",
             "contains": ["A", "B"],
-            "relationships": [{
-                "type": "CustomerSupplier",
-                "upstream": "A",
-                "downstream": "B",
-                "downstreamRoles": ["ACL", "CF"],
-            }],
+            "relationships": [
+                {
+                    "type": "CustomerSupplier",
+                    "upstream": "A",
+                    "downstream": "B",
+                    "downstreamRoles": ["ACL", "CF"],
+                }
+            ],
         }
         validator.validate(data)  # Should not raise
 
     def test_invalid_downstream_role(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({
-                "type": "SYSTEM_LANDSCAPE",
-                "contains": ["A", "B"],
-                "relationships": [{
-                    "type": "CustomerSupplier",
-                    "upstream": "A",
-                    "downstream": "B",
-                    "downstreamRoles": ["INVALID"],
-                }],
-            })
+            validator.validate(
+                {
+                    "type": "SYSTEM_LANDSCAPE",
+                    "contains": ["A", "B"],
+                    "relationships": [
+                        {
+                            "type": "CustomerSupplier",
+                            "upstream": "A",
+                            "downstream": "B",
+                            "downstreamRoles": ["INVALID"],
+                        }
+                    ],
+                }
+            )
 
     def test_name_pattern_valid(self, validator):
         data = {"name": "ValidName123", "type": "SYSTEM_LANDSCAPE", "contains": ["A"]}
@@ -199,7 +233,9 @@ class TestContextMapSchema:
 
     def test_name_pattern_invalid_starts_with_number(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({"name": "1Invalid", "type": "SYSTEM_LANDSCAPE", "contains": ["A"]})
+            validator.validate(
+                {"name": "1Invalid", "type": "SYSTEM_LANDSCAPE", "contains": ["A"]}
+            )
 
 
 class TestContextMapSemanticRules:
@@ -223,6 +259,7 @@ class TestContextMapSemanticRules:
 # ---------------------------------------------------------------------------
 # BoundedContext Schema
 # ---------------------------------------------------------------------------
+
 
 class TestBoundedContextSchema:
     @pytest.fixture
@@ -274,19 +311,27 @@ class TestBoundedContextSchema:
 
     def test_valid_knowledge_levels(self, validator):
         for level in ["CONCRETE", "META"]:
-            validator.validate({"name": "Ctx", "type": "FEATURE", "knowledgeLevel": level})
+            validator.validate(
+                {"name": "Ctx", "type": "FEATURE", "knowledgeLevel": level}
+            )
 
     def test_invalid_knowledge_level(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({"name": "Ctx", "type": "FEATURE", "knowledgeLevel": "INVALID"})
+            validator.validate(
+                {"name": "Ctx", "type": "FEATURE", "knowledgeLevel": "INVALID"}
+            )
 
     def test_valid_business_models(self, validator):
         for model in ["REVENUE", "ENGAGEMENT", "COMPLIANCE", "COST_REDUCTION"]:
-            validator.validate({"name": "Ctx", "type": "FEATURE", "businessModel": model})
+            validator.validate(
+                {"name": "Ctx", "type": "FEATURE", "businessModel": model}
+            )
 
     def test_invalid_business_model(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({"name": "Ctx", "type": "FEATURE", "businessModel": "INVALID"})
+            validator.validate(
+                {"name": "Ctx", "type": "FEATURE", "businessModel": "INVALID"}
+            )
 
     def test_valid_evolution_stages(self, validator):
         for stage in ["GENESIS", "CUSTOM_BUILT", "PRODUCT", "COMMODITY"]:
@@ -294,7 +339,9 @@ class TestBoundedContextSchema:
 
     def test_invalid_evolution_stage(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({"name": "Ctx", "type": "FEATURE", "evolution": "INVALID"})
+            validator.validate(
+                {"name": "Ctx", "type": "FEATURE", "evolution": "INVALID"}
+            )
 
     def test_valid_with_aggregate(self, validator):
         data = {
@@ -308,10 +355,12 @@ class TestBoundedContextSchema:
         data = {
             "name": "Ctx",
             "type": "FEATURE",
-            "aggregates": [{
-                "name": "MyAgg",
-                "entities": [{"name": "MyEntity", "aggregateRoot": True}],
-            }],
+            "aggregates": [
+                {
+                    "name": "MyAgg",
+                    "entities": [{"name": "MyEntity", "aggregateRoot": True}],
+                }
+            ],
         }
         validator.validate(data)
 
@@ -319,10 +368,12 @@ class TestBoundedContextSchema:
         data = {
             "name": "Ctx",
             "type": "FEATURE",
-            "aggregates": [{
-                "name": "MyAgg",
-                "valueObjects": [{"name": "MyVO"}],
-            }],
+            "aggregates": [
+                {
+                    "name": "MyAgg",
+                    "valueObjects": [{"name": "MyVO"}],
+                }
+            ],
         }
         validator.validate(data)
 
@@ -330,10 +381,12 @@ class TestBoundedContextSchema:
         data = {
             "name": "Ctx",
             "type": "FEATURE",
-            "aggregates": [{
-                "name": "MyAgg",
-                "domainEvents": [{"name": "OrderPlaced"}],
-            }],
+            "aggregates": [
+                {
+                    "name": "MyAgg",
+                    "domainEvents": [{"name": "OrderPlaced"}],
+                }
+            ],
         }
         validator.validate(data)
 
@@ -341,10 +394,12 @@ class TestBoundedContextSchema:
         data = {
             "name": "Ctx",
             "type": "FEATURE",
-            "aggregates": [{
-                "name": "MyAgg",
-                "commands": [{"name": "PlaceOrder"}],
-            }],
+            "aggregates": [
+                {
+                    "name": "MyAgg",
+                    "commands": [{"name": "PlaceOrder"}],
+                }
+            ],
         }
         validator.validate(data)
 
@@ -352,10 +407,12 @@ class TestBoundedContextSchema:
         data = {
             "name": "Ctx",
             "type": "FEATURE",
-            "aggregates": [{
-                "name": "MyAgg",
-                "services": [{"name": "OrderService"}],
-            }],
+            "aggregates": [
+                {
+                    "name": "MyAgg",
+                    "services": [{"name": "OrderService"}],
+                }
+            ],
         }
         validator.validate(data)
 
@@ -363,10 +420,12 @@ class TestBoundedContextSchema:
         data = {
             "name": "Ctx",
             "type": "FEATURE",
-            "aggregates": [{
-                "name": "MyAgg",
-                "repositories": [{"name": "OrderRepo"}],
-            }],
+            "aggregates": [
+                {
+                    "name": "MyAgg",
+                    "repositories": [{"name": "OrderRepo"}],
+                }
+            ],
         }
         validator.validate(data)
 
@@ -374,13 +433,19 @@ class TestBoundedContextSchema:
         data = {
             "name": "Ctx",
             "type": "FEATURE",
-            "aggregates": [{
-                "name": "Agg",
-                "entities": [{
-                    "name": "E",
-                    "attributes": [{"name": "id", "type": "String", "key": True}],
-                }],
-            }],
+            "aggregates": [
+                {
+                    "name": "Agg",
+                    "entities": [
+                        {
+                            "name": "E",
+                            "attributes": [
+                                {"name": "id", "type": "String", "key": True}
+                            ],
+                        }
+                    ],
+                }
+            ],
         }
         validator.validate(data)
 
@@ -388,13 +453,19 @@ class TestBoundedContextSchema:
         data = {
             "name": "Ctx",
             "type": "FEATURE",
-            "aggregates": [{
-                "name": "Agg",
-                "entities": [{
-                    "name": "E",
-                    "attributes": [{"name": "desc", "type": "String", "nullable": True}],
-                }],
-            }],
+            "aggregates": [
+                {
+                    "name": "Agg",
+                    "entities": [
+                        {
+                            "name": "E",
+                            "attributes": [
+                                {"name": "desc", "type": "String", "nullable": True}
+                            ],
+                        }
+                    ],
+                }
+            ],
         }
         validator.validate(data)
 
@@ -402,34 +473,48 @@ class TestBoundedContextSchema:
         data = {
             "name": "Ctx",
             "type": "FEATURE",
-            "aggregates": [{
-                "name": "Agg",
-                "entities": [{
-                    "name": "E",
-                    "operations": [{
-                        "name": "doIt",
-                        "parameters": [{"name": "p", "type": "String"}],
-                        "returnType": "void",
-                        "visibility": "PUBLIC",
-                    }],
-                }],
-            }],
+            "aggregates": [
+                {
+                    "name": "Agg",
+                    "entities": [
+                        {
+                            "name": "E",
+                            "operations": [
+                                {
+                                    "name": "doIt",
+                                    "parameters": [{"name": "p", "type": "String"}],
+                                    "returnType": "void",
+                                    "visibility": "PUBLIC",
+                                }
+                            ],
+                        }
+                    ],
+                }
+            ],
         }
         validator.validate(data)
 
     def test_invalid_operation_visibility(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({
-                "name": "Ctx",
-                "type": "FEATURE",
-                "aggregates": [{
-                    "name": "Agg",
-                    "entities": [{
-                        "name": "E",
-                        "operations": [{"name": "doIt", "visibility": "INVALID"}],
-                    }],
-                }],
-            })
+            validator.validate(
+                {
+                    "name": "Ctx",
+                    "type": "FEATURE",
+                    "aggregates": [
+                        {
+                            "name": "Agg",
+                            "entities": [
+                                {
+                                    "name": "E",
+                                    "operations": [
+                                        {"name": "doIt", "visibility": "INVALID"}
+                                    ],
+                                }
+                            ],
+                        }
+                    ],
+                }
+            )
 
     def test_name_must_start_with_letter(self, validator):
         with pytest.raises(JsonSchemaValidationError):
@@ -463,6 +548,7 @@ class TestBoundedContextSemanticRules:
 # ---------------------------------------------------------------------------
 # Subdomain Schema
 # ---------------------------------------------------------------------------
+
 
 class TestSubdomainSchema:
     @pytest.fixture
@@ -509,41 +595,53 @@ class TestSubdomainSchema:
             validator.validate({"name": "Sub", "type": "CORE_DOMAIN", "extra": "value"})
 
     def test_valid_with_domain_vision_statement(self, validator):
-        validator.validate({
-            "name": "Sub",
-            "type": "CORE_DOMAIN",
-            "domainVisionStatement": "Core business logic",
-        })
+        validator.validate(
+            {
+                "name": "Sub",
+                "type": "CORE_DOMAIN",
+                "domainVisionStatement": "Core business logic",
+            }
+        )
 
     def test_valid_with_entities(self, validator):
-        validator.validate({
-            "name": "Sub",
-            "type": "CORE_DOMAIN",
-            "entities": ["Order", "Customer"],
-        })
+        validator.validate(
+            {
+                "name": "Sub",
+                "type": "CORE_DOMAIN",
+                "entities": ["Order", "Customer"],
+            }
+        )
 
     def test_valid_with_services(self, validator):
-        validator.validate({
-            "name": "Sub",
-            "type": "CORE_DOMAIN",
-            "services": ["OrderService"],
-        })
+        validator.validate(
+            {
+                "name": "Sub",
+                "type": "CORE_DOMAIN",
+                "services": ["OrderService"],
+            }
+        )
 
     def test_entities_must_be_array(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({"name": "Sub", "type": "CORE_DOMAIN", "entities": "Order"})
+            validator.validate(
+                {"name": "Sub", "type": "CORE_DOMAIN", "entities": "Order"}
+            )
 
     def test_entities_items_must_be_strings(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({"name": "Sub", "type": "CORE_DOMAIN", "entities": [123]})
+            validator.validate(
+                {"name": "Sub", "type": "CORE_DOMAIN", "entities": [123]}
+            )
 
     def test_entities_must_be_unique(self, validator):
         with pytest.raises(JsonSchemaValidationError):
-            validator.validate({
-                "name": "Sub",
-                "type": "CORE_DOMAIN",
-                "entities": ["Order", "Order"],  # duplicate
-            })
+            validator.validate(
+                {
+                    "name": "Sub",
+                    "type": "CORE_DOMAIN",
+                    "entities": ["Order", "Order"],  # duplicate
+                }
+            )
 
     def test_name_must_start_with_letter(self, validator):
         with pytest.raises(JsonSchemaValidationError):
@@ -571,21 +669,26 @@ class TestSubdomainSemanticRules:
 # Schema imports from package
 # ---------------------------------------------------------------------------
 
+
 class TestSchemaImports:
     def test_bounded_context_schema_importable(self):
         from context_mapper_json_converter.schemas.bounded_context import (
             BOUNDED_CONTEXT_SCHEMA,
         )
+
         assert BOUNDED_CONTEXT_SCHEMA is not None
 
     def test_context_map_schema_importable(self):
         from context_mapper_json_converter.schemas.context_map import CONTEXT_MAP_SCHEMA
+
         assert CONTEXT_MAP_SCHEMA is not None
 
     def test_subdomain_schema_importable(self):
         from context_mapper_json_converter.schemas.subdomain import SUBDOMAIN_SCHEMA
+
         assert SUBDOMAIN_SCHEMA is not None
 
     def test_schemas_package_importable(self):
         import context_mapper_json_converter.schemas
+
         assert context_mapper_json_converter.schemas is not None

@@ -18,19 +18,33 @@ from context_mapper_json_converter import ConversionError, ConverterEngine
 
 VALID_CONTEXT_MAP_TYPES = ["SYSTEM_LANDSCAPE", "ORGANIZATIONAL"]
 VALID_BC_TYPES = ["FEATURE", "APPLICATION", "SYSTEM", "TEAM"]
-VALID_RELATIONSHIP_TYPES = ["Partnership", "SharedKernel", "CustomerSupplier", "UpstreamDownstream"]
+VALID_RELATIONSHIP_TYPES = [
+    "Partnership",
+    "SharedKernel",
+    "CustomerSupplier",
+    "UpstreamDownstream",
+]
 
 # Names must match ^[A-Za-z][A-Za-z0-9_]*$
 _name_tail = st.text(
-    alphabet=st.characters(whitelist_categories=("Lu", "Ll", "Nd"), whitelist_characters="_"),
+    alphabet=st.characters(
+        whitelist_categories=("Lu", "Ll", "Nd"), whitelist_characters="_"
+    ),
     min_size=0,
     max_size=10,
 )
 
+
 @st.composite
 def valid_identifier(draw):
     """Generate a valid CML identifier (starts with letter, rest alphanumeric/_)."""
-    first = draw(st.text(alphabet=st.characters(whitelist_categories=("Lu", "Ll")), min_size=1, max_size=1))
+    first = draw(
+        st.text(
+            alphabet=st.characters(whitelist_categories=("Lu", "Ll")),
+            min_size=1,
+            max_size=1,
+        )
+    )
     rest = draw(_name_tail)
     return first + rest
 
@@ -81,7 +95,10 @@ def valid_context_map_with_relationships(draw):
     context_names = [f"Ctx{i}" for i in range(num_contexts)]
     cm_type = draw(st.sampled_from(VALID_CONTEXT_MAP_TYPES))
 
-    bounded_contexts = [{"name": n, "type": draw(st.sampled_from(VALID_BC_TYPES))} for n in context_names]
+    bounded_contexts = [
+        {"name": n, "type": draw(st.sampled_from(VALID_BC_TYPES))}
+        for n in context_names
+    ]
 
     # Optionally add relationships between distinct pairs
     relationships = []
@@ -89,11 +106,13 @@ def valid_context_map_with_relationships(draw):
         rel_type = draw(st.sampled_from(VALID_RELATIONSHIP_TYPES))
         upstream = context_names[0]
         downstream = context_names[1]
-        relationships.append({
-            "type": rel_type,
-            "upstream": upstream,
-            "downstream": downstream,
-        })
+        relationships.append(
+            {
+                "type": rel_type,
+                "upstream": upstream,
+                "downstream": downstream,
+            }
+        )
 
     cm = {
         "type": cm_type,
@@ -111,6 +130,7 @@ def valid_context_map_with_relationships(draw):
 # ---------------------------------------------------------------------------
 # Property tests
 # ---------------------------------------------------------------------------
+
 
 class TestConverterProperties:
     """Property-based tests for ConverterEngine."""
@@ -152,7 +172,9 @@ class TestConverterProperties:
         converter = ConverterEngine()
         result = converter.convert(json_data)
         cm_type = json_data["contextMap"]["type"]
-        assert cm_type in result, f"Context map type '{cm_type}' must appear in CML output"
+        assert (
+            cm_type in result
+        ), f"Context map type '{cm_type}' must appear in CML output"
 
     @given(valid_context_map_json())
     @settings(max_examples=15, deadline=None)
@@ -165,9 +187,9 @@ class TestConverterProperties:
         converter = ConverterEngine()
         result = converter.convert(json_data)
         for bc in json_data["boundedContexts"]:
-            assert bc["name"] in result, (
-                f"Bounded context name '{bc['name']}' must appear in CML output"
-            )
+            assert (
+                bc["name"] in result
+            ), f"Bounded context name '{bc['name']}' must appear in CML output"
 
     @given(valid_context_map_with_relationships())
     @settings(max_examples=15, deadline=None)
@@ -182,12 +204,14 @@ class TestConverterProperties:
         assert isinstance(result, str)
         assert len(result) > 0
 
-    @given(st.one_of(
-        st.none(),
-        st.integers(),
-        st.floats(allow_nan=False),
-        st.lists(st.integers(), min_size=0, max_size=3),
-    ))
+    @given(
+        st.one_of(
+            st.none(),
+            st.integers(),
+            st.floats(allow_nan=False),
+            st.lists(st.integers(), min_size=0, max_size=3),
+        )
+    )
     @settings(max_examples=15, deadline=None)
     def test_non_dict_non_string_input_raises_or_returns_empty(self, invalid_input):
         """
@@ -203,9 +227,9 @@ class TestConverterProperties:
         try:
             result = converter.convert(invalid_input)
             # If it doesn't raise, the result must be a string (possibly empty)
-            assert isinstance(result, str), (
-                "convert() must return a string even for non-dict inputs"
-            )
+            assert isinstance(
+                result, str
+            ), "convert() must return a string even for non-dict inputs"
         except (ConversionError, ValueError, TypeError, AttributeError):
             pass  # Raising is also acceptable
 
@@ -219,7 +243,9 @@ class TestConverterProperties:
         """
         converter = ConverterEngine()
         result = converter.convert(json_data)
-        assert "BoundedContext" in result, "CML output must contain 'BoundedContext' keyword"
+        assert (
+            "BoundedContext" in result
+        ), "CML output must contain 'BoundedContext' keyword"
 
     @given(valid_context_map_json())
     @settings(max_examples=10, deadline=None)
@@ -279,7 +305,9 @@ class TestConverterProperties:
             "contextMap": {
                 "type": "SYSTEM_LANDSCAPE",
                 "contains": ["Alpha", "Beta"],
-                "relationships": [{"type": rel_type, "upstream": "Alpha", "downstream": "Beta"}],
+                "relationships": [
+                    {"type": rel_type, "upstream": "Alpha", "downstream": "Beta"}
+                ],
             },
             "boundedContexts": [
                 {"name": "Alpha", "type": "FEATURE"},

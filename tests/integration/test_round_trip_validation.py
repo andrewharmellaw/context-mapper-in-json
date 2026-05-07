@@ -38,6 +38,7 @@ def convert_to_cml(json_data: dict) -> str:
 # CMLParser tests
 # ---------------------------------------------------------------------------
 
+
 class TestCMLParser:
     """Test the CMLParser class that parses CML back to JSON-like structure."""
 
@@ -141,7 +142,9 @@ class TestCMLParser:
         result = self.parser.parse_cml(cml)
         relationships = result["contextMap"].get("relationships", [])
         assert len(relationships) >= 1
-        partnership = next((r for r in relationships if r.get("type") == "Partnership"), None)
+        partnership = next(
+            (r for r in relationships if r.get("type") == "Partnership"), None
+        )
         assert partnership is not None
 
     def test_parse_shared_kernel_relationship(self):
@@ -176,6 +179,7 @@ class TestCMLParser:
 # ---------------------------------------------------------------------------
 # RoundTripValidator – validate_round_trip
 # ---------------------------------------------------------------------------
+
 
 class TestRoundTripValidation:
     """Test the RoundTripValidator.validate_round_trip method."""
@@ -228,9 +232,9 @@ class TestRoundTripValidation:
             json_data = load_json(json_file)
             cml_output = convert_to_cml(json_data)
             result = self.validator.validate_round_trip(json_data, cml_output)
-            assert isinstance(result, ValidationResult), (
-                f"Round-trip failed for {json_file.name}"
-            )
+            assert isinstance(
+                result, ValidationResult
+            ), f"Round-trip failed for {json_file.name}"
 
     def test_round_trip_with_empty_cml_produces_errors(self):
         """Round-trip with empty CML produces validation errors."""
@@ -258,6 +262,7 @@ class TestRoundTripValidation:
 # RoundTripValidator – compare_semantic_equivalence
 # ---------------------------------------------------------------------------
 
+
 class TestCompareSemanticEquivalence:
     """Test the compare_semantic_equivalence method."""
 
@@ -280,7 +285,11 @@ class TestCompareSemanticEquivalence:
     def test_missing_context_map_detected(self):
         """Missing contextMap in parsed data is detected as discrepancy."""
         original = {
-            "contextMap": {"name": "Test", "type": "SYSTEM_LANDSCAPE", "contains": ["ServiceA"]},
+            "contextMap": {
+                "name": "Test",
+                "type": "SYSTEM_LANDSCAPE",
+                "contains": ["ServiceA"],
+            },
             "boundedContexts": [{"name": "ServiceA", "type": "FEATURE"}],
         }
         parsed = {"boundedContexts": [{"name": "ServiceA", "type": "FEATURE"}]}
@@ -290,11 +299,19 @@ class TestCompareSemanticEquivalence:
     def test_missing_bounded_contexts_detected(self):
         """Missing boundedContexts in parsed data is detected."""
         original = {
-            "contextMap": {"name": "Test", "type": "SYSTEM_LANDSCAPE", "contains": ["ServiceA"]},
+            "contextMap": {
+                "name": "Test",
+                "type": "SYSTEM_LANDSCAPE",
+                "contains": ["ServiceA"],
+            },
             "boundedContexts": [{"name": "ServiceA", "type": "FEATURE"}],
         }
         parsed = {
-            "contextMap": {"name": "Test", "type": "SYSTEM_LANDSCAPE", "contains": ["ServiceA"]}
+            "contextMap": {
+                "name": "Test",
+                "type": "SYSTEM_LANDSCAPE",
+                "contains": ["ServiceA"],
+            }
         }
         discrepancies = self.validator.compare_semantic_equivalence(original, parsed)
         assert any("boundedContexts" in d.property_path for d in discrepancies)
@@ -302,11 +319,19 @@ class TestCompareSemanticEquivalence:
     def test_context_map_type_mismatch_detected(self):
         """Context Map type mismatch is detected."""
         original = {
-            "contextMap": {"name": "Test", "type": "SYSTEM_LANDSCAPE", "contains": ["ServiceA"]},
+            "contextMap": {
+                "name": "Test",
+                "type": "SYSTEM_LANDSCAPE",
+                "contains": ["ServiceA"],
+            },
             "boundedContexts": [{"name": "ServiceA", "type": "FEATURE"}],
         }
         parsed = {
-            "contextMap": {"name": "Test", "type": "ORGANIZATIONAL", "contains": ["ServiceA"]},
+            "contextMap": {
+                "name": "Test",
+                "type": "ORGANIZATIONAL",
+                "contains": ["ServiceA"],
+            },
             "boundedContexts": [{"name": "ServiceA", "type": "FEATURE"}],
         }
         discrepancies = self.validator.compare_semantic_equivalence(original, parsed)
@@ -315,7 +340,11 @@ class TestCompareSemanticEquivalence:
     def test_discrepancy_objects_have_required_fields(self):
         """Discrepancy objects have all required fields."""
         original = {
-            "contextMap": {"name": "Test", "type": "SYSTEM_LANDSCAPE", "contains": ["ServiceA"]},
+            "contextMap": {
+                "name": "Test",
+                "type": "SYSTEM_LANDSCAPE",
+                "contains": ["ServiceA"],
+            },
             "boundedContexts": [{"name": "ServiceA", "type": "FEATURE"}],
         }
         parsed = {"boundedContexts": [{"name": "ServiceA", "type": "FEATURE"}]}
@@ -336,6 +365,7 @@ class TestCompareSemanticEquivalence:
 # RoundTripValidator – identify_discrepancies
 # ---------------------------------------------------------------------------
 
+
 class TestIdentifyDiscrepancies:
     """Test the identify_discrepancies method."""
 
@@ -350,7 +380,11 @@ class TestIdentifyDiscrepancies:
     def test_identify_discrepancies_same_as_compare_semantic(self):
         """identify_discrepancies produces same result as compare_semantic_equivalence."""
         original = {
-            "contextMap": {"name": "Test", "type": "SYSTEM_LANDSCAPE", "contains": ["ServiceA"]},
+            "contextMap": {
+                "name": "Test",
+                "type": "SYSTEM_LANDSCAPE",
+                "contains": ["ServiceA"],
+            },
             "boundedContexts": [{"name": "ServiceA", "type": "FEATURE"}],
         }
         parsed = {"boundedContexts": [{"name": "ServiceA", "type": "FEATURE"}]}
@@ -361,7 +395,11 @@ class TestIdentifyDiscrepancies:
     def test_no_discrepancies_for_matching_data(self):
         """No discrepancies when data matches."""
         data = {
-            "contextMap": {"name": "Test", "type": "SYSTEM_LANDSCAPE", "contains": ["ServiceA"]},
+            "contextMap": {
+                "name": "Test",
+                "type": "SYSTEM_LANDSCAPE",
+                "contains": ["ServiceA"],
+            },
             "boundedContexts": [{"name": "ServiceA", "type": "FEATURE"}],
         }
         discrepancies = self.validator.identify_discrepancies(data, data)
@@ -371,6 +409,7 @@ class TestIdentifyDiscrepancies:
 # ---------------------------------------------------------------------------
 # RoundTripValidator – validate_with_context_mapper
 # ---------------------------------------------------------------------------
+
 
 class TestValidateWithContextMapper:
     """Test the validate_with_context_mapper method."""
@@ -415,6 +454,7 @@ class TestValidateWithContextMapper:
 # Round-trip error detection and reporting
 # ---------------------------------------------------------------------------
 
+
 class TestRoundTripErrorDetection:
     """Test round-trip validation error detection and reporting."""
 
@@ -424,7 +464,11 @@ class TestRoundTripErrorDetection:
     def test_errors_have_descriptive_messages(self):
         """Round-trip errors include descriptive messages."""
         original = {
-            "contextMap": {"name": "Test", "type": "SYSTEM_LANDSCAPE", "contains": ["ServiceA"]},
+            "contextMap": {
+                "name": "Test",
+                "type": "SYSTEM_LANDSCAPE",
+                "contains": ["ServiceA"],
+            },
             "boundedContexts": [{"name": "ServiceA", "type": "FEATURE"}],
         }
         # Provide CML that is missing the context map
@@ -448,7 +492,9 @@ class TestRoundTripErrorDetection:
         json_data = load_json(VALID_DIR / "simple-context-map.json")
         cml_output = convert_to_cml(json_data)
         result = self.validator.validate_round_trip(json_data, cml_output)
-        assert result.is_valid, f"Expected valid round-trip, got errors: {result.errors}"
+        assert (
+            result.is_valid
+        ), f"Expected valid round-trip, got errors: {result.errors}"
 
     def test_discrepancy_str_representation(self):
         """Discrepancy objects have a useful string representation."""
@@ -466,6 +512,7 @@ class TestRoundTripErrorDetection:
 # ---------------------------------------------------------------------------
 # Performance characteristics
 # ---------------------------------------------------------------------------
+
 
 class TestRoundTripPerformance:
     """Test performance characteristics of round-trip validation."""
@@ -502,8 +549,7 @@ class TestRoundTripPerformance:
         cml_output = convert_to_cml(json_data)
 
         results = [
-            self.validator.validate_round_trip(json_data, cml_output)
-            for _ in range(3)
+            self.validator.validate_round_trip(json_data, cml_output) for _ in range(3)
         ]
 
         # All results should have the same validity
