@@ -44,8 +44,8 @@ jobs:
           python -m pip install --upgrade pip
           # Install package and all test dependencies in one command
           pip install -e ".[test]"
-          # Install linting tools
-          pip install black>=23.0.0 flake8>=6.0.0 mypy>=1.0.0 isort>=5.12.0
+          # Install linting tools with pinned versions for consistency
+          pip install black==26.3.1 flake8>=6.0.0 mypy>=1.0.0 isort>=5.12.0
 
       - name: Lint with flake8
         run: |
@@ -70,11 +70,6 @@ jobs:
       # --hypothesis-seed=0 prevents stale Hypothesis database replays in CI.
       - name: Test with pytest
         run: |
-          # Debug: Show what's in the tests directory
-          echo "Contents of tests directory:"
-          ls -la tests/ || echo "tests/ directory not found"
-          
-          # Run tests (will fail if tests fail, but not if coverage is low)
           pytest tests/ --ignore=tests/integration --ignore=tests/test_bug_condition_exploration.py -v --cov=src --cov-report=xml --cov-report=term-missing --cov-report=json --hypothesis-seed=0
           
       # Check coverage threshold only if tests were collected and passed
