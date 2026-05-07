@@ -53,7 +53,8 @@ class ConverterEngine:
         """Set up Jinja2 templates for CML generation."""
 
         # Context Map template
-        self.context_map_template = self.jinja_env.from_string("""
+        self.context_map_template = self.jinja_env.from_string(
+            """
 {%- if context_map.name %}ContextMap {{ context_map.name }}{% else %}ContextMap{% endif %} type = {{ context_map.type }}{% if context_map.state %} state = {{ context_map.state }}{% endif %} {
   contains {{ context_map.contains | join(', ') }}
   {%- if relationships %}
@@ -62,10 +63,12 @@ class ConverterEngine:
   {{ rel }}
   {%- endfor %}
   {%- endif %}
-}""".strip())
+}""".strip()
+        )
 
         # Subdomain template
-        self.subdomain_template = self.jinja_env.from_string("""
+        self.subdomain_template = self.jinja_env.from_string(
+            """
 Domain {{ domain_name }} {
   {%- for subdomain in subdomains %}
   Subdomain {{ subdomain.name }} {
@@ -81,10 +84,12 @@ Domain {{ domain_name }} {
     {%- endif %}
   }
   {%- endfor %}
-}""".strip())
+}""".strip()
+        )
 
         # Bounded Context template
-        self.bounded_context_template = self.jinja_env.from_string("""
+        self.bounded_context_template = self.jinja_env.from_string(
+            """
 BoundedContext {{ context.name }} type = {{ context.type }}{% if context.realizes %} realizes {{ context.realizes }}{% endif %} {
   {%- if context.domainVisionStatement %}
   domainVisionStatement = "{{ context.domainVisionStatement }}"
@@ -110,10 +115,12 @@ BoundedContext {{ context.name }} type = {{ context.type }}{% if context.realize
   {{ aggregate_content(aggregate) }}
   {%- endfor %}
   {%- endif %}
-}""".strip())
+}""".strip()
+        )
 
         # Aggregate template
-        self.aggregate_template = self.jinja_env.from_string("""
+        self.aggregate_template = self.jinja_env.from_string(
+            """
 Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.owner }}{% endif %} {
   {%- if aggregate.knowledgeLevel %}
   knowledgeLevel = {{ aggregate.knowledgeLevel }}
@@ -157,7 +164,8 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
   {{ repository_content(repo) }}
   {%- endfor %}
   {%- endif %}
-}""".strip())
+}""".strip()
+        )
 
     def _indent(self, text: str, spaces: int = 2) -> str:
         """Indent every line of *text* by *spaces* spaces."""
