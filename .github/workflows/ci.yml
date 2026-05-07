@@ -60,9 +60,9 @@ jobs:
         run: |
           isort --check-only src/ tests/
 
-      # Fix 4: run all non-integration tests (unit, property, performance, top-level)
-      # --cov-fail-under=80 overrides pyproject.toml's 85% threshold for this
-      # partial run (integration tests excluded); full local run still enforces 85%.
+      # Run non-integration tests with coverage check
+      # Note: --cov-fail-under=80 is used here because integration tests are excluded
+      # For full local test runs with all tests, use: pytest --cov-fail-under=85
       # --hypothesis-seed=0 prevents stale Hypothesis database replays in CI.
       - name: Test with pytest
         run: |

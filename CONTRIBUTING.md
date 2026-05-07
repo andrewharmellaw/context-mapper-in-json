@@ -310,13 +310,16 @@ tests/
 ### Running Tests
 
 ```bash
-# Run all tests
+# Run all tests (coverage collected but not enforced)
 pytest
 
-# Run with coverage
+# Run all tests with coverage enforcement (recommended before committing)
+pytest --cov-fail-under=85
+
+# Run with coverage report
 pytest --cov=src --cov-report=html
 
-# Run specific test file
+# Run specific test file (coverage not enforced for individual files)
 pytest tests/unit/test_converter.py
 
 # Run specific test
@@ -331,6 +334,8 @@ pytest tests/property/
 # Run integration tests (requires Context Mapper CLI)
 pytest tests/integration/ --integration
 ```
+
+**Note on Coverage:** Coverage is always collected, but the 85% threshold is only enforced when you explicitly add `--cov-fail-under=85`. This allows you to run individual test files or specific tests during development without failing due to incomplete coverage. The CI pipeline enforces coverage thresholds automatically.
 
 ### Writing Tests
 
