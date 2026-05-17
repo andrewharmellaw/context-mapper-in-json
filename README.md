@@ -2,11 +2,10 @@
 
 A comprehensive system for converting JSON definitions to Context Mapper DSL (CML) code with full validation and Context Mapper ecosystem integration.
 
-[![CI](https://github.com/ContextMapper/context-mapper-json-converter/workflows/CI/badge.svg)](https://github.com/ContextMapper/context-mapper-json-converter/actions)
-[![codecov](https://codecov.io/gh/ContextMapper/context-mapper-json-converter/branch/main/graph/badge.svg)](https://codecov.io/gh/ContextMapper/context-mapper-json-converter)
-[![PyPI version](https://badge.fury.io/py/context-mapper-json-converter.svg)](https://badge.fury.io/py/context-mapper-json-converter)
-[![Python versions](https://img.shields.io/pypi/pyversions/context-mapper-json-converter.svg)](https://pypi.org/project/context-mapper-json-converter/)
+[![CI](https://github.com/andrewharmellaw/context-mapper-in-json/workflows/CI/badge.svg)](https://github.com/andrewharmellaw/context-mapper-in-json/actions)
+[![codecov](https://codecov.io/gh/andrewharmellaw/context-mapper-in-json/branch/main/graph/badge.svg)](https://codecov.io/gh/andrewharmellaw/context-mapper-in-json)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 
 ## 🎯 Overview
 
@@ -54,13 +53,13 @@ The Context Mapper JSON Converter enables teams to define Domain-Driven Design (
 ### Installation
 
 ```bash
-# Install from PyPI (when published)
-pip install context-mapper-json-converter
-
-# Or install from source
-git clone https://github.com/ContextMapper/context-mapper-json-converter.git
-cd context-mapper-json-converter
+# Install from source (recommended)
+git clone https://github.com/andrewharmellaw/context-mapper-in-json.git
+cd context-mapper-in-json
 pip install -e .
+
+# Or install from PyPI (when published)
+# pip install context-mapper-json-converter
 ```
 
 ### Basic Usage

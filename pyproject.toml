@@ -115,6 +115,6 @@ strict_equality = true
 ignore_missing_imports = true
 
 [project.urls]
-"Bug Reports" = "https://github.com/ContextMapper/context-mapper-json-converter/issues"
-"Source" = "https://github.com/ContextMapper/context-mapper-json-converter"
-"Documentation" = "https://github.com/ContextMapper/context-mapper-json-converter/blob/main/docs/README.md"
+"Bug Reports" = "https://github.com/andrewharmellaw/context-mapper-in-json/issues"
+"Source" = "https://github.com/andrewharmellaw/context-mapper-in-json"
+"Documentation" = "https://github.com/andrewharmellaw/context-mapper-in-json/blob/main/docs/README.md"
