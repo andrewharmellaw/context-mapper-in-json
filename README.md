@@ -1,6 +1,6 @@
 # Context Mapper JSON Converter
 
-A comprehensive system for converting JSON definitions to Context Mapper DSL (CML) code with full validation and Context Mapper ecosystem integration.
+A comprehensive system for generating Context Mapper DSL (CML) code from schema-backed JSON with full validation and Context Mapper integration.
 
 [![CI](https://github.com/andrewharmellaw/context-mapper-in-json/workflows/CI/badge.svg)](https://github.com/andrewharmellaw/context-mapper-in-json/actions)
 [![codecov](https://codecov.io/gh/andrewharmellaw/context-mapper-in-json/branch/main/graph/badge.svg)](https://codecov.io/gh/andrewharmellaw/context-mapper-in-json)
@@ -9,13 +9,10 @@ A comprehensive system for converting JSON definitions to Context Mapper DSL (CM
 
 ## 🎯 Overview
 
-The Context Mapper JSON Converter enables teams to define Domain-Driven Design (DDD) models using JSON format and convert them to valid Context Mapper DSL (CML) code. This approach provides:
+The Context Mapper JSON Converter enables teams to define Domain-Driven Design (DDD) Context Maps in a JSON format and then convert these into valid Context Mapper DSL (CML) code.
 
-- **Structured modeling** with JSON schema validation
-- **Tool integration** with existing JSON-based workflows  
-- **Comprehensive validation** at every step
-- **Round-trip integrity** ensuring no information loss
-- **Context Mapper ecosystem integration** for artifact generation
+## Use of AI
+AI tooling was used extensively to create this project, from inception to testing and documentation. 
 
 ## ✨ Features
 
@@ -24,7 +21,6 @@ The Context Mapper JSON Converter enables teams to define Domain-Driven Design (
 - ✅ **Multi-Layer Validation** - JSON schema, semantic rules, CML syntax
 - ✅ **Round-Trip Validation** - Ensures information preservation
 - ✅ **Context Mapper Integration** - CLI tools and artifact generation
-- ✅ **Production-Ready CLI** - Comprehensive command-line interface
 - ✅ **Error Handling** - Detailed error reporting with suggestions
 
 ### Supported DDD Patterns
@@ -45,7 +41,7 @@ The Context Mapper JSON Converter enables teams to define Domain-Driven Design (
 ## 📚 Documentation
 
 ### Tutorials
-- **[Insurance Example Tutorial](docs/insurance-example-tutorial.md)** - Complete staged example showing progressive Context Map development from basic structure to fully detailed domain models
+- **[Insurance Example Tutorial](docs/insurance-example-tutorial.md)** - Complete staged example showing progressive Context Map development, based on the one on the Context Mapper repository. Shows how a Context map can be evolved from basic structure to fully detailed domain models; now in JSON.
 - **[JSON Schema Reference](docs/json-schema-reference.md)** - Quick reference guide for all JSON schema elements and patterns
 
 ### Quick Start
