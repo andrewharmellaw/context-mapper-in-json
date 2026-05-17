@@ -11,6 +11,11 @@ from jsonschema import ValidationError as JsonSchemaValidationError
 from jsonschema import validate
 
 from .enums import ValidationErrorType
+from .schemas.context_mapper import (
+    CONTEXT_MAPPER_SCHEMA,
+    CONTEXT_MAPPER_SEMANTIC_RULES,
+)
+# Backward compatibility imports
 from .schemas.bounded_context import (
     BOUNDED_CONTEXT_SCHEMA,
     BOUNDED_CONTEXT_SEMANTIC_RULES,
@@ -84,6 +89,10 @@ class ValidationEngine:
 
     def __init__(self) -> None:
         """Initialize the validation engine with schemas."""
+        # Use unified schema for validation
+        self.unified_validator = Draft7Validator(CONTEXT_MAPPER_SCHEMA)
+        
+        # Keep individual validators for backward compatibility
         self.context_map_validator = Draft7Validator(CONTEXT_MAP_SCHEMA)
         self.bounded_context_validator = Draft7Validator(BOUNDED_CONTEXT_SCHEMA)
         self.subdomain_validator = Draft7Validator(SUBDOMAIN_SCHEMA)
@@ -93,6 +102,8 @@ class ValidationEngine:
     ) -> ValidationResult:
         """
         Validate JSON data against the appropriate schema.
+        
+        Uses the unified schema for complete document validation with strong typing.
 
         Args:
             json_data: The JSON data to validate
@@ -103,22 +114,19 @@ class ValidationEngine:
         result = ValidationResult(is_valid=True, errors=[], warnings=[])
 
         try:
-            # Determine what type of data we're validating
-            if "contextMap" in json_data:
-                self._validate_context_map_schema(json_data["contextMap"], result)
-
-            if "boundedContexts" in json_data:
-                self._validate_bounded_contexts_schema(
-                    json_data["boundedContexts"], result
-                )
-
-            if "subdomains" in json_data:
-                self._validate_subdomains_schema(json_data["subdomains"], result)
-
-            # If we have both, validate the complete structure
-            if "contextMap" in json_data and "boundedContexts" in json_data:
-                self._validate_complete_structure_schema(json_data, result)
-
+            # Use unified schema for complete validation
+            self.unified_validator.validate(json_data)
+            logger.debug("Unified schema validation passed")
+            
+        except JsonSchemaValidationError as e:
+            error = ValidationError(
+                message=e.message,
+                property_path=".".join(str(p) for p in e.absolute_path),
+                error_type=ValidationErrorType.SCHEMA_ERROR,
+                suggestion=self._get_schema_error_suggestion(e),
+            )
+            result.add_error(error)
+            logger.warning(f"Unified schema validation failed: {error}")
         except Exception as e:  # Safety net: re-raise as structured error
             logger.error(
                 f"Unexpected error during schema validation: {e}", exc_info=True

@@ -1,0 +1,645 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Context Mapper Document Schema",
+  "description": "Unified JSON schema for complete Context Mapper DSL documents including Context Maps, Bounded Contexts, and Domains",
+  "type": "object",
+  "properties": {
+    "contextMap": {
+      "$ref": "#/$defs/contextMap",
+      "description": "The Context Map defining the system landscape and relationships between Bounded Contexts"
+    },
+    "boundedContexts": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/boundedContext"
+      },
+      "description": "List of Bounded Contexts in the system"
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/domain"
+      },
+      "description": "List of Domains containing Subdomains"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "contextMap": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Name of the Context Map. Must start with a letter and contain only letters, numbers, and underscores."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "SYSTEM_LANDSCAPE",
+            "ORGANIZATIONAL"
+          ],
+          "description": "Type of the Context Map. SYSTEM_LANDSCAPE focuses on technical systems, ORGANIZATIONAL focuses on team structures."
+        },
+        "state": {
+          "type": "string",
+          "enum": [
+            "AS_IS",
+            "TO_BE"
+          ],
+          "description": "State of the Context Map. AS_IS represents current state, TO_BE represents future desired state."
+        },
+        "contains": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+            "minLength": 1,
+            "maxLength": 100
+          },
+          "uniqueItems": true,
+          "minItems": 1,
+          "description": "List of Bounded Context names contained in this Context Map. Each name must be unique and reference a defined Bounded Context."
+        },
+        "relationships": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/relationship"
+          },
+          "description": "List of relationships between Bounded Contexts in this Context Map."
+        }
+      },
+      "required": [
+        "type",
+        "contains"
+      ],
+      "additionalProperties": false
+    },
+    "relationship": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "Partnership",
+            "SharedKernel",
+            "CustomerSupplier",
+            "UpstreamDownstream"
+          ],
+          "description": "Type of relationship between Bounded Contexts"
+        },
+        "upstream": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the upstream Bounded Context in the relationship"
+        },
+        "downstream": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the downstream Bounded Context in the relationship"
+        },
+        "implementationTechnology": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Technology used to implement the relationship (e.g., REST API, Message Queue)"
+        },
+        "upstreamRoles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "OHS",
+              "PL",
+              "SK"
+            ]
+          },
+          "uniqueItems": true,
+          "description": "Roles of the upstream context: OHS (Open Host Service), PL (Published Language), SK (Shared Kernel)"
+        },
+        "downstreamRoles": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "ACL",
+              "CF",
+              "SK"
+            ]
+          },
+          "uniqueItems": true,
+          "description": "Roles of the downstream context: ACL (Anti-Corruption Layer), CF (Conformist), SK (Shared Kernel)"
+        },
+        "exposedAggregates": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+          },
+          "uniqueItems": true,
+          "description": "List of Aggregate names exposed through this relationship"
+        }
+      },
+      "required": [
+        "type",
+        "upstream",
+        "downstream"
+      ],
+      "additionalProperties": false
+    },
+    "boundedContext": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Name of the Bounded Context. Must start with a letter and contain only letters, numbers, and underscores."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "FEATURE",
+            "APPLICATION",
+            "SYSTEM",
+            "TEAM"
+          ],
+          "description": "Type of the Bounded Context. FEATURE=business capability, APPLICATION=software system, SYSTEM=technical system, TEAM=organizational unit."
+        },
+        "implements": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+          },
+          "uniqueItems": true,
+          "description": "List of Subdomain names that this Bounded Context implements"
+        },
+        "realizes": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of another Bounded Context that this TEAM type context realizes (only valid for TEAM type)"
+        },
+        "domainVisionStatement": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "A brief statement describing the domain vision and purpose of this Bounded Context"
+        },
+        "implementationTechnology": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Technology stack used to implement this Bounded Context (e.g., Java Spring Boot, Python Django)"
+        },
+        "responsibilities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "description": "List of key responsibilities of this Bounded Context"
+        },
+        "knowledgeLevel": {
+          "type": "string",
+          "enum": [
+            "CONCRETE",
+            "META"
+          ],
+          "description": "Knowledge level of the Bounded Context. CONCRETE=specific domain knowledge, META=abstract/framework knowledge."
+        },
+        "businessModel": {
+          "type": "string",
+          "enum": [
+            "REVENUE",
+            "ENGAGEMENT",
+            "COMPLIANCE",
+            "COST_REDUCTION"
+          ],
+          "description": "Primary business model driver for this Bounded Context"
+        },
+        "evolution": {
+          "type": "string",
+          "enum": [
+            "GENESIS",
+            "CUSTOM_BUILT",
+            "PRODUCT",
+            "COMMODITY"
+          ],
+          "description": "Evolution stage of the Bounded Context according to Wardley Maps"
+        },
+        "aggregates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/aggregate"
+          },
+          "description": "List of Aggregates within this Bounded Context"
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false,
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "const": "TEAM"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "realizes": {
+                "type": "string"
+              }
+            }
+          },
+          "else": {
+            "not": {
+              "required": [
+                "realizes"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "aggregate": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the Aggregate"
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/entity"
+          },
+          "description": "Entities within this Aggregate"
+        },
+        "valueObjects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/valueObject"
+          },
+          "description": "Value Objects within this Aggregate"
+        },
+        "domainEvents": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/domainEvent"
+          },
+          "description": "Domain Events published by this Aggregate"
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/command"
+          },
+          "description": "Commands handled by this Aggregate"
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/service"
+          },
+          "description": "Domain Services within this Aggregate"
+        },
+        "repositories": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/repository"
+          },
+          "description": "Repositories for this Aggregate"
+        },
+        "owner": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Team or Bounded Context that owns this Aggregate"
+        },
+        "knowledgeLevel": {
+          "type": "string",
+          "enum": [
+            "CONCRETE",
+            "META"
+          ],
+          "description": "Knowledge level of the Aggregate"
+        },
+        "likelihoodForChange": {
+          "type": "string",
+          "enum": [
+            "OFTEN",
+            "NORMAL",
+            "RARELY"
+          ],
+          "description": "Expected frequency of changes to this Aggregate"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "entity": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the Entity"
+        },
+        "aggregateRoot": {
+          "type": "boolean",
+          "description": "Whether this Entity is the Aggregate Root"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attribute"
+          },
+          "description": "Attributes of the Entity"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/operation"
+          },
+          "description": "Operations/methods of the Entity"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "valueObject": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the Value Object"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attribute"
+          },
+          "description": "Attributes of the Value Object"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/operation"
+          },
+          "description": "Operations/methods of the Value Object"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "domainEvent": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the Domain Event"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attribute"
+          },
+          "description": "Attributes of the Domain Event"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "command": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the Command"
+        },
+        "attributes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/attribute"
+          },
+          "description": "Attributes/parameters of the Command"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "service": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the Domain Service"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/operation"
+          },
+          "description": "Operations provided by the Service"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "repository": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the Repository"
+        },
+        "operations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/operation"
+          },
+          "description": "Operations provided by the Repository"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "attribute": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the attribute"
+        },
+        "type": {
+          "type": "string",
+          "description": "Data type of the attribute"
+        },
+        "key": {
+          "type": "boolean",
+          "description": "Whether this attribute is a key/identifier"
+        },
+        "nullable": {
+          "type": "boolean",
+          "description": "Whether this attribute can be null"
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "operation": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the operation"
+        },
+        "parameters": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/parameter"
+          },
+          "description": "Parameters of the operation"
+        },
+        "returnType": {
+          "type": "string",
+          "description": "Return type of the operation"
+        },
+        "visibility": {
+          "type": "string",
+          "enum": [
+            "PUBLIC",
+            "PRIVATE",
+            "PROTECTED"
+          ],
+          "description": "Visibility of the operation"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "parameter": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "description": "Name of the parameter"
+        },
+        "type": {
+          "type": "string",
+          "description": "Data type of the parameter"
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "domain": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Name of the Domain"
+        },
+        "subdomains": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/subdomain"
+          },
+          "description": "List of Subdomains within this Domain"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "subdomain": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_]*$",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Name of the Subdomain. Must start with a letter and contain only letters, numbers, and underscores."
+        },
+        "type": {
+          "type": "string",
+          "enum": [
+            "CORE_DOMAIN",
+            "SUPPORTING_DOMAIN",
+            "GENERIC_SUBDOMAIN"
+          ],
+          "description": "Type of subdomain according to DDD strategic design"
+        },
+        "domainVisionStatement": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "A brief statement describing the subdomain's purpose and scope"
+        },
+        "entities": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+          },
+          "uniqueItems": true,
+          "description": "List of main entities in this subdomain"
+        },
+        "services": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[A-Za-z][A-Za-z0-9_]*$"
+          },
+          "uniqueItems": true,
+          "description": "List of domain services in this subdomain"
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

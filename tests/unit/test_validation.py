@@ -133,8 +133,14 @@ class TestValidateJsonSchemaValid:
         assert result.is_valid
 
     def test_valid_with_subdomains(self, validator):
+        """Test validation with domains containing subdomains (unified schema structure)."""
         data = {
-            "subdomains": [{"name": "CoreSub", "type": "CORE_DOMAIN"}],
+            "domains": [
+                {
+                    "name": "CoreDomain",
+                    "subdomains": [{"name": "CoreSub", "type": "CORE_DOMAIN"}]
+                }
+            ],
         }
         result = validator.validate_json_schema(data)
         assert result.is_valid

@@ -205,8 +205,17 @@ Aggregate {{ aggregate.name }}{% if aggregate.owner %} owned by {{ aggregate.own
                 )
                 cml_parts.append(context_map_cml)
 
-            # Convert Subdomains (if present)
-            if "subdomains" in json_data:
+            # Convert Domains/Subdomains (if present)
+            # New unified schema structure: domains array with name and subdomains
+            if "domains" in json_data:
+                for domain in json_data["domains"]:
+                    domain_name = domain.get("name", "DefaultDomain")
+                    subdomains = domain.get("subdomains", [])
+                    if subdomains:
+                        subdomain_cml = self.convert_subdomains(subdomains, domain_name)
+                        cml_parts.append(subdomain_cml)
+            # Backward compatibility: old structure with subdomains at root
+            elif "subdomains" in json_data:
                 domain_name = json_data.get("domainName", "DefaultDomain")
                 subdomain_cml = self.convert_subdomains(
                     json_data["subdomains"], domain_name
