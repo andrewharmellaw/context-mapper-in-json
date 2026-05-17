@@ -163,6 +163,7 @@ cython_debug/
 
 # Context Mapper JSON Converter specific
 *.cml
+!tests/fixtures/**/*.cml
 *.log
 output/
 generated/

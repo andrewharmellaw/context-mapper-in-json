@@ -1,0 +1,12 @@
+ContextMap SharedKernelSystem type = SYSTEM_LANDSCAPE {
+  contains ServiceA, ServiceB
+  ServiceA [SK] <-> [SK] ServiceB : Shared Library
+}
+
+BoundedContext ServiceA type = FEATURE {
+  domainVisionStatement = "First service sharing kernel"
+}
+
+BoundedContext ServiceB type = FEATURE {
+  domainVisionStatement = "Second service sharing kernel"
+}

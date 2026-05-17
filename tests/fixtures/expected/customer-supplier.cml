@@ -1,0 +1,14 @@
+ContextMap CustomerSupplierSystem type = SYSTEM_LANDSCAPE {
+  contains SupplierService, CustomerService
+  SupplierService [OHS,PL]->[ACL] CustomerService : REST API { Product, Inventory }
+}
+
+BoundedContext SupplierService type = SYSTEM {
+  domainVisionStatement = "Provides product data"
+  implementationTechnology = "Java Spring Boot"
+}
+
+BoundedContext CustomerService type = FEATURE {
+  domainVisionStatement = "Consumes product data"
+  implementationTechnology = "Python Django"
+}

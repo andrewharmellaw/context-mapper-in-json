@@ -1,0 +1,12 @@
+ContextMap UpstreamDownstreamSystem type = SYSTEM_LANDSCAPE {
+  contains UpstreamService, DownstreamService
+  UpstreamService [OHS]->[CF] DownstreamService : Message Queue
+}
+
+BoundedContext UpstreamService type = SYSTEM {
+  domainVisionStatement = "Upstream data provider"
+}
+
+BoundedContext DownstreamService type = FEATURE {
+  domainVisionStatement = "Downstream data consumer"
+}

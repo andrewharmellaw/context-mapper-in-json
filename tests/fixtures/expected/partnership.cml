@@ -1,0 +1,12 @@
+ContextMap PartnershipSystem type = SYSTEM_LANDSCAPE {
+  contains ServiceA, ServiceB
+  ServiceA Partnership ServiceB
+}
+
+BoundedContext ServiceA type = FEATURE {
+  domainVisionStatement = "First partner service"
+}
+
+BoundedContext ServiceB type = FEATURE {
+  domainVisionStatement = "Second partner service"
+}

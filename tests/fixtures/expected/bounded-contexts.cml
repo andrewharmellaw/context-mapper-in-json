@@ -1,0 +1,31 @@
+ContextMap MultiContextSystem type = ORGANIZATIONAL state = TO_BE {
+  contains FeatureContext, ApplicationContext, SystemContext, TeamContext
+}
+
+BoundedContext FeatureContext type = FEATURE {
+  domainVisionStatement = "Feature-level bounded context"
+  implementationTechnology = "Microservice"
+  knowledgeLevel = CONCRETE
+  businessModel = REVENUE
+  evolution = CUSTOM_BUILT
+  responsibilities = "Feature A, Feature B"
+}
+
+BoundedContext ApplicationContext type = APPLICATION {
+  domainVisionStatement = "Application-level bounded context"
+  implementationTechnology = "Monolith"
+  knowledgeLevel = META
+  businessModel = ENGAGEMENT
+  responsibilities = "App Management"
+}
+
+BoundedContext SystemContext type = SYSTEM {
+  domainVisionStatement = "System-level bounded context"
+  implementationTechnology = "Legacy System"
+  businessModel = COMPLIANCE
+  evolution = PRODUCT
+}
+
+BoundedContext TeamContext type = TEAM realizes FeatureContext {
+  domainVisionStatement = "Team implementing feature context"
+}

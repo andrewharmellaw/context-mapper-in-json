@@ -1,0 +1,9 @@
+ContextMap SimpleSystem type = SYSTEM_LANDSCAPE {
+  contains ServiceA, ServiceB
+}
+
+BoundedContext ServiceA type = FEATURE {
+}
+
+BoundedContext ServiceB type = SYSTEM {
+}

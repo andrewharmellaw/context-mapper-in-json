@@ -1,0 +1,24 @@
+ContextMap OrderSystem type = SYSTEM_LANDSCAPE {
+  contains OrderManagement
+}
+
+BoundedContext OrderManagement type = FEATURE {
+  domainVisionStatement = "Manages customer orders"
+
+  Aggregate Order {
+    knowledgeLevel = CONCRETE
+    likelihoodForChange = NORMAL
+  
+    Entity Order aggregateRoot {
+      OrderId orderId key
+      CustomerId customerId
+      OrderStatus status
+      void placeOrder(CustomerId customerId)
+    }
+  
+    Entity OrderItem {
+      ProductId productId
+      Integer quantity
+    }
+  }
+}

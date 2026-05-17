@@ -1,0 +1,20 @@
+ContextMap PaymentSystem type = SYSTEM_LANDSCAPE {
+  contains PaymentService
+}
+
+BoundedContext PaymentService type = FEATURE {
+
+  Aggregate Payment {
+  
+    ValueObject Money {
+      Decimal amount
+      String currency
+      Money add(Money other)
+    }
+  
+    ValueObject PaymentMethod {
+      String type
+      String identifier
+    }
+  }
+}

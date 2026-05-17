@@ -1,0 +1,25 @@
+ContextMap EventDrivenSystem type = SYSTEM_LANDSCAPE {
+  contains OrderManagement
+}
+
+BoundedContext OrderManagement type = FEATURE {
+
+  Aggregate Order {
+  
+    DomainEvent OrderPlaced {
+      OrderId orderId
+      DateTime timestamp
+      CustomerId customerId
+    }
+  
+    DomainEvent OrderShipped {
+      OrderId orderId
+      String trackingNumber
+    }
+  
+    DomainEvent OrderCancelled {
+      OrderId orderId
+      String reason
+    }
+  }
+}

@@ -1,0 +1,18 @@
+ContextMap EnterpriseSystem type = SYSTEM_LANDSCAPE state = AS_IS {
+  contains Frontend, Backend, Database
+}
+
+BoundedContext Frontend type = APPLICATION {
+  domainVisionStatement = "User interface layer"
+  implementationTechnology = "React"
+}
+
+BoundedContext Backend type = SYSTEM {
+  domainVisionStatement = "Business logic layer"
+  implementationTechnology = "Java Spring Boot"
+}
+
+BoundedContext Database type = SYSTEM {
+  domainVisionStatement = "Data persistence layer"
+  implementationTechnology = "PostgreSQL"
+}

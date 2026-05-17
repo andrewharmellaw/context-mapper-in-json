@@ -1,0 +1,36 @@
+ContextMap ECommerceContextMap type = SYSTEM_LANDSCAPE {
+  contains OrderManagement, ProductCatalog, UserManagement
+}
+
+Domain ECommerceDomain {
+  Subdomain OrderProcessing {
+    type = CORE_DOMAIN
+    domainVisionStatement = "Core business capability for processing customer orders"
+    entities = Order, OrderItem, Customer
+    services = OrderService, PricingService
+  }
+  Subdomain ProductManagement {
+    type = SUPPORTING_DOMAIN
+    domainVisionStatement = "Supporting capability for managing product catalog"
+    entities = Product, Category, Brand
+    services = ProductService, CategoryService
+  }
+  Subdomain Authentication {
+    type = GENERIC_SUBDOMAIN
+    domainVisionStatement = "Generic user authentication and authorization"
+    entities = User, Role, Permission
+    services = AuthService, UserService
+  }
+}
+
+BoundedContext OrderManagement type = FEATURE {
+  domainVisionStatement = "Implements order processing capabilities"
+}
+
+BoundedContext ProductCatalog type = APPLICATION {
+  domainVisionStatement = "Implements product catalog management"
+}
+
+BoundedContext UserManagement type = SYSTEM {
+  domainVisionStatement = "Implements user authentication system"
+}
