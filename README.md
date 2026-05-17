@@ -120,7 +120,6 @@ cml-convert validate my-system.json
 ```cml
 ContextMap ECommerceSystem type = SYSTEM_LANDSCAPE {
   contains OrderManagement, PaymentService
-  
   PaymentService [OHS,PL]->[ACL] OrderManagement : REST API
 }
 
