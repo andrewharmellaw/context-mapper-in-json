@@ -52,6 +52,12 @@ AI tooling was used extensively to create this project, from inception to testin
 # Install from source (recommended)
 git clone https://github.com/andrewharmellaw/context-mapper-in-json.git
 cd context-mapper-in-json
+
+# If you are using venv you'll also need the folliowing three steps
+# python -m venv venv
+# source venv/bin/activate
+# pip install -r requirements.txt
+
 pip install -e .
 
 # Or install from PyPI (when published)
